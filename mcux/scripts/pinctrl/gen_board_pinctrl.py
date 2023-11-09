@@ -11,8 +11,6 @@ tools (MEX) files
 """
 # Standard python libraries
 import argparse
-import tempfile
-import zipfile
 import pathlib
 import sys
 import re
@@ -27,8 +25,8 @@ sys.path.append(SHARED_DIR)
 from imx import imx_cfg_utils
 from kinetis import kinetis_cfg_utils
 from lpc import lpc_cfg_utils
-# Shared MEX utilities
-from lib import mex_utils
+# Shared utilities
+from lib import mex_utils, datapack_utils
 
 
 HELPSTR = """
@@ -89,25 +87,6 @@ def processor_to_controller(processor_name):
     # Unknown processor family
     return "UNKNOWN"
 
-def get_pack_version(pack_dir):
-    """
-    Gets datapack version
-    @param pack_dir: root directory data pack is in
-    """
-    # Check version of the config tools archive
-    npi_data = pathlib.Path(pack_dir) / 'npidata.mf'
-    data_version = 0.0
-    with open(npi_data, 'r', encoding='UTF8') as stream:
-        line = stream.readline()
-        while line != '':
-            match = re.search(r'data_version=([\d\.]+)', line)
-            if match:
-                data_version = float(match.group(1))
-                break
-            line = stream.readline()
-    return data_version
-
-
 def main():
     """
     Main entry point. Will process arguments, and generate board pin control
@@ -126,14 +105,13 @@ def main():
     package_name = utils.get_package_name()
 
     # Extract the Data pack to a temporary directory
-    temp_dir = tempfile.TemporaryDirectory()
-    zipfile.ZipFile(args.data_pack).extractall(temp_dir.name)
+    temp_dir = datapack_utils.extract_pack(args.data_pack)
     proc_root = (pathlib.Path(temp_dir.name) / 'processors'/
                     processor_name / 'ksdk2_0' / package_name)
     if not proc_root.exists():
         print(f"Error: Data pack does not contain processor data for {processor_name}")
         sys.exit(255)
-    data_version = get_pack_version(temp_dir.name)
+    data_version = datapack_utils.get_pack_version(temp_dir.name)
 
     print(f"Found data pack version {data_version}, pins version {pins_version} "
         f"for processor {processor_name}")

@@ -11,17 +11,22 @@ tools (MEX) files
 """
 # Standard python libraries
 import argparse
-import tempfile
-import zipfile
 import pathlib
 import sys
 import datetime
 import re
+import os
+
+# Add shared utils to path
+SHARED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
+sys.path.append(SHARED_DIR)
 
 # SOC configuration data support libraries
 from imx import imx_cfg_utils
 from kinetis import kinetis_cfg_utils
 from lpc import lpc_cfg_utils
+# Shared utilities
+from lib import datapack_utils
 
 
 HELPSTR = """
@@ -31,7 +36,6 @@ Given a processor data pack, generates the SOC level pinctrl DTSI defintions
 required for Zephyr. This tool is intended to be used with the configuration
 data downloaded from NXP's MCUXpresso SDK builder.
 """
-
 
 def parse_args():
     """
@@ -52,7 +56,6 @@ def parse_args():
                         "Currently supports: [IOMUX, IOCON, PORT]"))
 
     return parser.parse_args()
-
 
 def processor_to_controller(processor_name):
     """
@@ -81,24 +84,6 @@ def processor_to_controller(processor_name):
     # Unknown processor family
     return "UNKNOWN"
 
-def get_pack_version(pack_dir):
-    """
-    Gets datapack version
-    @param pack_dir: root directory data pack is in
-    """
-    # Check version of the config tools archive
-    npi_data = pathlib.Path(pack_dir) / 'npidata.mf'
-    data_version = 0.0
-    with open(npi_data, 'r', encoding='UTF8') as stream:
-        line = stream.readline()
-        while line != '':
-            match = re.search(r'data_version=([\d\.]+)', line)
-            if match:
-                data_version = float(match.group(1))
-                break
-            line = stream.readline()
-    return data_version
-
 def main():
     """
     Main entry point. Will process data pack, and generate board pin control
@@ -111,11 +96,8 @@ def main():
         print('SOC output path must be a directory')
         sys.exit(255)
 
-    # Extract the Data pack to a temporary directory
-    temp_dir = tempfile.TemporaryDirectory()
-    zipfile.ZipFile(args.data_pack).extractall(temp_dir.name)
-
-    data_version = get_pack_version(temp_dir.name)
+    temp_dir = datapack_utils.extract_pack(args.data_pack)
+    data_version = datapack_utils.get_pack_version(temp_dir.name)
     print(f"Found data pack version {data_version}")
     if round(data_version) != 14:
         print("Warning: This tool is only verified for data pack version 14, "
