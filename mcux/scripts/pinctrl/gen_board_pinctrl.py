@@ -17,13 +17,18 @@ import pathlib
 import sys
 import re
 import datetime
+import os
+
+# Add shared utils to path
+SHARED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
+sys.path.append(SHARED_DIR)
 
 # SOC configuration data support libraries
 from imx import imx_cfg_utils
 from kinetis import kinetis_cfg_utils
 from lpc import lpc_cfg_utils
 # Shared MEX utilities
-from shared import mex_utils
+from lib import mex_utils
 
 
 HELPSTR = """
