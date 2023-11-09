@@ -35,3 +35,22 @@ def get_pack_version(pack_dir):
                 break
             line = stream.readline()
     return data_version
+
+
+def get_processor_name(pack_dir):
+    """
+    Gets processor name for datapack
+    @param pack_dir: root directory data pack is in
+    """
+    # Check version of the config tools archive
+    npi_data = pathlib.Path(pack_dir) / 'npidata.mf'
+    proc = "UNKNOWN_PROCESSOR"
+    with open(npi_data, 'r', encoding='UTF8') as stream:
+        line = stream.readline()
+        while line != '':
+            match = re.search(r'processors=(\w+)', line)
+            if match:
+                proc = str(match.group(1))
+                break
+            line = stream.readline()
+    return proc
