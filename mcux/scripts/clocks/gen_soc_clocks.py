@@ -6,12 +6,13 @@ import argparse
 import os
 import sys
 import datetime
+import pathlib
 
 # Add shared utils to path
 SHARED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
 sys.path.append(SHARED_DIR)
 
-from lib import datapack_utils
+from lib import datapack_utils, registers
 
 
 HELPSTR="""
@@ -50,6 +51,34 @@ clock_components = {}
 root_clocks = [signal_map["NO_CLOCK"]]
 # Clock muxes, treated as roots in DTS: <clock_select> tag in XML
 clock_muxes = []
+
+def parse_regexpr(peripheral_map, expr):
+    """
+    Parses a register expression to determine the value. This is used
+    by the clock generation code to determine the reset values for
+    dividers, multipliers, and muxes on the SOC
+    """
+    # Register expressions can have basic math, so we need to implement
+    # a very basic calculator here
+    if len(expr.split("+")) > 1:
+        # Recursive case. Currently register math only does addition
+        subexpr = expr.split("+")
+        val = 0
+        for x in subexpr:
+            val += parse_regexpr(peripheral_map, x.strip())
+        return val
+    else:
+        # Base case, we have a register definition or constant.
+        if "::" in expr:
+            # register definition, get reset value
+            # format of registers is like so: SYSCON::FLEXFRG0CTRL[MULT]
+            (periph, reg) = expr.split("::")
+            (reg_name, bitfield) = reg.split("[")
+            bitfield = bitfield[:-1]
+            return peripheral_map[periph].get_register(reg_name).get_reset_value(bitfield)
+        else:
+            # Constant, just return it
+            return int(expr, 0)
 
 def resolve_input_id(active_component, input_id):
     """
@@ -100,8 +129,6 @@ def resolve_input_id(active_component, input_id):
 
     return (input_component, input_xml)
 
-
-# def define_signal(signal)
 def define_signal(active_component, signal_xml):
     """
     @param active_component: current clock component being processed
@@ -212,9 +239,10 @@ def define_signal(active_component, signal_xml):
                 "children": []}
         return signal
 
-def output_signal(signal, level):
+def output_signal(peripheral_map, signal, level):
     """
     Outputs signal definitions into devicetree format
+    @param peripheral_map: peripheral map used to resolve reset values
     @param signal: signal to parse and output devicetree for
     @param level: indentation level of output devicetree
     Returns string describing devicetree for this node
@@ -226,7 +254,7 @@ def output_signal(signal, level):
         dts = ""
         # Generate children
         for child in signal['children']:
-            dts += output_signal(child, level)
+            dts += output_signal(peripheral_map, child, level)
         return dts
     dts = f"\n{indent_str}{signal['id'].lower()}: {signal['id'].lower().replace('_','-')} {{\n"
     if signal["type"] == "clock_source":
@@ -280,6 +308,7 @@ def output_signal(signal, level):
         dts += f"{indent_str}\tcompatible = \"nxp,clock-mux\";\n"
         # Add input sources
         input_str = f"{indent_str}\tinput-sources = <"
+        source_names = []
         for i in range(len(signal["parents"])):
             source = signal["parents"][i]
             if source["type"] == "output_clock_signal":
@@ -288,6 +317,7 @@ def output_signal(signal, level):
             else:
                 source_id = source["id"].lower()
             input_str += f"&{source_id} "
+            source_names.append(source_id)
             if (len(input_str) > 70) and (i < (len(signal["parents"]) - 1)):
                 # More signals to define, move to a newline
                 input_str = input_str[:-1] + "\n"
@@ -295,12 +325,23 @@ def output_signal(signal, level):
                 input_str = f"{indent_str}\t\t\t"
         # Strip tailing space, add >;
         dts += input_str[:-1] + ">;\n"
-        # Define children nodes
+        # Add the reset mux selection
+        reset_val = parse_regexpr(peripheral_map,
+                        signal["source"].find("value_map").get('expr'))
+        dts += f"{indent_str}\tsel = <&{source_names[reset_val]}>;\n"
     elif signal["type"] == "prescaler":
         if signal["source"].find("multiply") is not None:
             dts += f"{indent_str}\tcompatible = \"nxp,clock-multiplier\";\n"
+            # Read the reset multiplier value
+            reset_val = parse_regexpr(peripheral_map,
+                            signal["source"].find("multiply").get('expr'))
+            dts += f"{indent_str}\tmult = <{reset_val}>;\n"
         elif signal["source"].find("divide") is not None:
             dts += f"{indent_str}\tcompatible = \"nxp,clock-div\";\n"
+            # Read the reset divider value
+            reset_val = parse_regexpr(peripheral_map,
+                            signal["source"].find("divide").get('expr'))
+            dts += f"{indent_str}\tdiv = <{reset_val}>;\n"
         else:
             logging.warning("Prescaler %s has unknown type, assume div", signal["id"])
             dts += f"{indent_str}\tcompatible = \"nxp,clock-div\";\n"
@@ -316,7 +357,7 @@ def output_signal(signal, level):
     dts += f"{indent_str}\tstatus=\"disabled\";\n"
     # Generate children
     for child in signal['children']:
-        dts += output_signal(child, level+1)
+        dts += output_signal(peripheral_map, child, level+1)
     dts += f"{indent_str}}};\n"
     return dts
 
@@ -373,9 +414,15 @@ def main():
                 "manually specify the controller type if you'd like to proceed")
         sys.exit(255)
 
+    # Find the clock TOP.xml file, and register definition file
     clock_dir = f"{temp_dir.name}/processors/{proc_name}/ksdk2_0/clocks"
     top = ET.parse(f"{clock_dir}/TOP.xml")
     top_root = top.getroot()
+
+    proc_root = pathlib.Path(temp_dir.name) / 'processors'
+    search_pattern = "*/ksdk2_0/*/registers"
+    register_dir = next(proc_root.glob(search_pattern))
+    peripheral_map = registers.load_peripheral_map(register_dir)
 
     # Set log level
     logging.getLogger().setLevel(logging.WARNING)
@@ -406,10 +453,10 @@ def main():
     dts += f"&{args.controller} {{\n"
     dts += "\n\t/* Root clock sources */"
     for root in root_clocks:
-        dts += output_signal(root, 1)
+        dts += output_signal(peripheral_map, root, 1)
     dts += "\n\t/* Clock muxes */"
     for mux in clock_muxes:
-        dts += output_signal(mux, 1)
+        dts += output_signal(peripheral_map, mux, 1)
     dts += "};"
     f = open(args.soc_output, "w")
     f.write(dts)

@@ -115,7 +115,14 @@ class Register:
         """
         self._name = register_xml.attrib['name']
         self._offset = int(register_xml.attrib['offset'], 0)
-        # Build mapping of register field values to descriptions
+        self._build_bitfield_map(register_xml)
+
+
+    def _build_bitfield_map(self, register_xml):
+        """
+        Helper function called during init
+        Builds mapping of register field values to descriptions
+        """
         self._bit_field_map = {}
         for bit_field in register_xml.findall('bit_field'):
             bit_field_map = {}
@@ -124,6 +131,9 @@ class Register:
                 bit_field_str = bit_field_value.attrib['value'].strip('?')
                 field_val = int(bit_field_str, 0)
                 bit_field_map[field_val] = bit_field_value.attrib
+
+            # Save reset value
+            bit_field_map['RESET'] = int(bit_field.get('reset_value'), 0)
             # Save bit field mapping
             self._bit_field_map[bit_field.attrib['name']] = bit_field_map
 
@@ -162,6 +172,14 @@ class Register:
         """
         return self._bit_field_map.keys()
 
+    def get_reset_value(self, bit_field):
+        """
+        Get reset value of register bitfield
+        @param bit_field: name of register bit field
+        @return reset value of bitfield
+        """
+        return self._bit_field_map[bit_field]['RESET']
+
 
 class TemplatedRegister(Register):
     """
@@ -177,17 +195,7 @@ class TemplatedRegister(Register):
         self._values = instance_xml.get('vals').split(' ')
         self._name = self._sub_template(template_xml.attrib['name'])
         self._offset = int(self._sub_template(template_xml.attrib['offset']), 0)
-        # Build mapping of register field values to descriptions
-        self._bit_field_map = {}
-        for bit_field in template_xml.findall('bit_field'):
-            bit_field_map = {}
-            for bit_field_value in bit_field.findall('bit_field_value'):
-                # Some iMX8 fields have a ?, remove that
-                bit_field_str = bit_field_value.attrib['value'].strip('?')
-                field_val = int(bit_field_str, 0)
-                bit_field_map[field_val] = bit_field_value.attrib
-            # Save bit field mapping
-            self._bit_field_map[bit_field.attrib['name']] = bit_field_map
+        self._build_bitfield_map(template_xml)
 
     def _sub_template(self, string):
         """
