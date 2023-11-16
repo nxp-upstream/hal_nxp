@@ -51,6 +51,8 @@ clock_components = {}
 root_clocks = [signal_map["NO_CLOCK"]]
 # Clock muxes, treated as roots in DTS: <clock_select> tag in XML
 clock_muxes = []
+# Clock IDs, populated as we encounter clocks
+clock_ids = {}
 
 def parse_regexpr(peripheral_map, expr):
     """
@@ -79,6 +81,24 @@ def parse_regexpr(peripheral_map, expr):
         else:
             # Constant, just return it
             return int(expr, 0)
+
+def gen_clock_id(clk_type, clk_name):
+    """
+    Helper function, which creates a clock ID for a given clock
+    @param clk_type: type of the clock
+    @param clk_name: name of the clock
+    """
+    # Check if the clock type has already been seen
+    if clk_type in clock_ids:
+        id_array = clock_ids[clk_type]
+    else:
+        id_array = []
+        clock_ids[clk_type] = id_array
+
+    # Append clock name to ID array
+    clk_id = f"NXP_CLK_{clk_name.upper()}"
+    id_array.append(clk_id)
+    return clk_id
 
 def resolve_input_id(active_component, input_id):
     """
@@ -257,8 +277,12 @@ def output_signal(peripheral_map, signal, level):
             dts += output_signal(peripheral_map, child, level)
         return dts
     dts = f"\n{indent_str}{signal['id'].lower()}: {signal['id'].lower().replace('_','-')} {{\n"
+    # If signal is not output signal, create an ID for it
+    signal_id = gen_clock_id(signal["type"], signal["id"])
+    dts += f"{indent_str}\tnxp,clk-id = <{signal_id}>;\n"
     if signal["type"] == "clock_source":
-        dts += f"{indent_str}\tcompatible = \"fixed-clock\";\n"
+        dts += f"{indent_str}\tcompatible = \"nxp,clock-source\";\n"
+        dts += f"{indent_str}\tstatus=\"disabled\";\n"
         # Get clock frequency
         signal_xml = signal["source"]
         if ((signal_xml.find("internal_source") is not None)and
@@ -301,9 +325,11 @@ def output_signal(peripheral_map, signal, level):
         dts += f"{indent_str}\tclock-frequency = <{freq_base}>;\n"
     elif signal["type"] == "clock_enable":
         dts += f"{indent_str}\tcompatible = \"nxp,clock-gate\";\n"
+        dts += f"{indent_str}\tstatus=\"disabled\";\n"
     elif signal["type"] == "no_clock":
-        dts += f"{indent_str}\tcompatible = \"fixed-clock\";\n"
+        dts += f"{indent_str}\tcompatible = \"nxp,clock-source\";\n"
         dts += f"{indent_str}\tclock-frequency = <0>;\n"
+        dts += f"{indent_str}\tstatus=\"disabled\";\n"
     elif signal["type"] == "clock_select":
         dts += f"{indent_str}\tcompatible = \"nxp,clock-mux\";\n"
         # Add input sources
@@ -318,7 +344,7 @@ def output_signal(peripheral_map, signal, level):
                 source_id = source["id"].lower()
             input_str += f"&{source_id} "
             source_names.append(source_id)
-            if (len(input_str) > 70) and (i < (len(signal["parents"]) - 1)):
+            if (len(input_str) > 60) and (i < (len(signal["parents"]) - 1)):
                 # More signals to define, move to a newline
                 input_str = input_str[:-1] + "\n"
                 dts += input_str
@@ -345,16 +371,17 @@ def output_signal(peripheral_map, signal, level):
         else:
             logging.warning("Prescaler %s has unknown type, assume div", signal["id"])
             dts += f"{indent_str}\tcompatible = \"nxp,clock-div\";\n"
+            dts += f"{indent_str}\tstatus=\"disabled\";\n"
     elif signal["type"] == "pll":
         # Integer-n pll (F_vco = F_in * (NUM / DIV))
         dts += f"{indent_str}\tcompatible = \"nxp,clock-pll\";\n"
+        dts += f"{indent_str}\tstatus=\"disabled\";\n"
     elif signal["type"] == "fnpll":
         # Fractional-n pll (F_vco = F_in * (N + (NUM / DIV))
         dts += f"{indent_str}\tcompatible = \"nxp,clock-frac-pll\";\n"
+        dts += f"{indent_str}\tstatus=\"disabled\";\n"
     else:
         logging.warning("Unmatched signal type %s", signal["type"])
-    dts += f"{indent_str}\t#clock-cells = <0>;\n"
-    dts += f"{indent_str}\tstatus=\"disabled\";\n"
     # Generate children
     for child in signal['children']:
         dts += output_signal(peripheral_map, child, level+1)
@@ -370,8 +397,10 @@ def parse_args():
                         help='Enable default NXP copyright')
     parser.add_argument("data_pack", metavar="DATA_PACK", type=str,
                         help="Path to downloaded data package zip")
-    parser.add_argument('--soc-output', metavar = 'SOC_OUT', type=str,
+    parser.add_argument('--dts-output', metavar = 'DTS_OUT', type=str,
                         help='Output file for clock devicetree')
+    parser.add_argument('--header-output', metavar = 'HEADER_OUT', type=str,
+                        help='Output file for clock header')
     parser.add_argument("--controller", metavar='CTRL', type=str,
                         help="clock controller node label for SOC.")
     return parser.parse_args()
@@ -403,9 +432,12 @@ def main():
             "other versions may not work")
 
     proc_name = datapack_utils.get_processor_name(temp_dir.name)
-    if not args.soc_output:
+    if not args.dts_output:
         # Get SOC name from datapack
-        args.soc_output = proc_name.lower() + "_clocks.dtsi"
+        args.dts_output = proc_name.lower() + "_clocks.dtsi"
+    if not args.header_output:
+        # Get SOC name from datapack
+        args.header_output = proc_name.lower() + "_clocks.h"
     if not args.controller:
         args.controller = processor_to_clock_node(proc_name)
 
@@ -444,7 +476,7 @@ def main():
         # Build clock tree recursively (top up)
         define_signal(clock_components["TOP"], child)
 
-    # Parse all root clocks top down, and generate output
+    # Parse all root clocks top down, and generate devicetree
     if args.copyright:
         dts = NXP_COPYRIGHT
     else:
@@ -457,11 +489,31 @@ def main():
     dts += "\n\t/* Clock muxes */"
     for mux in clock_muxes:
         dts += output_signal(peripheral_map, mux, 1)
-    dts += "};"
-    f = open(args.soc_output, "w")
+    dts += "};\n"
+    f = open(args.dts_output, "w")
     f.write(dts)
     f.close()
-    print(f"Output written to {args.soc_output}")
+    print(f"DTS written to {args.dts_output}")
+    # Parse all clock IDs, and generate header
+    if args.copyright:
+        header = NXP_COPYRIGHT
+    else:
+        header = ""
+    header += "#define NXP_CLK_TYPE_SHIFT  16\n"
+    for i in range(len(clock_ids.keys())):
+        clk_type = list(clock_ids.keys())[i]
+        header += f"#define NXP_CLK_TYPE_{clk_type.upper()} ({i} << NXP_CLK_TYPE_SHIFT)\n\n"
+        header += f"/* {clk_type.upper()} clocks */\n"
+        for j in range(len(clock_ids[clk_type])):
+            clk_id = clock_ids[clk_type][j]
+            header += f"#define {clk_id} (NXP_CLK_TYPE_{clk_type.upper()} | {j})\n"
+        header += "\n"
+    f = open(args.header_output, "w")
+    f.write(header)
+    f.close()
+    print(f"Header written to {args.header_output}")
+
+
 
 if __name__ == "__main__":
     main()
