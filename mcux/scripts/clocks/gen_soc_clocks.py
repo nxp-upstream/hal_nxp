@@ -280,9 +280,10 @@ def handle_special_signals(peripheral_map, signal, level):
         dts = f"\n{indent_str}{signal['id'].lower()}: "
         dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
         dts += f"{indent_str}\tcompatible = \"nxp,syscon-flexfrg\";\n"
+        dts += f"{indent_str}\t#clock-cells = <1>;\n"
         # Write register offset and width
-        dts += f"{indent_str}\t/* {reg}[{bitfield}] */;\n"
-        dts += f"{indent_str}\treg = <0x{reg_offset:x}>;\n"
+        dts += f"{indent_str}\t/* {reg}[{bitfield}] */\n"
+        dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x{offset:x} 0x{width:x}>;\n"
         dts += f"{indent_str}}};\n"
         # Do not generate children
         return dts
@@ -297,15 +298,79 @@ def handle_special_signals(peripheral_map, signal, level):
         dts = f"\n{indent_str}{signal['id'].lower()}: "
         dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
         dts += f"{indent_str}\tcompatible = \"nxp,syscon-rtcclk\";\n"
+        dts += f"{indent_str}\t#clock-cells = <1>;\n"
         # Write register offset and width
-        dts += f"{indent_str}\t/* {reg}[{bitfield}] */;\n"
-        dts += f"{indent_str}\treg = <0x{reg_offset:x}>;\n"
-        dts += f"{indent_str}\tmask-width = <{width}>;\n"
-        dts += f"{indent_str}\toffset = <{offset}>;\n"
+        dts += f"{indent_str}\t/* {reg}[{bitfield}] */\n"
+        dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x{offset:x} 0x{width:x}>;\n"
         dts += f"{indent_str}\tadd-factor = <{add_factor}>;\n"
         # Generate children
+        child_dts = ""
         for child in signal['children']:
-            dts += output_signal(peripheral_map, child, level + 1)
+            child_dts += output_signal(peripheral_map, child, level+1)
+        if len(child_dts) > 0:
+            # Add address-cells and size-cells settings
+            dts += f"{indent_str}\t#address-cells = <2>;\n"
+            dts += f"{indent_str}\t#size-cells = <1>;\n"
+        dts += child_dts
+        dts += f"{indent_str}}};\n"
+        return dts
+    elif "PDEC" in signal["id"]:
+        # PLL PDEC scalers
+        reg_expr = signal["source"].find("conditional_block/case/divide").get('expr')
+        (reg, bitfield) = reg_expr.split('[')
+        # Strip trailing "] " from bitfield
+        bitfield = bitfield[:-1]
+        (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
+                                                        reg, bitfield)
+        dts = f"\n{indent_str}{signal['id'].lower()}: "
+        dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
+        dts += f"{indent_str}\tcompatible = \"nxp,lpc55sxx-pll-pdec\";\n"
+        # Write register offset
+        dts += f"{indent_str}\t/* {reg}[{bitfield}] */\n"
+        dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x{offset:x} 0x{width:x}>;\n"
+        dts += f"{indent_str}\t#clock-cells = <1>;\n"
+        # Generate children
+        child_dts = ""
+        for child in signal['children']:
+            child_dts += output_signal(peripheral_map, child, level+1)
+        if len(child_dts) > 0:
+            # Add address-cells and size-cells settings
+            dts += f"{indent_str}\t#address-cells = <2>;\n"
+            dts += f"{indent_str}\t#size-cells = <1>;\n"
+        dts += child_dts
+        dts += f"{indent_str}}};\n"
+        return dts
+    elif signal["type"] == "pll":
+        # Strip trailing "] " from bitfield
+        if signal['id'] == "PLL0":
+            (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
+                    "SYSCON::PLL0CTRL", "SELR")
+            dts = f"\n{indent_str}{signal['id'].lower()}: "
+            dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
+            # PLL0, with spread spectrum generator
+            dts += f"{indent_str}\tcompatible = \"nxp,lpc55sxx-pll0\";\n"
+            dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x0 0x20>;\n"
+            dts += f"{indent_str}\t#clock-cells = <9>;\n"
+        elif signal['id'] == "PLL1":
+            # PLL1, standard fractional PLL
+            (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
+                    "SYSCON::PLL1CTRL", "SELR")
+            dts = f"\n{indent_str}{signal['id'].lower()}: "
+            dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
+            dts += f"{indent_str}\tcompatible = \"nxp,lpc55sxx-pll1\";\n"
+            dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x0 0x20>;\n"
+            dts += f"{indent_str}\t#clock-cells = <6>;\n"
+        else:
+            logging.warning("Unmatched PLL ID %s", signal["id"])
+        # Generate children
+        child_dts = ""
+        for child in signal['children']:
+            child_dts += output_signal(peripheral_map, child, level+1)
+        if len(child_dts) > 0:
+            # Add address-cells and size-cells settings
+            dts += f"{indent_str}\t#address-cells = <2>;\n"
+            dts += f"{indent_str}\t#size-cells = <1>;\n"
+        dts += child_dts
         dts += f"{indent_str}}};\n"
         return dts
     else:
@@ -351,15 +416,16 @@ def output_signal(peripheral_map, signal, level):
             # Fallback to empty values
             reg_addr = 0
             offset = 0
+            width = 1
         # Now that we know register, write the node definition
         dts = f"\n{indent_str}{signal['id'].lower()}: "
         dts += f"{signal['id'].lower().replace('_','-')}@{reg_addr:x} {{\n"
         dts += f"{indent_str}\tcompatible = \"nxp,syscon-clock-source\";\n"
+        dts += f"{indent_str}\t#clock-cells = <1>;\n"
         if enable_xml is not None:
             # Write register name as comment
             dts += f"{indent_str}\t/* {periph_reg}[{bitfield}] */\n"
-        dts += f"{indent_str}\treg = <0x{reg_addr:x}>;\n"
-        dts += f"{indent_str}\toffset = <{offset}>;\n"
+        dts += f"{indent_str}\treg = <0x{reg_addr:x} 0x{offset:x} 0x{width:x}>;\n"
 
         # Get clock frequency
         if ((signal_xml.find("internal_source") is not None)and
@@ -398,14 +464,19 @@ def output_signal(peripheral_map, signal, level):
         dts = f"\n{indent_str}{signal['id'].lower()}: "
         dts += f"{signal['id'].lower().replace('_','-')}@{reg_addr:x} {{\n"
         dts += f"{indent_str}\tcompatible = \"nxp,syscon-clock-gate\";\n"
+        dts += f"{indent_str}\t#clock-cells = <1>;\n"
         if enable_xml is not None:
             # Write register name as comment
             dts += f"{indent_str}\t/* {periph_reg}[{bitfield}] */\n"
-        dts += f"{indent_str}\treg = <0x{reg_addr:x}>;\n"
-        dts += f"{indent_str}\toffset = <{offset}>;\n"
+        dts += f"{indent_str}\treg = <0x{reg_addr:x} 0x{offset:x} 0x{width:x}>;\n"
     elif signal["type"] == "no_clock":
-        dts = f"\n{indent_str}{signal['id'].lower()}: {signal['id'].lower().replace('_','-')} {{\n"
-        dts += f"{indent_str}\tcompatible = \"no-clock\";\n"
+        dts = f"\n{indent_str}{signal['id'].lower()}: "
+        dts += f"{signal['id'].lower().replace('_','-')}@0 {{\n"
+        dts += f"{indent_str}\t/* Dummy node- indicates no clock source was selected */\n"
+        dts += f"{indent_str}\tcompatible = \"nxp,syscon-clock-source\";\n"
+        dts += f"{indent_str}\t#clock-cells = <1>;\n"
+        dts += f"{indent_str}\treg = <0x0 0x0 0x1>;\n"
+        dts += f"{indent_str}\tfrequency = <0>;\n"
     elif signal["type"] == "clock_select":
         # Determine the mux register and bitfield width
         reg_expr = signal["source"].find("value_map").get('expr')
@@ -418,11 +489,10 @@ def output_signal(peripheral_map, signal, level):
         dts = f"\n{indent_str}{signal['id'].lower()}: "
         dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
         dts += f"{indent_str}\tcompatible = \"nxp,syscon-clock-mux\";\n"
+        dts += f"{indent_str}\t#clock-cells = <1>;\n"
         # Write register address, mask, and width
         dts += f"{indent_str}\t/* {reg}[{bitfield}] */\n"
-        dts += f"{indent_str}\treg = <0x{reg_offset:x}>;\n"
-        dts += f"{indent_str}\tmask-width = <{width}>;\n"
-        dts += f"{indent_str}\toffset = <{offset}>;\n"
+        dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x{offset:x} 0x{width:x}>;\n"
         # Add input sources
         input_str = f"{indent_str}\tinput-sources = <"
         source_names = []
@@ -454,31 +524,26 @@ def output_signal(peripheral_map, signal, level):
             dts = f"\n{indent_str}{signal['id'].lower()}: "
             dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
             dts += f"{indent_str}\tcompatible = \"nxp,syscon-clock-div\";\n"
+            dts += f"{indent_str}\t#clock-cells = <1>;\n"
             # Write register offset and width
-            dts += f"{indent_str}\t/* {reg}[{bitfield}] */;\n"
-            dts += f"{indent_str}\treg = <0x{reg_offset:x}>;\n"
-            dts += f"{indent_str}\tmask-width = <{width}>;\n"
+            dts += f"{indent_str}\t/* {reg}[{bitfield}] */\n"
+            dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x{offset:x} 0x{width:x}>;\n"
             if offset != 0:
                 logging.warning("Clock divider %s has invalid offset", reg_expr)
         else:
             logging.warning("Prescaler %s has unknown type, skipping", signal["id"])
             # Skip DTS generation
             return ""
-    elif signal["type"] == "pll":
-        dts = f"\n{indent_str}{signal['id'].lower()}: {signal['id'].lower().replace('_','-')} {{\n"
-        # Integer-n pll (F_vco = F_in * (NUM / DIV))
-        dts += f"{indent_str}\tcompatible = \"nxp,clock-pll\";\n"
-        dts += f"{indent_str}\tstatus=\"disabled\";\n"
-    elif signal["type"] == "fnpll":
-        dts = f"\n{indent_str}{signal['id'].lower()}: {signal['id'].lower().replace('_','-')} {{\n"
-        # Fractional-n pll (F_vco = F_in * (N + (NUM / DIV))
-        dts += f"{indent_str}\tcompatible = \"nxp,clock-frac-pll\";\n"
-        dts += f"{indent_str}\tstatus=\"disabled\";\n"
     else:
         logging.warning("Unmatched signal type %s", signal["type"])
-    # Generate children
+    child_dts = ""
     for child in signal['children']:
-        dts += output_signal(peripheral_map, child, level+1)
+        child_dts += output_signal(peripheral_map, child, level+1)
+    if len(child_dts) > 0:
+        # Add address-cells and size-cells settings
+        dts += f"{indent_str}\t#address-cells = <2>;\n"
+        dts += f"{indent_str}\t#size-cells = <1>;\n"
+    dts += child_dts
     dts += f"{indent_str}}};\n"
     return dts
 
@@ -572,6 +637,8 @@ def main():
         dts = ""
     dts += "/* Generated from NXP MCUX clock data */\n"
     dts += f"&{args.controller} {{\n"
+    dts += f"\t#address-cells = <2>;\n"
+    dts += f"\t#size-cells = <1>;\n"
     dts += "\n\t/* Root clock sources */"
     for root in root_clocks:
         dts += output_signal(peripheral_map, root, 1)
