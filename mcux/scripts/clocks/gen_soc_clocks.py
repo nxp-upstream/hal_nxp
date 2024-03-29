@@ -51,36 +51,6 @@ clock_components = {}
 root_clocks = [signal_map["NO_CLOCK"]]
 # Clock muxes, treated as roots in DTS: <clock_select> tag in XML
 clock_muxes = []
-# Clock IDs, populated as we encounter clocks
-clock_ids = {}
-
-def parse_regexpr(peripheral_map, expr):
-    """
-    Parses a register expression to determine the value. This is used
-    by the clock generation code to determine the reset values for
-    dividers, multipliers, and muxes on the SOC
-    """
-    # Register expressions can have basic math, so we need to implement
-    # a very basic calculator here
-    if len(expr.split("+")) > 1:
-        # Recursive case. Currently register math only does addition
-        subexpr = expr.split("+")
-        val = 0
-        for x in subexpr:
-            val += parse_regexpr(peripheral_map, x.strip())
-        return val
-    else:
-        # Base case, we have a register definition or constant.
-        if "::" in expr:
-            # register definition, get reset value
-            # format of registers is like so: SYSCON::FLEXFRG0CTRL[MULT]
-            (periph, reg) = expr.split("::")
-            (reg_name, bitfield) = reg.split("[")
-            bitfield = bitfield[:-1]
-            return peripheral_map[periph].get_register(reg_name).get_reset_value(bitfield)
-        else:
-            # Constant, just return it
-            return int(expr, 0)
 
 def get_addr_and_bitfield(peripheral_map, reg_expr, bitfield):
     """
@@ -120,24 +90,6 @@ def parse_freq(freq):
     else:
         logging.warning("Unmatched frequency unit %s", freq_unit)
     return freq_base
-
-def gen_clock_id(clk_type, clk_name):
-    """
-    Helper function, which creates a clock ID for a given clock
-    @param clk_type: type of the clock
-    @param clk_name: name of the clock
-    """
-    # Check if the clock type has already been seen
-    if clk_type in clock_ids:
-        id_array = clock_ids[clk_type]
-    else:
-        id_array = []
-        clock_ids[clk_type] = id_array
-
-    # Append clock name to ID array
-    clk_id = f"NXP_CLK_{clk_name.upper()}"
-    id_array.append(clk_id)
-    return clk_id
 
 def resolve_input_id(active_component, input_id):
     """
@@ -301,6 +253,64 @@ def define_signal(active_component, signal_xml):
                 "children": []}
         return signal
 
+def handle_special_signals(peripheral_map, signal, level):
+    """
+    Handles "special case" signals, which need generation different than
+    what can be handled in the standard signal output function
+    @param peripheral_map: peripheral map used to resolve reset values
+    @param signal: signal to parse and output devicetree for
+    @param level: indentation level of output devicetree
+    Returns string describing devicetree for this node, or empty string
+    if the signal is not handled
+    """
+    indent_str = ""
+    for i in range(level):
+        indent_str += "\t"
+
+    if "FRGCTRL" in signal["id"]:
+        # Special case- generate a compatible for the FRG node
+        frgdiv = signal["children"][0]
+        # Determine the div register and bitfield width
+        (reg_expr, _) = frgdiv["source"].find("divide").get('expr').split("+")
+        (reg, bitfield) = reg_expr.split('[')
+        # Strip trailing "] " from bitfield
+        bitfield = bitfield[:-2]
+        (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
+                                                        reg, bitfield)
+        dts = f"\n{indent_str}{signal['id'].lower()}: "
+        dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
+        dts += f"{indent_str}\tcompatible = \"nxp,syscon-flexfrg\";\n"
+        # Write register offset and width
+        dts += f"{indent_str}\t/* {reg}[{bitfield}] */;\n"
+        dts += f"{indent_str}\treg = <0x{reg_offset:x}>;\n"
+        dts += f"{indent_str}}};\n"
+        # Do not generate children
+        return dts
+    elif "RTCCLK1" in signal["id"]:
+        # Generate node for RTC clock divider
+        (add_factor, reg_expr) = signal["source"].find("divide").get('expr').split("+")
+        (reg, bitfield) = reg_expr.split('[')
+        # Strip trailing "] " from bitfield
+        bitfield = bitfield[:-1]
+        (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
+                                                        reg, bitfield)
+        dts = f"\n{indent_str}{signal['id'].lower()}: "
+        dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
+        dts += f"{indent_str}\tcompatible = \"nxp,syscon-rtcclk\";\n"
+        # Write register offset and width
+        dts += f"{indent_str}\t/* {reg}[{bitfield}] */;\n"
+        dts += f"{indent_str}\treg = <0x{reg_offset:x}>;\n"
+        dts += f"{indent_str}\tmask-width = <{width}>;\n"
+        dts += f"{indent_str}\toffset = <{offset}>;\n"
+        dts += f"{indent_str}\tadd-factor = <{add_factor}>;\n"
+        # Generate children
+        for child in signal['children']:
+            dts += output_signal(peripheral_map, child, level + 1)
+        dts += f"{indent_str}}};\n"
+        return dts
+    else:
+        return ""
+
 def output_signal(peripheral_map, signal, level):
     """
     Outputs signal definitions into devicetree format
@@ -317,6 +327,11 @@ def output_signal(peripheral_map, signal, level):
         # Generate children
         for child in signal['children']:
             dts += output_signal(peripheral_map, child, level)
+        return dts
+
+    # Handle special signal cases
+    dts = handle_special_signals(peripheral_map, signal, level)
+    if dts != "":
         return dts
 
     if signal["type"] == "clock_source":
@@ -445,24 +460,6 @@ def output_signal(peripheral_map, signal, level):
             dts += f"{indent_str}\tmask-width = <{width}>;\n"
             if offset != 0:
                 logging.warning("Clock divider %s has invalid offset", reg_expr)
-        elif "FRGCTRL" in signal["id"]:
-            # Special case- generate a compatible for the FRG node
-            frgdiv = signal["children"][0]
-            # Determine the div register and bitfield width
-            (reg_expr, _) = frgdiv["source"].find("divide").get('expr').split("+")
-            (reg, bitfield) = reg_expr.split('[')
-            # Strip trailing "] " from bitfield
-            bitfield = bitfield[:-2]
-            (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
-                                                            reg, bitfield)
-            dts = f"\n{indent_str}{signal['id'].lower()}: "
-            dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
-            dts += f"{indent_str}\tcompatible = \"nxp,syscon-flexfrg\";\n"
-            # Write register offset and width
-            dts += f"{indent_str}\t/* {reg}[{bitfield}] */;\n"
-            dts += f"{indent_str}\treg = <0x{reg_offset:x}>;\n"
-            # Do not generate children
-            return dts
         else:
             logging.warning("Prescaler %s has unknown type, skipping", signal["id"])
             # Skip DTS generation
@@ -496,8 +493,6 @@ def parse_args():
                         help="Path to downloaded data package zip")
     parser.add_argument('--dts-output', metavar = 'DTS_OUT', type=str,
                         help='Output file for clock devicetree')
-    parser.add_argument('--header-output', metavar = 'HEADER_OUT', type=str,
-                        help='Output file for clock header')
     parser.add_argument("--controller", metavar='CTRL', type=str,
                         help="clock controller node label for SOC.")
     return parser.parse_args()
@@ -532,9 +527,6 @@ def main():
     if not args.dts_output:
         # Get SOC name from datapack
         args.dts_output = proc_name.lower() + "_clocks.dtsi"
-    if not args.header_output:
-        # Get SOC name from datapack
-        args.header_output = proc_name.lower() + "_clocks.h"
     if not args.controller:
         args.controller = processor_to_clock_node(proc_name)
 
@@ -591,26 +583,6 @@ def main():
     f.write(dts)
     f.close()
     print(f"DTS written to {args.dts_output}")
-    # Parse all clock IDs, and generate header
-    if args.copyright:
-        header = NXP_COPYRIGHT
-    else:
-        header = ""
-    header += "#define NXP_CLK_TYPE_SHIFT  16\n"
-    for i in range(len(clock_ids.keys())):
-        clk_type = list(clock_ids.keys())[i]
-        header += f"#define NXP_CLK_TYPE_{clk_type.upper()} ({i} << NXP_CLK_TYPE_SHIFT)\n\n"
-        header += f"/* {clk_type.upper()} clocks */\n"
-        for j in range(len(clock_ids[clk_type])):
-            clk_id = clock_ids[clk_type][j]
-            header += f"#define {clk_id} (NXP_CLK_TYPE_{clk_type.upper()} | {j})\n"
-        header += "\n"
-    f = open(args.header_output, "w")
-    f.write(header)
-    f.close()
-    print(f"Header written to {args.header_output}")
-
-
 
 if __name__ == "__main__":
     main()
