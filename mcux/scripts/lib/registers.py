@@ -116,7 +116,7 @@ class Register:
         self._name = register_xml.attrib['name']
         self._offset = int(register_xml.attrib['offset'], 0)
         self._build_bitfield_map(register_xml)
-
+        self._build_bitfield_offsets(register_xml)
 
     def _build_bitfield_map(self, register_xml):
         """
@@ -137,6 +137,18 @@ class Register:
             # Save bit field mapping
             self._bit_field_map[bit_field.attrib['name']] = bit_field_map
 
+    def _build_bitfield_offsets(self, register_xml):
+        """
+        Helper function called during init
+        Builds mapping of bitfield names to offsets and widths
+        """
+        # Get offsets and widths of all register bitfields
+        self._bitfield_offsets = {}
+        for bitfield in register_xml.findall('bit_field'):
+            offset_dict = ({'offset': int(bitfield.get('offset'), 0),
+                            'width': int(bitfield.get('width'), 0)})
+            self._bitfield_offsets[bitfield.get('name')] = offset_dict
+
     def __repr__(self):
         """
         Generate string representation of the object
@@ -155,6 +167,18 @@ class Register:
         Get the offset of this register from the base
         """
         return self._offset
+
+    def get_bit_field_offset(self, bit_field):
+        """
+        Get the offset of a bitfield within the register
+        """
+        return self._bitfield_offsets[bit_field]['offset']
+
+    def get_bit_field_width(self, bit_field):
+        """
+        Get the width of a bitfield within the register
+        """
+        return self._bitfield_offsets[bit_field]['width']
 
     def get_bit_field_value_description(self, bit_field, value):
         """
@@ -196,6 +220,7 @@ class TemplatedRegister(Register):
         self._name = self._sub_template(template_xml.attrib['name'])
         self._offset = int(self._sub_template(template_xml.attrib['offset']), 0)
         self._build_bitfield_map(template_xml)
+        self._build_bitfield_offsets(template_xml)
 
     def _sub_template(self, string):
         """
