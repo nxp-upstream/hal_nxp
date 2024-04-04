@@ -242,6 +242,10 @@ def define_signal(active_component, signal_xml):
                 logging.debug("%s[%s] => NONE", signal_xml.get("id"), mux_idx)
             else:
                 logging.warning("Unhandled mux input type %s", child.tag)
+        # Now, optimize the input-sources list by stripping any extra "no_clock"
+        # references from the end of the array.
+        while signal["parents"][-2] == signal_map["NO_CLOCK"]:
+            signal["parents"].pop()
         clock_muxes.append(signal)
         return signal
     else:
