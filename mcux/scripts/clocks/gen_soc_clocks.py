@@ -30,6 +30,14 @@ NXP_COPYRIGHT=f"""/*
  */\n
 """
 
+# List of registers to power off clock sources, LPC55S69 specific. This
+# information is not in SDK source data.
+PDOWN_REGS = {
+    "XTAL32M": ("PMC::PDRUNCFG0", ["PDEN_LDOXO32M", "PDEN_XTAL32M"]),
+    "FRO_32K": ("PMC::PDRUNCFG0", ["PDEN_FRO32K"]),
+    "XTAL32K": ("PMC::PDRUNCFG0", ["PDEN_XTAL32K"]),
+}
+
 signal_map = {"NO_CLOCK":
         {"id" : "NO_CLOCK",
         "type": "no_clock",
@@ -417,38 +425,48 @@ def output_signal(peripheral_map, signal, level):
                                                             bitfield)
             if width != 1:
                 logging.warning("Clock source register %s has width >1", periph_reg)
+            # Now that we know register, write the node definition
+            dts = f"\n{indent_str}{signal['id'].lower()}: "
+            dts += f"{signal['id'].lower().replace('_','-')}@{reg_addr:x} {{\n"
+            dts += f"{indent_str}\tcompatible = \"nxp,syscon-clock-source\";\n"
+            dts += f"{indent_str}\toffset = <0x{offset:x}>;\n"
+            dts += f"{indent_str}\t#clock-cells = <1>;\n"
+            # Check to see if a power down register exists
+            if signal['id'] in PDOWN_REGS:
+                (pdown_periph, pdown_bitfields) = PDOWN_REGS[signal['id']]
+                pdown_bitmask = 0
+                for field in pdown_bitfields:
+                    (_, _, pdown_offset) = get_addr_and_bitfield(
+                        peripheral_map, pdown_periph, field
+                    )
+                    pdown_bitmask |= (0x1 << pdown_offset)
+                # Write register name as comment
+                dts += f"{indent_str}\t/* {pdown_periph}[{' | '.join(pdown_bitfields)}] */\n"
+                dts += f"{indent_str}\tpdown-mask = <0x{pdown_bitmask:x}>;\n"
+            if enable_xml is not None:
+                # Write register name as comment
+                dts += f"{indent_str}\t/* {periph_reg}[{bitfield}] */\n"
+            dts += f"{indent_str}\treg = <0x{reg_addr:x} 0x{width:x}>;\n"
+            # Get clock frequency
+            if ((signal_xml.find("internal_source") is not None)and
+                    (signal_xml.find("internal_source").find("fixed_frequency") is not None)):
+                freq = signal_xml.find("internal_source").find("fixed_frequency").get("freq")
+                freq_base = parse_freq(freq)
+            elif ((signal_xml.find("external_source") is not None) and
+                    (signal_xml.find("external_source").get("default_freq") is not None)):
+                # External clock frequency, with default value
+                freq = signal_xml.find("external_source").get("default_freq")
+                freq_base = parse_freq(freq)
+                dts += f"{indent_str}\t/* External clock source (default {freq}) */\n"
+            dts += f"{indent_str}\tfrequency = <{freq_base}>;\n"
         else:
-            # Fallback to empty values
-            reg_addr = 0
-            offset = 0
-            width = 1
-        # Now that we know register, write the node definition
-        dts = f"\n{indent_str}{signal['id'].lower()}: "
-        dts += f"{signal['id'].lower().replace('_','-')}@{reg_addr:x} {{\n"
-        dts += f"{indent_str}\tcompatible = \"nxp,syscon-clock-source\";\n"
-        dts += f"{indent_str}\toffset = <0x{offset:x}>;\n"
-        dts += f"{indent_str}\t#clock-cells = <1>;\n"
-        if enable_xml is not None:
-            # Write register name as comment
-            dts += f"{indent_str}\t/* {periph_reg}[{bitfield}] */\n"
-        dts += f"{indent_str}\treg = <0x{reg_addr:x} 0x{width:x}>;\n"
-
-        # Get clock frequency
-        if ((signal_xml.find("internal_source") is not None)and
-                (signal_xml.find("internal_source").find("fixed_frequency") is not None)):
-            freq = signal_xml.find("internal_source").find("fixed_frequency").get("freq")
-            freq_base = parse_freq(freq)
-        elif ((signal_xml.find("external_source") is not None) and
-                (signal_xml.find("external_source").get("default_freq") is not None)):
-            # External clock frequency, with default value
-            freq = signal_xml.find("external_source").get("default_freq")
-            freq_base = parse_freq(freq)
-            dts += f"{indent_str}\t/* External clock source (default {freq}) */\n"
-        else:
-            # External clock frequency, set by user
-            freq_base = 0
+            # Use a fixed clock source
+            dts = f"\n{indent_str}{signal['id'].lower()}: "
+            dts += f"{signal['id'].lower().replace('_','-')} {{\n"
+            dts += f"{indent_str}\tcompatible = \"fixed-clock-source\";\n"
+            dts += f"{indent_str}\t#clock-cells = <0>;\n"
             dts += f"{indent_str}\t/* External clock source */\n"
-        dts += f"{indent_str}\tfrequency = <{freq_base}>;\n"
+            dts += f"{indent_str}\tfrequency = <0>;\n"
     elif signal["type"] == "clock_enable":
         # Get the address and offset of the bit that enables
         # the clock source
@@ -478,12 +496,10 @@ def output_signal(peripheral_map, signal, level):
         dts += f"{indent_str}\toffset = <0x{offset:x}>;\n"
     elif signal["type"] == "no_clock":
         dts = f"\n{indent_str}{signal['id'].lower()}: "
-        dts += f"{signal['id'].lower().replace('_','-')}@0 {{\n"
+        dts += f"{signal['id'].lower().replace('_','-')} {{\n"
         dts += f"{indent_str}\t/* Dummy node- indicates no clock source was selected */\n"
-        dts += f"{indent_str}\tcompatible = \"nxp,syscon-clock-source\";\n"
-        dts += f"{indent_str}\t#clock-cells = <1>;\n"
-        dts += f"{indent_str}\treg = <0x0 0x1>;\n"
-        dts += f"{indent_str}\toffset = <0x0>;\n"
+        dts += f"{indent_str}\tcompatible = \"fixed-clock-source\";\n"
+        dts += f"{indent_str}\t#clock-cells = <0>;\n"
         dts += f"{indent_str}\tfrequency = <0>;\n"
     elif signal["type"] == "clock_select":
         # Determine the mux register and bitfield width
