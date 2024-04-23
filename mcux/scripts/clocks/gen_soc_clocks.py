@@ -296,8 +296,16 @@ def handle_special_signals(peripheral_map, signal, level):
         # Write register offset and width
         dts += f"{indent_str}\t/* {reg}[{bitfield}] */\n"
         dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x{width:x}>;\n"
+        # Generate children of frgdiv
+        child_dts = ""
+        for child in frgdiv['children']:
+            child_dts += output_signal(peripheral_map, child, level+1)
+        if len(child_dts) > 0 and "@" in child_dts:
+            # Add address-cells and size-cells settings
+            dts += f"{indent_str}\t#address-cells = <1>;\n"
+            dts += f"{indent_str}\t#size-cells = <1>;\n"
+        dts += child_dts
         dts += f"{indent_str}}};\n"
-        # Do not generate children
         return dts
     elif "RTCCLK1" in signal["id"]:
         # Generate node for RTC clock divider
@@ -320,7 +328,7 @@ def handle_special_signals(peripheral_map, signal, level):
         child_dts = ""
         for child in signal['children']:
             child_dts += output_signal(peripheral_map, child, level+1)
-        if len(child_dts) > 0:
+        if len(child_dts) > 0 and "@" in child_dts:
             # Add address-cells and size-cells settings
             dts += f"{indent_str}\t#address-cells = <1>;\n"
             dts += f"{indent_str}\t#size-cells = <1>;\n"
@@ -346,7 +354,7 @@ def handle_special_signals(peripheral_map, signal, level):
         child_dts = ""
         for child in signal['children']:
             child_dts += output_signal(peripheral_map, child, level+1)
-        if len(child_dts) > 0:
+        if len(child_dts) > 0 and "@" in child_dts:
             # Add address-cells and size-cells settings
             dts += f"{indent_str}\t#address-cells = <1>;\n"
             dts += f"{indent_str}\t#size-cells = <1>;\n"
@@ -379,7 +387,7 @@ def handle_special_signals(peripheral_map, signal, level):
         child_dts = ""
         for child in signal['children']:
             child_dts += output_signal(peripheral_map, child, level+1)
-        if len(child_dts) > 0:
+        if len(child_dts) > 0 and "@" in child_dts:
             # Add address-cells and size-cells settings
             dts += f"{indent_str}\t#address-cells = <1>;\n"
             dts += f"{indent_str}\t#size-cells = <1>;\n"
@@ -402,6 +410,13 @@ def output_signal(peripheral_map, signal, level):
         indent_str += "\t"
     if signal["type"] == "output_clock_signal":
         dts = ""
+        if len(signal['children']) == 0:
+            # Generate output clock
+            dts = f"\n{indent_str}{signal['id'].lower()}: "
+            dts += f"{signal['id'].lower().replace('_','-')} {{\n"
+            dts += f"{indent_str}\tcompatible = \"clock-output\";\n"
+            dts += f"{indent_str}\t#clock-cells = <1>;\n"
+            dts += f"{indent_str}}};\n"
         # Generate children
         for child in signal['children']:
             dts += output_signal(peripheral_map, child, level)
@@ -564,7 +579,7 @@ def output_signal(peripheral_map, signal, level):
     child_dts = ""
     for child in signal['children']:
         child_dts += output_signal(peripheral_map, child, level+1)
-    if len(child_dts) > 0:
+    if len(child_dts) > 0 and "@" in child_dts:
         # Add address-cells and size-cells settings
         dts += f"{indent_str}\t#address-cells = <1>;\n"
         dts += f"{indent_str}\t#size-cells = <1>;\n"
