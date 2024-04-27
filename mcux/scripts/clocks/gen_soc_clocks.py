@@ -34,8 +34,8 @@ NXP_COPYRIGHT=f"""/*
 # information is not in SDK source data.
 PDOWN_REGS = {
     "XTAL32M": ("PMC::PDRUNCFG0", ["PDEN_LDOXO32M", "PDEN_XTAL32M"]),
-    "FRO_32K": ("PMC::PDRUNCFG0", ["PDEN_FRO32K"]),
     "XTAL32K": ("PMC::PDRUNCFG0", ["PDEN_XTAL32K"]),
+    "fro_32k": ("PMC::PDRUNCFG0", ["PDEN_FRO32K"]),
 }
 
 signal_map = {"NO_CLOCK":
@@ -533,6 +533,9 @@ def output_signal(peripheral_map, signal, level):
         dts += f"{indent_str}\t/* {reg}[{bitfield}] */\n"
         dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x{width:x}>;\n"
         dts += f"{indent_str}\toffset = <0x{offset:x}>;\n"
+        if "MAINCLKSEL" in signal['id']:
+            # Main clock selects are safe muxes, add this property
+            dts += f"{indent_str}\tsafe-mux;\n"
         # Add input sources
         input_str = f"{indent_str}\tinput-sources = <"
         source_names = []
