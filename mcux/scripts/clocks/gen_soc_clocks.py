@@ -603,6 +603,8 @@ def parse_args():
                         help='Output file for clock devicetree')
     parser.add_argument("--controller", metavar='CTRL', type=str,
                         help="clock controller node label for SOC.")
+    parser.add_argument("--debug", action="store_true",
+                        help="Enable debug logging")
     return parser.parse_args()
 
 def processor_to_clock_node(processor_name):
@@ -627,8 +629,8 @@ def main():
     temp_dir = datapack_utils.extract_pack(args.data_pack)
     data_version = datapack_utils.get_pack_version(temp_dir.name)
     print(f"Found data pack version {data_version}")
-    if round(data_version) != 13:
-        print("Warning: This tool is only verified for data pack version 13, "
+    if round(data_version) != 15:
+        print("Warning: This tool is only verified for data pack version 15, "
             "other versions may not work")
 
     proc_name = datapack_utils.get_processor_name(temp_dir.name)
@@ -639,7 +641,7 @@ def main():
         args.controller = processor_to_clock_node(proc_name)
 
     if args.controller == "UNKNOWN":
-        print("Warning- script has not been tested with this SOC. You can"
+        print("Warning- script has not been tested with this SOC. You can "
                 "manually specify the controller type if you'd like to proceed")
         sys.exit(255)
 
@@ -654,7 +656,10 @@ def main():
     peripheral_map = registers.load_peripheral_map(register_dir)
 
     # Set log level
-    logging.getLogger().setLevel(logging.WARNING)
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.WARNING)
 
     # Build map of all clock components
     for child in top_root.find("component").find("implementation").findall("component_instance"):
