@@ -127,6 +127,9 @@ class Register:
         for bit_field in register_xml.findall('bit_field'):
             bit_field_map = {}
             for bit_field_value in bit_field.findall('bit_field_value'):
+                if bit_field_value.get("description") == "Reserved":
+                    # Don't parse this bitfield
+                    continue
                 # Some iMX8 fields have a ?, remove that
                 bit_field_str = bit_field_value.attrib['value'].strip('?')
                 field_val = int(bit_field_str, 0)

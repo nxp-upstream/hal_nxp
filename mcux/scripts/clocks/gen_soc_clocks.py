@@ -69,6 +69,9 @@ def get_addr_and_bitfield(peripheral_map, reg_expr, bitfield):
     @param bitfield: name of bitfield to read from
     @return tuple of (register address, bitfield width, bitfield offset)
     """
+    if "::" not in reg_expr:
+        # Add the SCG to the register expression
+        reg_expr = "SCG0::" + reg_expr
     # Read the bitfield and register expression (peripheral + reg)
     (periph, reg) = reg_expr.split("::")
     # Get register offset and bitfield
@@ -175,16 +178,17 @@ def define_signal(active_component, signal_xml):
         # Find implementation input clock
         output_maps = active_component.implementation.findall("map_output")
         output_map = next(x for x in output_maps if x.get("id") == signal_xml.get("id"))
-        enable_type = output_map.find("enable")
-        if (enable_type is not None) and (enable_type.get("cond_expr") is not None):
-            # This output signal can be disabled with a register, so it should
-            # be treated like a clock gate
-            signal_type = "clock_enable"
-            # Use the output map XML as the signal source
-            xml = output_map
-        else:
-            signal_type = "output_clock_signal"
-            xml = signal_xml
+        configuration = output_map.find("configuration_element")
+        signal_type = "output_clock_signal"
+        xml = signal_xml
+        if configuration is not None:
+            for item in configuration.findall("item"):
+                if item.get("id") == "Enable":
+                    # This output signal can be disabled with a register, so it should
+                    # be treated like a clock gate
+                    signal_type = "clock_enable"
+                    # Use the output map XML as the signal source
+                    xml = output_map
         input_id = output_map.find("input").get("signal")
         (new_component, input_xml) = resolve_input_id(active_component, input_id)
         logging.debug("%s => %s", signal_xml.get("id"), input_xml.get("id"))
@@ -225,35 +229,38 @@ def define_signal(active_component, signal_xml):
                 "parents": [],
                 "children": []}
         signal_map[signal_xml.get("id")] = signal
+        mux_sources = {}
         for child in signal_xml.find("value_map"):
-            mux_idx = child.get("ctrl_value")
-            while (len(signal["parents"])) != int(mux_idx):
-                # There are gaps in some <value_map> definitions.
-                # These gaps also map to no clock selected in the register,
-                # so just fill the parent list with NO_CLOCK elements
-                signal["parents"].append(signal_map["NO_CLOCK"])
+            mux_idx = int(child.get("ctrl_value"))
             if child.tag == "input":
                 input_id = child.get("signal")
                 (new_component, input_xml) = resolve_input_id(active_component,
                                                             input_id)
-                logging.debug("%s[%s] => %s", signal_xml.get("id"),
+                logging.debug("%s[%d] => %s", signal_xml.get("id"),
                             mux_idx, input_xml.get("id"))
                 # Define input signal
                 input_signal = define_signal(new_component, input_xml)
-                # Add signal to clock selection. Note that we intentionally
-                # don't add MUX nodes as children of signals, since we
-                # treat MUX nodes like parents in the devicetree
-                signal["parents"].append(input_signal)
             elif child.tag == "no_clock":
-                # Special "no clock" selection index
-                signal["parents"].append(signal_map["NO_CLOCK"])
-                logging.debug("%s[%s] => NONE", signal_xml.get("id"), mux_idx)
+                logging.debug("%s[%d] => NONE", signal_xml.get("id"), mux_idx)
+                input_signal = signal_map["NO_CLOCK"]
             else:
                 logging.warning("Unhandled mux input type %s", child.tag)
-        # Now, optimize the input-sources list by stripping any extra "no_clock"
+            mux_sources[mux_idx] = input_signal
+        # Now, generate mux array
+        mux_array = []
+        for idx in range(max(mux_sources.keys()) + 1):
+            if idx in mux_sources:
+                mux_array.append(mux_sources[idx])
+            else:
+                # Assume gaps in mux mapping select no clock input
+                mux_array.append(signal_map["NO_CLOCK"])
+        # Now, optimize the mux array list by stripping any extra "no_clock"
         # references from the end of the array.
-        while signal["parents"][-2] == signal_map["NO_CLOCK"]:
-            signal["parents"].pop()
+        while mux_array[-2] == signal_map["NO_CLOCK"]:
+            mux_array.pop()
+        # Set signal parents. Note we do not set multiplexers as children of
+        # nodes, since we treat them as root clock nodes in the devicetree
+        signal["parents"] = mux_array
         clock_muxes.append(signal)
         return signal
     else:
@@ -383,6 +390,7 @@ def handle_special_signals(peripheral_map, signal, level):
             dts += f"{indent_str}\t#clock-cells = <6>;\n"
         else:
             logging.warning("Unmatched PLL ID %s", signal["id"])
+            return ""
         # Generate children
         child_dts = ""
         for child in signal['children']:
@@ -473,6 +481,13 @@ def output_signal(peripheral_map, signal, level):
                 freq = signal_xml.find("external_source").get("default_freq")
                 freq_base = parse_freq(freq)
                 dts += f"{indent_str}\t/* External clock source (default {freq}) */\n"
+            elif signal_xml.find("external_source") is not None:
+                # External clock frequency, no default value
+                dts += f"{indent_str}\t/* External clock source */\n"
+                freq_base = 0
+            else:
+                logging.warning("Unrecognized source type %s, skipping", signal["id"])
+                return ""
             dts += f"{indent_str}\tfrequency = <{freq_base}>;\n"
         else:
             # Use a fixed clock source
@@ -557,22 +572,31 @@ def output_signal(peripheral_map, signal, level):
         dts += input_str[:-1] + ">;\n"
     elif signal["type"] == "prescaler":
         if signal["source"].find("divide") is not None:
-            # Determine the div register and bitfield width
-            (_, reg_expr) = signal["source"].find("divide").get('expr').split("+")
-            (reg, bitfield) = reg_expr.split('[')
-            # Strip trailing "]" from bitfield
-            bitfield = bitfield[:-1]
-            (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
-                                                            reg, bitfield)
-            dts = f"\n{indent_str}{signal['id'].lower()}: "
-            dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
-            dts += f"{indent_str}\tcompatible = \"nxp,syscon-clock-div\";\n"
-            dts += f"{indent_str}\t#clock-cells = <1>;\n"
-            # Write register offset and width
-            dts += f"{indent_str}\t/* {reg}[{bitfield}] */\n"
-            dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x{width:x}>;\n"
-            if offset != 0:
-                logging.warning("Clock divider %s has invalid offset", reg_expr)
+            div_expr = signal["source"].find("divide").get('expr')
+            if div_expr.isdigit():
+                # Fixed divider
+                dts = f"\n{indent_str}{signal['id'].lower()}: "
+                dts += f"{signal['id'].lower().replace('_','-')} {{\n"
+                dts += f"{indent_str}\tcompatible = \"fixed-divider\";\n"
+                dts += f"{indent_str}\t#clock-cells = <0>;\n"
+                dts += f"{indent_str}\tdivider = <{int(div_expr, 0)}>;\n"
+            else:
+                # Determine the div register and bitfield width
+                (_, reg_expr) = div_expr.split("+")
+                (reg, bitfield) = reg_expr.split('[')
+                # Strip trailing "]" from bitfield
+                bitfield = bitfield[:-1]
+                (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
+                                                                reg, bitfield)
+                dts = f"\n{indent_str}{signal['id'].lower()}: "
+                dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
+                dts += f"{indent_str}\tcompatible = \"nxp,syscon-clock-div\";\n"
+                dts += f"{indent_str}\t#clock-cells = <1>;\n"
+                # Write register offset and width
+                dts += f"{indent_str}\t/* {reg}[{bitfield}] */\n"
+                dts += f"{indent_str}\treg = <0x{reg_offset:x} 0x{width:x}>;\n"
+                if offset != 0:
+                    logging.warning("Clock divider %s has invalid offset", reg_expr)
         else:
             logging.warning("Prescaler %s has unknown type, skipping", signal["id"])
             # Skip DTS generation
@@ -618,6 +642,8 @@ def processor_to_clock_node(processor_name):
     if "IMXRT5" in processor_name:
         return 'syscon'
     if "LPC55" in processor_name:
+        return 'syscon'
+    if "MCX" in processor_name:
         return 'syscon'
     # Unknown processor family
     return "UNKNOWN"
