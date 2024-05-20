@@ -2,7 +2,7 @@
 Implements handlers for generating common clock signals. These
 signals are shared across all multiple SOC lines.
 """
-from helpers import indent_string, get_addr_and_bitfield, parse_freq
+import helpers
 
 def output_clock_enable(peripheral_map, signal, level):
     """
@@ -19,7 +19,7 @@ def output_clock_enable(peripheral_map, signal, level):
     if enable_xml is not None:
         bitfield = enable_xml.get("bit_field")
         periph_reg = enable_xml.get("register")
-        (reg_addr, width, offset) = get_addr_and_bitfield(peripheral_map,
+        (reg_addr, width, offset) = helpers.get_addr_and_bitfield(peripheral_map,
                                                         periph_reg,
                                                         bitfield)
         if width != 1:
@@ -30,15 +30,15 @@ def output_clock_enable(peripheral_map, signal, level):
         offset = 0
     # Now that we know register, write the node definition
     dts = "\n"
-    dts += indent_string(f"{signal['id'].lower()}: ", level)
+    dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
     dts += f"{signal['id'].lower().replace('_','-')}@{reg_addr:x} {{\n"
-    dts += indent_string(f"compatible = \"nxp,syscon-clock-gate\";\n", level + 1)
-    dts += indent_string(f"#clock-cells = <1>;\n", level + 1)
+    dts += helpers.indent_string(f"compatible = \"nxp,syscon-clock-gate\";\n", level + 1)
+    dts += helpers.indent_string(f"#clock-cells = <1>;\n", level + 1)
     if enable_xml is not None:
         # Write register name as comment
-        dts += indent_string(f"/* {periph_reg}[{bitfield}] */\n", level + 1)
-    dts += indent_string(f"reg = <0x{reg_addr:x} 0x{width:x}>;\n", level + 1)
-    dts += indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
+        dts += helpers.indent_string(f"/* {periph_reg}[{bitfield}] */\n", level + 1)
+    dts += helpers.indent_string(f"reg = <0x{reg_addr:x} 0x{width:x}>;\n", level + 1)
+    dts += helpers.indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
     return dts
 
 def output_clock_source(peripheral_map, signal, level):
@@ -56,49 +56,49 @@ def output_clock_source(peripheral_map, signal, level):
     if enable_xml is not None:
         bitfield = enable_xml.get("bit_field")
         periph_reg = enable_xml.get("register")
-        (reg_addr, width, offset) = get_addr_and_bitfield(peripheral_map,
+        (reg_addr, width, offset) = helpers.get_addr_and_bitfield(peripheral_map,
                                                         periph_reg,
                                                         bitfield)
         if width != 1:
             logging.warning("Clock source register %s has width >1", periph_reg)
         # Now that we know register, write the node definition
         dts = "\n"
-        dts += indent_string(f"{signal['id'].lower()}: ", level)
+        dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
         dts += f"{signal['id'].lower().replace('_','-')}@{reg_addr:x} {{\n"
-        dts += indent_string(f"compatible = \"nxp,syscon-clock-source\";\n", level + 1)
-        dts += indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
-        dts += indent_string(f"#clock-cells = <1>;\n", level + 1)
+        dts += helpers.indent_string(f"compatible = \"nxp,syscon-clock-source\";\n", level + 1)
+        dts += helpers.indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
+        dts += helpers.indent_string(f"#clock-cells = <1>;\n", level + 1)
         # Write register name as comment
-        dts += indent_string(f"/* {periph_reg}[{bitfield}] */\n", level + 1)
-        dts += indent_string(f"reg = <0x{reg_addr:x} 0x{width:x}>;\n", level + 1)
+        dts += helpers.indent_string(f"/* {periph_reg}[{bitfield}] */\n", level + 1)
+        dts += helpers.indent_string(f"reg = <0x{reg_addr:x} 0x{width:x}>;\n", level + 1)
         # Get clock frequency
         if ((signal_xml.find("internal_source") is not None)and
                 (signal_xml.find("internal_source").find("fixed_frequency") is not None)):
             freq = signal_xml.find("internal_source").find("fixed_frequency").get("freq")
-            freq_base = parse_freq(freq)
+            freq_base = helpers.parse_freq(freq)
         elif ((signal_xml.find("external_source") is not None) and
                 (signal_xml.find("external_source").get("default_freq") is not None)):
             # External clock frequency, with default value
             freq = signal_xml.find("external_source").get("default_freq")
-            freq_base = parse_freq(freq)
-            dts += indent_string(f"/* External clock source (default {freq}) */\n", level + 1)
+            freq_base = helpers.parse_freq(freq)
+            dts += helpers.indent_string(f"/* External clock source (default {freq}) */\n", level + 1)
         elif signal_xml.find("external_source") is not None:
             # External clock frequency, no default value
-            dts += indent_string(f"/* External clock source */\n", level + 1)
+            dts += helpers.indent_string(f"/* External clock source */\n", level + 1)
             freq_base = 0
         else:
             logging.warning("Unrecognized source type %s, skipping", signal["id"])
             return ""
-        dts += indent_string(f"frequency = <{freq_base}>;\n", level + 1)
+        dts += helpers.indent_string(f"frequency = <{freq_base}>;\n", level + 1)
     else:
         # Use a fixed clock source
         dts = "\n"
-        dts += indent_string(f"{signal['id'].lower()}: ", level)
+        dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
         dts += f"{signal['id'].lower().replace('_','-')} {{\n"
-        dts += indent_string(f"compatible = \"fixed-clock-source\";\n", level + 1)
-        dts += indent_string(f"#clock-cells = <0>;\n", level + 1)
-        dts += indent_string(f"/* External clock source */\n", level + 1)
-        dts += indent_string(f"frequency = <0>;\n", level + 1)
+        dts += helpers.indent_string(f"compatible = \"fixed-clock-source\";\n", level + 1)
+        dts += helpers.indent_string(f"#clock-cells = <0>;\n", level + 1)
+        dts += helpers.indent_string(f"/* External clock source */\n", level + 1)
+        dts += helpers.indent_string(f"frequency = <0>;\n", level + 1)
     return dts
 
 def output_no_clock(signal, level):
@@ -110,12 +110,12 @@ def output_no_clock(signal, level):
     Returns string describing devicetree for this node
     """
     dts = "\n"
-    dts += indent_string(f"{signal['id'].lower()}: ", level)
+    dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
     dts += f"{signal['id'].lower().replace('_','-')} {{\n"
-    dts += indent_string(f"/* Dummy node- indicates no clock source was selected */\n", level + 1)
-    dts += indent_string(f"compatible = \"fixed-clock-source\";\n", level + 1)
-    dts += indent_string(f"#clock-cells = <0>;\n", level + 1)
-    dts += indent_string(f"frequency = <0>;\n", level + 1)
+    dts += helpers.indent_string(f"/* Dummy node- indicates no clock source was selected */\n", level + 1)
+    dts += helpers.indent_string(f"compatible = \"fixed-clock-source\";\n", level + 1)
+    dts += helpers.indent_string(f"#clock-cells = <0>;\n", level + 1)
+    dts += helpers.indent_string(f"frequency = <0>;\n", level + 1)
     return dts
 
 def output_clock_select(peripheral_map, signal, level):
@@ -131,23 +131,23 @@ def output_clock_select(peripheral_map, signal, level):
     (reg, bitfield) = reg_expr.split('[')
     # Strip trailing "]" from bitfield
     bitfield = bitfield[:-1]
-    (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
+    (reg_offset, width, offset) = helpers.get_addr_and_bitfield(peripheral_map,
                                                     reg, bitfield)
     # Write node with register address
     dts = "\n"
-    dts += indent_string(f"{signal['id'].lower()}: ", level)
+    dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
     dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
-    dts += indent_string(f"compatible = \"nxp,syscon-clock-mux\";\n", level + 1)
-    dts += indent_string(f"#clock-cells = <1>;\n", level + 1)
+    dts += helpers.indent_string(f"compatible = \"nxp,syscon-clock-mux\";\n", level + 1)
+    dts += helpers.indent_string(f"#clock-cells = <1>;\n", level + 1)
     # Write register address, mask, and width
-    dts += indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
-    dts += indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
-    dts += indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
+    dts += helpers.indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
+    dts += helpers.indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
+    dts += helpers.indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
     if "MAINCLKSEL" in signal['id']:
         # Main clock selects are safe muxes, add this property
-        dts += indent_string(f"safe-mux;\n", level + 1)
+        dts += helpers.indent_string(f"safe-mux;\n", level + 1)
     # Add input sources
-    input_str = indent_string(f"input-sources = <", level + 1)
+    input_str = helpers.indent_string(f"input-sources = <", level + 1)
     source_names = []
     for i in range(len(signal["parents"])):
         source = signal["parents"][i]
@@ -162,7 +162,7 @@ def output_clock_select(peripheral_map, signal, level):
             # More signals to define, move to a newline
             input_str = input_str[:-1] + "\n"
             dts += input_str
-            input_str = indent_string("", level + 3)
+            input_str = helpers.indent_string("", level + 3)
     # Strip tailing space, add >;
     dts += input_str[:-1] + ">;\n"
     return dts
@@ -173,27 +173,27 @@ def output_clock_prescaler(peripheral_map, signal, level):
         if div_expr.isdigit():
             # Fixed divider
             dts = "\n"
-            dts += indent_string(f"{signal['id'].lower()}: ", level + 1)
+            dts += helpers.indent_string(f"{signal['id'].lower()}: ", level + 1)
             dts += f"{signal['id'].lower().replace('_','-')} {{\n"
-            dts += indent_string(f"compatible = \"fixed-divider\";\n", level + 1)
-            dts += indent_string(f"#clock-cells = <0>;\n", level + 1)
-            dts += indent_string(f"divider = <{int(div_expr, 0)}>;\n", level + 1)
+            dts += helpers.indent_string(f"compatible = \"fixed-divider\";\n", level + 1)
+            dts += helpers.indent_string(f"#clock-cells = <0>;\n", level + 1)
+            dts += helpers.indent_string(f"divider = <{int(div_expr, 0)}>;\n", level + 1)
         else:
             # Determine the div register and bitfield width
             (_, reg_expr) = div_expr.split("+")
             (reg, bitfield) = reg_expr.split('[')
             # Strip trailing "]" from bitfield
             bitfield = bitfield[:-1]
-            (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
+            (reg_offset, width, offset) = helpers.get_addr_and_bitfield(peripheral_map,
                                                             reg, bitfield)
             dts = "\n"
-            dts += indent_string(f"{signal['id'].lower()}: ", level)
+            dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
             dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
-            dts += indent_string(f"compatible = \"nxp,syscon-clock-div\";\n", level + 1)
-            dts += indent_string(f"#clock-cells = <1>;\n", level + 1)
+            dts += helpers.indent_string(f"compatible = \"nxp,syscon-clock-div\";\n", level + 1)
+            dts += helpers.indent_string(f"#clock-cells = <1>;\n", level + 1)
             # Write register offset and width
-            dts += indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
-            dts += indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
+            dts += helpers.indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
+            dts += helpers.indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
             if offset != 0:
                 logging.warning("Clock divider %s has invalid offset", reg_expr)
     else:

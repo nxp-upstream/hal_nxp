@@ -1,6 +1,7 @@
 """
 Common helper functions for SOC clock generation
 """
+import gen_soc_clocks
 
 def indent_string(string, indent):
     """
@@ -54,3 +55,24 @@ def parse_freq(freq):
     else:
         logging.warning("Unmatched frequency unit %s", freq_unit)
     return freq_base
+
+def generate_children(peripheral_map, signal, level, proc_name):
+    """
+    Generates devicetree data for children of a given clock signal
+    @param peripheral_map: peripheral map used to resolve reset values
+    @param signal: signal to parse and output devicetree for
+    @param level: indentation level of output devicetree
+    @param proc_name: Processor name, used for special case signals handling
+    Returns string describing devicetree for this node, or empty string
+    if the signal is not handled
+    """
+    dts = ""
+    child_dts = ""
+    for child in signal['children']:
+        child_dts += gen_soc_clocks.output_signal(peripheral_map, child, level + 1, proc_name)
+    if len(child_dts) > 0 and "@" in child_dts:
+        # Add address-cells and size-cells settings
+        dts += indent_string(f"#address-cells = <1>;\n", level + 1)
+        dts += indent_string(f"#size-cells = <1>;\n", level + 1)
+    dts += child_dts
+    return dts
