@@ -7,6 +7,10 @@ import os
 import sys
 import datetime
 import pathlib
+from helpers import indent_string
+from helpers import get_addr_and_bitfield
+from helpers import parse_freq
+import common_clocks
 
 # Add shared utils to path
 SHARED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
@@ -59,48 +63,6 @@ clock_components = {}
 root_clocks = [signal_map["NO_CLOCK"]]
 # Clock muxes, treated as roots in DTS: <clock_select> tag in XML
 clock_muxes = []
-
-def get_addr_and_bitfield(peripheral_map, reg_expr, bitfield):
-    """
-    Helper function to get the register address, bitfield width, and bitfield
-    offset for register expression
-    @param peripheral_map: map of peripheral names to peripheral objects
-    @param reg_expr: expression describing register, formatted as PERIPHERAL::REGISTER
-    @param bitfield: name of bitfield to read from
-    @return tuple of (register address, bitfield width, bitfield offset)
-    """
-    if "::" not in reg_expr:
-        # Add the SCG to the register expression
-        reg_expr = "SCG0::" + reg_expr
-    # Read the bitfield and register expression (peripheral + reg)
-    (periph, reg) = reg_expr.split("::")
-    # Get register offset and bitfield
-    reg_addr = peripheral_map[periph].get_reg_addr(reg)
-    bitfield_offset = (peripheral_map[periph].get_register(reg).
-                        get_bit_field_offset(bitfield))
-    bitfield_width = (peripheral_map[periph].get_register(reg).
-                        get_bit_field_width(bitfield))
-    return (reg_addr, bitfield_width, bitfield_offset)
-
-def parse_freq(freq):
-    """
-    Helper function to parse human readable frequency expression into
-    an integer frequency
-    @param freq: frequency expression to parse
-    """
-    freq_base = int(freq.split()[0])
-    freq_unit = freq.split()[1]
-    if freq_unit == "GHz":
-        freq_base *= 1000000000
-    elif freq_unit == "MHz":
-        freq_base *= 1000000
-    elif freq_unit == "KHz":
-        freq_base *= 1000000
-    elif freq_unit == "Hz":
-        pass
-    else:
-        logging.warning("Unmatched frequency unit %s", freq_unit)
-    return freq_base
 
 def resolve_input_id(active_component, input_id):
     """
@@ -403,19 +365,69 @@ def handle_special_signals(peripheral_map, signal, level):
         dts += child_dts
         dts += indent_string("};\n", level)
         return dts
+    elif signal["id"] in PDOWN_REGS:
+        # Clock source signal that supports being powered off
+        signal_xml = signal["source"]
+        enable_xml = signal_xml.find("configuration_element/item/assigns/assign")
+        bitfield = enable_xml.get("bit_field")
+        periph_reg = enable_xml.get("register")
+        (reg_addr, width, offset) = get_addr_and_bitfield(peripheral_map,
+                                                        periph_reg,
+                                                        bitfield)
+        if width != 1:
+            logging.warning("Clock source register %s has width >1", periph_reg)
+        # Now that we know register, write the node definition
+        dts = "\n"
+        dts += indent_string(f"{signal['id'].lower()}: ", level)
+        dts += f"{signal['id'].lower().replace('_','-')}@{reg_addr:x} {{\n"
+        dts += indent_string(f"compatible = \"nxp,syscon-clock-source\";\n", level + 1)
+        dts += indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
+        dts += indent_string(f"#clock-cells = <1>;\n", level + 1)
+        (pdown_periph, pdown_bitfields) = PDOWN_REGS[signal['id']]
+        pdown_bitmask = 0
+        for field in pdown_bitfields:
+            (_, _, pdown_offset) = get_addr_and_bitfield(
+                peripheral_map, pdown_periph, field
+            )
+            pdown_bitmask |= (0x1 << pdown_offset)
+        # Write register name as comment
+        dts += indent_string(f"/* {pdown_periph}[{' | '.join(pdown_bitfields)}] */\n", level + 1)
+        dts += indent_string(f"pdown-mask = <0x{pdown_bitmask:x}>;\n", level + 1)
+        # Write register name as comment
+        dts += indent_string(f"/* {periph_reg}[{bitfield}] */\n", level + 1)
+        dts += indent_string(f"reg = <0x{reg_addr:x} 0x{width:x}>;\n", level + 1)
+        # Get clock frequency
+        if ((signal_xml.find("internal_source") is not None)and
+                (signal_xml.find("internal_source").find("fixed_frequency") is not None)):
+            freq = signal_xml.find("internal_source").find("fixed_frequency").get("freq")
+            freq_base = parse_freq(freq)
+        elif ((signal_xml.find("external_source") is not None) and
+                (signal_xml.find("external_source").get("default_freq") is not None)):
+            # External clock frequency, with default value
+            freq = signal_xml.find("external_source").get("default_freq")
+            freq_base = parse_freq(freq)
+            dts += indent_string(f"/* External clock source (default {freq}) */\n", level + 1)
+        elif signal_xml.find("external_source") is not None:
+            # External clock frequency, no default value
+            dts += indent_string(f"/* External clock source */\n", level + 1)
+            freq_base = 0
+        else:
+            logging.warning("Unrecognized source type %s, skipping", signal["id"])
+            return ""
+        dts += indent_string(f"frequency = <{freq_base}>;\n", level + 1)
+        # Generate children
+        child_dts = ""
+        for child in signal['children']:
+            child_dts += output_signal(peripheral_map, child, level+1)
+        if len(child_dts) > 0 and "@" in child_dts:
+            # Add address-cells and size-cells settings
+            dts += indent_string(f"#address-cells = <1>;\n", level + 1)
+            dts += indent_string(f"#size-cells = <1>;\n", level + 1)
+        dts += child_dts
+        dts += indent_string("};\n", level)
+        return dts
     else:
         return ""
-
-def indent_string(string, indent):
-    """
-    Basic helper to generate a string indented by a given number of tabs
-    @param string string to output
-    @param indent number of tabs to indent string by
-    """
-    indent_str = ""
-    for _ in range(indent):
-        indent_str += "\t"
-    return indent_str + string
 
 def output_signal(peripheral_map, signal, level):
     """
@@ -446,178 +458,15 @@ def output_signal(peripheral_map, signal, level):
         return dts
 
     if signal["type"] == "clock_source":
-        # Get the address and offset of the bit that enables
-        # the clock source
-        signal_xml = signal["source"]
-        enable_xml = signal_xml.find("configuration_element/item/assigns/assign")
-        if enable_xml is not None:
-            bitfield = enable_xml.get("bit_field")
-            periph_reg = enable_xml.get("register")
-            (reg_addr, width, offset) = get_addr_and_bitfield(peripheral_map,
-                                                            periph_reg,
-                                                            bitfield)
-            if width != 1:
-                logging.warning("Clock source register %s has width >1", periph_reg)
-            # Now that we know register, write the node definition
-            dts = "\n"
-            dts += indent_string(f"{signal['id'].lower()}: ", level)
-            dts += f"{signal['id'].lower().replace('_','-')}@{reg_addr:x} {{\n"
-            dts += indent_string(f"compatible = \"nxp,syscon-clock-source\";\n", level + 1)
-            dts += indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
-            dts += indent_string(f"#clock-cells = <1>;\n", level + 1)
-            # Check to see if a power down register exists
-            if signal['id'] in PDOWN_REGS:
-                (pdown_periph, pdown_bitfields) = PDOWN_REGS[signal['id']]
-                pdown_bitmask = 0
-                for field in pdown_bitfields:
-                    (_, _, pdown_offset) = get_addr_and_bitfield(
-                        peripheral_map, pdown_periph, field
-                    )
-                    pdown_bitmask |= (0x1 << pdown_offset)
-                # Write register name as comment
-                dts += indent_string(f"/* {pdown_periph}[{' | '.join(pdown_bitfields)}] */\n", level + 1)
-                dts += indent_string(f"pdown-mask = <0x{pdown_bitmask:x}>;\n", level + 1)
-            if enable_xml is not None:
-                # Write register name as comment
-                dts += indent_string(f"/* {periph_reg}[{bitfield}] */\n", level + 1)
-            dts += indent_string(f"reg = <0x{reg_addr:x} 0x{width:x}>;\n", level + 1)
-            # Get clock frequency
-            if ((signal_xml.find("internal_source") is not None)and
-                    (signal_xml.find("internal_source").find("fixed_frequency") is not None)):
-                freq = signal_xml.find("internal_source").find("fixed_frequency").get("freq")
-                freq_base = parse_freq(freq)
-            elif ((signal_xml.find("external_source") is not None) and
-                    (signal_xml.find("external_source").get("default_freq") is not None)):
-                # External clock frequency, with default value
-                freq = signal_xml.find("external_source").get("default_freq")
-                freq_base = parse_freq(freq)
-                dts += indent_string(f"/* External clock source (default {freq}) */\n", level + 1)
-            elif signal_xml.find("external_source") is not None:
-                # External clock frequency, no default value
-                dts += indent_string(f"/* External clock source */\n", level + 1)
-                freq_base = 0
-            else:
-                logging.warning("Unrecognized source type %s, skipping", signal["id"])
-                return ""
-            dts += indent_string(f"frequency = <{freq_base}>;\n", level + 1)
-        else:
-            # Use a fixed clock source
-            dts = "\n"
-            dts += indent_string(f"{signal['id'].lower()}: ", level)
-            dts += f"{signal['id'].lower().replace('_','-')} {{\n"
-            dts += indent_string(f"compatible = \"fixed-clock-source\";\n", level + 1)
-            dts += indent_string(f"#clock-cells = <0>;\n", level + 1)
-            dts += indent_string(f"/* External clock source */\n", level + 1)
-            dts += indent_string(f"frequency = <0>;\n", level + 1)
+        dts = common_clocks.output_clock_source(peripheral_map, signal, level)
     elif signal["type"] == "clock_enable":
-        # Get the address and offset of the bit that enables
-        # the clock source
-        signal_xml = signal["source"]
-        enable_xml = signal_xml.find("configuration_element/item/assigns/assign")
-        if enable_xml is not None:
-            bitfield = enable_xml.get("bit_field")
-            periph_reg = enable_xml.get("register")
-            (reg_addr, width, offset) = get_addr_and_bitfield(peripheral_map,
-                                                            periph_reg,
-                                                            bitfield)
-            if width != 1:
-                logging.warning("Clock gate register %s has width >1", periph_reg)
-        else:
-            # Fallback to empty values
-            reg_addr = 0
-            offset = 0
-        # Now that we know register, write the node definition
-        dts = "\n"
-        dts += indent_string(f"{signal['id'].lower()}: ", level)
-        dts += f"{signal['id'].lower().replace('_','-')}@{reg_addr:x} {{\n"
-        dts += indent_string(f"compatible = \"nxp,syscon-clock-gate\";\n", level + 1)
-        dts += indent_string(f"#clock-cells = <1>;\n", level + 1)
-        if enable_xml is not None:
-            # Write register name as comment
-            dts += indent_string(f"/* {periph_reg}[{bitfield}] */\n", level + 1)
-        dts += indent_string(f"reg = <0x{reg_addr:x} 0x{width:x}>;\n", level + 1)
-        dts += indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
+        dts = common_clocks.output_clock_enable(peripheral_map, signal, level)
     elif signal["type"] == "no_clock":
-        dts = "\n"
-        dts += indent_string(f"{signal['id'].lower()}: ", level)
-        dts += f"{signal['id'].lower().replace('_','-')} {{\n"
-        dts += indent_string(f"/* Dummy node- indicates no clock source was selected */\n", level + 1)
-        dts += indent_string(f"compatible = \"fixed-clock-source\";\n", level + 1)
-        dts += indent_string(f"#clock-cells = <0>;\n", level + 1)
-        dts += indent_string(f"frequency = <0>;\n", level + 1)
+        dts = common_clocks.output_no_clock(signal, level)
     elif signal["type"] == "clock_select":
-        # Determine the mux register and bitfield width
-        reg_expr = signal["source"].find("value_map").get('expr')
-        (reg, bitfield) = reg_expr.split('[')
-        # Strip trailing "]" from bitfield
-        bitfield = bitfield[:-1]
-        (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
-                                                        reg, bitfield)
-        # Write node with register address
-        dts = "\n"
-        dts += indent_string(f"{signal['id'].lower()}: ", level)
-        dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
-        dts += indent_string(f"compatible = \"nxp,syscon-clock-mux\";\n", level + 1)
-        dts += indent_string(f"#clock-cells = <1>;\n", level + 1)
-        # Write register address, mask, and width
-        dts += indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
-        dts += indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
-        dts += indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
-        if "MAINCLKSEL" in signal['id']:
-            # Main clock selects are safe muxes, add this property
-            dts += indent_string(f"safe-mux;\n", level + 1)
-        # Add input sources
-        input_str = indent_string(f"input-sources = <", level + 1)
-        source_names = []
-        for i in range(len(signal["parents"])):
-            source = signal["parents"][i]
-            if source["type"] == "output_clock_signal":
-                # Use the parent of the source as the true clock input
-                source_id = source["parents"][0]["id"].lower()
-            else:
-                source_id = source["id"].lower()
-            input_str += f"&{source_id} "
-            source_names.append(source_id)
-            if (len(input_str) > 60) and (i < (len(signal["parents"]) - 1)):
-                # More signals to define, move to a newline
-                input_str = input_str[:-1] + "\n"
-                dts += input_str
-                input_str = indent_string("", level + 3)
-        # Strip tailing space, add >;
-        dts += input_str[:-1] + ">;\n"
+        dts = common_clocks.output_clock_select(peripheral_map, signal, level)
     elif signal["type"] == "prescaler":
-        if signal["source"].find("divide") is not None:
-            div_expr = signal["source"].find("divide").get('expr')
-            if div_expr.isdigit():
-                # Fixed divider
-                dts = "\n"
-                dts += indent_string(f"{signal['id'].lower()}: ", level + 1)
-                dts += f"{signal['id'].lower().replace('_','-')} {{\n"
-                dts += indent_string(f"compatible = \"fixed-divider\";\n", level + 1)
-                dts += indent_string(f"#clock-cells = <0>;\n", level + 1)
-                dts += indent_string(f"divider = <{int(div_expr, 0)}>;\n", level + 1)
-            else:
-                # Determine the div register and bitfield width
-                (_, reg_expr) = div_expr.split("+")
-                (reg, bitfield) = reg_expr.split('[')
-                # Strip trailing "]" from bitfield
-                bitfield = bitfield[:-1]
-                (reg_offset, width, offset) = get_addr_and_bitfield(peripheral_map,
-                                                                reg, bitfield)
-                dts = "\n"
-                dts += indent_string(f"{signal['id'].lower()}: ", level)
-                dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
-                dts += indent_string(f"compatible = \"nxp,syscon-clock-div\";\n", level + 1)
-                dts += indent_string(f"#clock-cells = <1>;\n", level + 1)
-                # Write register offset and width
-                dts += indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
-                dts += indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
-                if offset != 0:
-                    logging.warning("Clock divider %s has invalid offset", reg_expr)
-        else:
-            logging.warning("Prescaler %s has unknown type, skipping", signal["id"])
-            # Skip DTS generation
-            return ""
+        dts = common_clocks.output_clock_prescaler(peripheral_map, signal, level)
     else:
         logging.warning("Unmatched signal type %s", signal["type"])
     child_dts = ""
