@@ -1,0 +1,1835 @@
+/* Generated from NXP MCUX clock data */
+&syscon {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	/* Root clock sources */
+	no_clock: no-clock {
+		/* Dummy node- indicates no clock source was selected */
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		frequency = <0>;
+	};
+
+	sosc: sosc@40044100 {
+		compatible = "nxp,syscon-clock-source";
+		offset = <0x0>;
+		#clock-cells = <1>;
+		/* SOSCCSR[SOSCEN] */
+		reg = <0x40044100 0x1>;
+		/* External clock source */
+		frequency = <0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			pfd_frac_mul: pfd-frac-mul {
+				compatible = "fixed-multiplier";
+				#clock-cells = <0>;
+				multiplier = <18>;
+				#address-cells = <1>;
+				#size-cells = <1>;
+
+				pfd_frac_div: pfd-frac-div@4010a140 {
+					compatible = "nxp,mcxn9x-pfd-frac";
+					#clock-cells = <1>;
+					/* USBPHY::PFDA[PFD0_FRAC] */
+					reg = <0x4010a140 0x6>;
+
+					pfd_clk_div4: pfd-clk-div4 {
+						compatible = "fixed-divider";
+						#clock-cells = <0>;
+						divider = <4>;
+					};
+
+					pfd_clk_div2: pfd-clk-div2 {
+						compatible = "fixed-divider";
+						#clock-cells = <0>;
+						divider = <2>;
+					};
+				};
+			};
+
+			usb_hspll_clock: usb-hspll-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+
+		clk_in_clock: clk-in-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	sirc: sirc@40044200 {
+		compatible = "nxp,syscon-clock-source";
+		offset = <0x5>;
+		#clock-cells = <1>;
+		/* SIRCCSR[SIRC_CLK_PERIPH_EN] */
+		reg = <0x40044200 0x1>;
+		frequency = <12000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		fro_12m_clock: fro-12m-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+
+		pluglitch12mhzclk: pluglitch12mhzclk@40000a18 {
+			compatible = "nxp,syscon-clock-gate";
+			#clock-cells = <1>;
+			/* SYSCON0::CLOCK_CTRL[PLU_DEGLITCH_CLK_ENA] */
+			reg = <0x40000a18 0x1>;
+			offset = <0x9>;
+
+			plu_glitch_12mhz_clock: plu-glitch-12mhz-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+
+		sirc_div12: sirc-div12 {
+			compatible = "fixed-divider";
+			#clock-cells = <0>;
+			divider = <12>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			clk_1m_clock: clk-1m-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+
+			wdt0clkdiv: wdt0clkdiv@4000038c {
+				compatible = "nxp,syscon-clock-div";
+				#clock-cells = <1>;
+				/* SYSCON0::WDT0CLKDIV[DIV] */
+				reg = <0x4000038c 0x6>;
+
+				wdt0_clock: wdt0-clock {
+					compatible = "clock-output";
+					#clock-cells = <1>;
+				};
+			};
+
+			i3c0fclksdiv: i3c0fclksdiv@4000053c {
+				compatible = "nxp,syscon-clock-div";
+				#clock-cells = <1>;
+				/* SYSCON0::I3C0FCLKSDIV[DIV] */
+				reg = <0x4000053c 0x8>;
+
+				i3c0_slow_clock: i3c0-slow-clock {
+					compatible = "clock-output";
+					#clock-cells = <1>;
+				};
+			};
+
+			i3c1fclksdiv: i3c1fclksdiv@40000b3c {
+				compatible = "nxp,syscon-clock-div";
+				#clock-cells = <1>;
+				/* SYSCON0::I3C1FCLKSDIV[DIV] */
+				reg = <0x40000b3c 0x8>;
+
+				i3c1_slow_clock: i3c1-slow-clock {
+					compatible = "clock-output";
+					#clock-cells = <1>;
+				};
+			};
+
+			pluglitch1mhzclk: pluglitch1mhzclk@40000a18 {
+				compatible = "nxp,syscon-clock-gate";
+				#clock-cells = <1>;
+				/* SYSCON0::CLOCK_CTRL[PLU_DEGLITCH_CLK_ENA] */
+				reg = <0x40000a18 0x1>;
+				offset = <0x9>;
+
+				plu_glitch_1mhz_clock: plu-glitch-1mhz-clock {
+					compatible = "clock-output";
+					#clock-cells = <1>;
+				};
+			};
+
+			utick_clk: utick-clk@40000a18 {
+				compatible = "nxp,syscon-clock-gate";
+				#clock-cells = <1>;
+				/* SYSCON0::CLOCK_CTRL[FRO1MHZ_ENA] */
+				reg = <0x40000a18 0x1>;
+				offset = <0x2>;
+
+				utick_clock: utick-clock {
+					compatible = "clock-output";
+					#clock-cells = <1>;
+				};
+			};
+		};
+	};
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		fro_hf_clock: fro-hf-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+
+		frohfdiv: frohfdiv@40000388 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FROHFDIV[DIV] */
+			reg = <0x40000388 0x8>;
+
+			fro_hf_div_clock: fro-hf-div-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	osc_32k: osc-32k@40059100 {
+		compatible = "nxp,syscon-clock-source";
+		offset = <0x0>;
+		#clock-cells = <1>;
+		/* VBAT0::OSCCTLA[OSC_EN] */
+		reg = <0x40059100 0x1>;
+		/* External clock source (default 32768 Hz) */
+		frequency = <32768>;
+
+		xtal32k2_towake_clock: xtal32k2-towake-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+
+		xtal32k0_tovbat_clock: xtal32k0-tovbat-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+
+		xtal32k1_tovsys_clock: xtal32k1-tovsys-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+
+		xtal32k3_tomain_clock: xtal32k3-tomain-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	firc_48m: firc-48m@40044300 {
+		compatible = "nxp,syscon-clock-gate";
+		offset = <0x4>;
+		#clock-cells = <1>;
+		/* SCG0::FIRCCSR[FIRC_SCLK_PERIPH_EN] */
+		reg = <0x40044300 0x1>;
+	}
+
+	fro_16k: fro-16k@40059200 {
+		compatible = "nxp,syscon-clock-source";
+		offset = <0x0>;
+		#clock-cells = <1>;
+		/* VBAT0::FROCTLA[FRO_EN] */
+		reg = <0x40059200 0x1>;
+		frequency = <16384>;
+
+		clk16k0_tovbat_clock: clk16k0-tovbat-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+
+		clk16k1_tovsys_clock: clk16k1-tovsys-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+
+		clk16k2_towake_clock: clk16k2-towake-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+
+		clk16k3_tomain_clock: clk16k3-tomain-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	firc_144m: firc-144m@40044300 {
+		compatible = "nxp,syscon-clock-gate";
+		offset = <0x5>;
+		#clock-cells = <1>;
+		/* SCG0::FIRCCSR[FIRC_FCLK_PERIPH_EN] */
+		reg = <0x40044300 0x1>;
+	}
+
+	sai0_mclk_in: sai0-mclk-in {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	sai1_mclk_in: sai1-mclk-in {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	sai0_tx_bclk_in: sai0-tx-bclk-in {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	sai0_rx_bclk_in: sai0-rx-bclk-in {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	sai1_tx_bclk_in: sai1-tx-bclk-in {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	sai1_rx_bclk_in: sai1-rx-bclk-in {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	enet0_tx_clk_in: enet0-tx-clk-in {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	freqme_clk_in0: freqme-clk-in0 {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	freqme_clk_in1: freqme-clk-in1 {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	evtg_out0a: evtg-out0a {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	evtg_out1a: evtg-out1a {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+	};
+
+	plu_clkin: plu-clkin {
+		compatible = "fixed-clock-source";
+		#clock-cells = <0>;
+		/* External clock source */
+		frequency = <0>;
+
+		pluclkin_clock: pluclkin-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	/* Clock muxes */
+	pll0srcsel: pll0srcsel@40044504 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* APLLCTRL[SOURCE] */
+		reg = <0x40044504 0x2>;
+		offset = <0x19>;
+		input-sources = <&sosc &firc_48m>;
+			};
+		};
+	};
+
+	pll0_directo: pll0-directo@40044504 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* APLLCTRL[BYPASSPOSTDIV] */
+		reg = <0x40044504 0x1>;
+		offset = <0x14>;
+		input-sources = <&pll0_pdiv &pll0>;
+
+		pll0_clk_clock: pll0-clk-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	pll1srcsel: pll1srcsel@40044604 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SPLLCTRL[SOURCE] */
+		reg = <0x40044604 0x2>;
+		offset = <0x19>;
+		input-sources = <&sosc &firc_48m>;
+			};
+		};
+	};
+
+	pll1_directo: pll1-directo@40044604 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SPLLCTRL[BYPASSPOSTDIV] */
+		reg = <0x40044604 0x1>;
+		offset = <0x14>;
+		input-sources = <&pll1_pdiv &pll1>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		pll1_clk_clock: pll1-clk-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+
+		pll1clk0div: pll1clk0div@400003e4 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::PLL1CLK0DIV[DIV] */
+			reg = <0x400003e4 0x8>;
+
+			pll1_clk0_clock: pll1-clk0-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+
+		pll1clk1div: pll1clk1div@400003e8 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::PLL1CLK1DIV[DIV] */
+			reg = <0x400003e8 0x8>;
+
+			pll1_clk1_clock: pll1-clk1-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	pfd_clk_sel: pfd-clk-sel@4010a100 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* USBPHY::ANACTRL[PFD_CLK_SEL] */
+		reg = <0x4010a100 0x2>;
+		offset = <0x2>;
+		input-sources = <&sosc &pfd_clk_div4 &pfd_clk_div2 &pfd_frac_div>;
+
+		usb_pll_clock: usb-pll-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	scssel: scssel@40044014 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* RCCR[SCS] */
+		reg = <0x40044014 0x4>;
+		offset = <0x18>;
+		input-sources = <&no_clock &sosc &sirc &firc &osc_32k &pll0_directo
+				&pll1_directo &pfd_clk_sel>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		main_clock: main-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+
+		ahbclkdiv: ahbclkdiv@40000380 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* AHBCLKDIV[DIV] */
+			reg = <0x40000380 0x8>;
+
+			system_clock: system-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+
+			ahbaipsclkdiv: ahbaipsclkdiv {
+				compatible = "fixed-divider";
+				#clock-cells = <0>;
+				divider = <4>;
+
+				slow_clock: slow-clock {
+					compatible = "clock-output";
+					#clock-cells = <1>;
+				};
+			};
+		};
+
+		traceclkdiv: traceclkdiv@40000308 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::TRACECLKDIV[DIV] */
+			reg = <0x40000308 0x8>;
+		};
+
+		systickclkdiv0: systickclkdiv0@40000300 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::SYSTICKCLKDIV0[DIV] */
+			reg = <0x40000300 0x8>;
+		};
+
+		systickclkdiv1: systickclkdiv1@40000304 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::SYSTICKCLKDIV1[DIV] */
+			reg = <0x40000304 0x8>;
+		};
+	};
+
+	rtcclksel: rtcclksel@4004c010 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* RTC0::CTRL[CLK_SEL] */
+		reg = <0x4004c010 0x1>;
+		offset = <0x9>;
+		input-sources = <&fro_16k &osc_32k>;
+
+		lp_osc_clock: lp-osc-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	pllclkdivsel: pllclkdivsel@4000052c {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* PLLCLKDIVSEL[SEL] */
+		reg = <0x4000052c 0x3>;
+		offset = <0x0>;
+		input-sources = <&pll0_directo &pll1clk0div &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		pllclkdiv: pllclkdiv@400003c4 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* PLLCLKDIV[DIV] */
+			reg = <0x400003c4 0x8>;
+
+			pll_div_clock: pll-div-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	clkoutsel: clkoutsel@40000288 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CLKOUTSEL[SEL] */
+		reg = <0x40000288 0x4>;
+		offset = <0x0>;
+		input-sources = <&scssel &pll0_directo &sosc &firc &sirc &pll1clk0div
+				&rtcclksel &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		clkoutdiv: clkoutdiv@40000384 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* CLKOUTDIV[DIV] */
+			reg = <0x40000384 0x8>;
+
+			clkout_clock: clkout-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	traceclksel: traceclksel@40000268 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::TRACECLKSEL[SEL] */
+		reg = <0x40000268 0x3>;
+		offset = <0x0>;
+		input-sources = <&traceclkdiv &sirc_div12 &rtcclksel &no_clock>;
+
+		trace_clock: trace-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	systickclksel0: systickclksel0@40000260 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::SYSTICKCLKSEL0[SEL] */
+		reg = <0x40000260 0x3>;
+		offset = <0x0>;
+		input-sources = <&systickclkdiv0 &sirc_div12 &rtcclksel &no_clock>;
+
+		systick0_clock: systick0-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	systickclksel1: systickclksel1@40000264 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::SYSTICKCLKSEL1[SEL] */
+		reg = <0x40000264 0x3>;
+		offset = <0x0>;
+		input-sources = <&systickclkdiv1 &sirc_div12 &rtcclksel &no_clock>;
+
+		systick1_clock: systick1-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	flexspiclksel: flexspiclksel@400004a8 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FLEXSPICLKSEL[SEL] */
+		reg = <0x400004a8 0x4>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &no_clock &firc &no_clock
+				&pll1_directo &pfd_clk_sel>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexspiclkdiv: flexspiclkdiv@400004ac {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXSPICLKDIV[DIV] */
+			reg = <0x400004ac 0x3>;
+
+			flexspi_clock: flexspi-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	adc0clksel: adc0clksel@400002a4 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::ADC0CLKSEL[SEL] */
+		reg = <0x400002a4 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &firc &sirc &sosc
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		adc0clkdiv: adc0clkdiv@40000394 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::ADC0CLKDIV[DIV] */
+			reg = <0x40000394 0x3>;
+
+			adc0_clock: adc0-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	adc1clksel: adc1clksel@40000464 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::ADC1CLKSEL[SEL] */
+		reg = <0x40000464 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &firc &sirc &sosc
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		adc1clkdiv: adc1clkdiv@40000468 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::ADC1CLKDIV[DIV] */
+			reg = <0x40000468 0x3>;
+
+			adc1_clock: adc1-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	dac0clksel: dac0clksel@40000490 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::DAC0CLKSEL[SEL] */
+		reg = <0x40000490 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &sirc
+				&pll1clk0div &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		dac0clkdiv: dac0clkdiv@40000494 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::DAC0CLKDIV[DIV] */
+			reg = <0x40000494 0x3>;
+
+			dac0_clock: dac0-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	dac1clksel: dac1clksel@40000498 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::DAC1CLKSEL[SEL] */
+		reg = <0x40000498 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &sirc
+				&pll1clk0div &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		dac1clkdiv: dac1clkdiv@4000049c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::DAC1CLKDIV[DIV] */
+			reg = <0x4000049c 0x3>;
+
+			dac1_clock: dac1-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	dac2clksel: dac2clksel@400004a0 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::DAC2CLKSEL[SEL] */
+		reg = <0x400004a0 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &sirc
+				&pll1clk0div &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		dac2clkdiv: dac2clkdiv@400004a4 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::DAC2CLKDIV[DIV] */
+			reg = <0x400004a4 0x3>;
+
+			dac2_clock: dac2-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	ctimerclksel0: ctimerclksel0@4000026c {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CTIMERCLKSEL0[SEL] */
+		reg = <0x4000026c 0x4>;
+		offset = <0x0>;
+		input-sources = <&sirc_div12 &pll0_directo &pll1clk0div &firc
+				&sirc &sai0_mclk_in &rtcclksel &no_clock &sai1_mclk_in &sai0_tx_bclk_in
+				&sai0_rx_bclk_in &sai1_tx_bclk_in &sai1_rx_bclk_in &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		ctimer0clkdiv: ctimer0clkdiv@400003d0 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CTIMER0CLKDIV[DIV] */
+			reg = <0x400003d0 0x8>;
+
+			ctimer0_clock: ctimer0-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	ctimerclksel1: ctimerclksel1@40000270 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CTIMERCLKSEL1[SEL] */
+		reg = <0x40000270 0x4>;
+		offset = <0x0>;
+		input-sources = <&sirc_div12 &pll0_directo &pll1clk0div &firc
+				&sirc &sai0_mclk_in &rtcclksel &no_clock &sai1_mclk_in &sai0_tx_bclk_in
+				&sai0_rx_bclk_in &sai1_tx_bclk_in &sai1_rx_bclk_in &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		ctimer1clkdiv: ctimer1clkdiv@400003d4 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CTIMER1CLKDIV[DIV] */
+			reg = <0x400003d4 0x8>;
+
+			ctimer1_clock: ctimer1-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	ctimerclksel2: ctimerclksel2@40000274 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CTIMERCLKSEL2[SEL] */
+		reg = <0x40000274 0x4>;
+		offset = <0x0>;
+		input-sources = <&sirc_div12 &pll0_directo &pll1clk0div &firc
+				&sirc &sai0_mclk_in &rtcclksel &no_clock &sai1_mclk_in &sai0_tx_bclk_in
+				&sai0_rx_bclk_in &sai1_tx_bclk_in &sai1_rx_bclk_in &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		ctimer2clkdiv: ctimer2clkdiv@400003d8 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CTIMER2CLKDIV[DIV] */
+			reg = <0x400003d8 0x8>;
+
+			ctimer2_clock: ctimer2-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	ctimerclksel3: ctimerclksel3@40000278 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CTIMERCLKSEL3[SEL] */
+		reg = <0x40000278 0x4>;
+		offset = <0x0>;
+		input-sources = <&sirc_div12 &pll0_directo &pll1clk0div &firc
+				&sirc &sai0_mclk_in &rtcclksel &no_clock &sai1_mclk_in &sai0_tx_bclk_in
+				&sai0_rx_bclk_in &sai1_tx_bclk_in &sai1_rx_bclk_in &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		ctimer3clkdiv: ctimer3clkdiv@400003dc {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CTIMER3CLKDIV[DIV] */
+			reg = <0x400003dc 0x8>;
+
+			ctimer3_clock: ctimer3-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	ctimerclksel4: ctimerclksel4@4000027c {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CTIMERCLKSEL4[SEL] */
+		reg = <0x4000027c 0x4>;
+		offset = <0x0>;
+		input-sources = <&sirc_div12 &pll0_directo &pll1clk0div &firc
+				&sirc &sai0_mclk_in &rtcclksel &no_clock &sai1_mclk_in &sai0_tx_bclk_in
+				&sai0_rx_bclk_in &sai1_tx_bclk_in &sai1_rx_bclk_in &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		ctimer4clkdiv: ctimer4clkdiv@400003e0 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CTIMER4CLKDIV[DIV] */
+			reg = <0x400003e0 0x8>;
+
+			ctimer4_clock: ctimer4-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	sctclksel: sctclksel@400002f0 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::SCTCLKSEL[SEL] */
+		reg = <0x400002f0 0x4>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &pll1clk0div
+				&sai0_mclk_in &pfd_clk_sel &no_clock &sai1_mclk_in &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		sctclkdiv: sctclkdiv@400003b4 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::SCTCLKDIV[DIV] */
+			reg = <0x400003b4 0x8>;
+
+			sct_clock: sct-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	ostimerclksel: ostimerclksel@400005e0 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::OSTIMERCLKSEL[SEL] */
+		reg = <0x400005e0 0x2>;
+		offset = <0x0>;
+		input-sources = <&fro_16k &osc_32k &sirc_div12 &no_clock>;
+
+		ostimer_clock: ostimer-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	wdt1clksel: wdt1clksel@400005d8 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::WDT1CLKSEL[SEL] */
+		reg = <0x400005d8 0x2>;
+		offset = <0x0>;
+		input-sources = <&fro_16k &frohfdiv &sirc_div12>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		wdt1clkdiv: wdt1clkdiv@400005dc {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::WDT1CLKDIV[DIV] */
+			reg = <0x400005dc 0x6>;
+
+			wdt1_clock: wdt1-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	usb0clksel: usb0clksel@400002a8 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::USB0CLKSEL[SEL] */
+		reg = <0x400002a8 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &no_clock &firc_48m
+				&sosc &pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		usb0clkdiv: usb0clkdiv@40000398 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::USB0CLKDIV[DIV] */
+			reg = <0x40000398 0x8>;
+
+			usb_clock: usb-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	emvsim0clksel: emvsim0clksel@40000890 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::EMVSIM0CLKSEL[SEL] */
+		reg = <0x40000890 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &sirc
+				&pll1clk0div &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		emvsim0clkdiv: emvsim0clkdiv@40000898 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::EMVSIM0CLKDIV[DIV] */
+			reg = <0x40000898 0x3>;
+
+			emvsim0_clock: emvsim0-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	emvsim1clksel: emvsim1clksel@40000894 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::EMVSIM1CLKSEL[SEL] */
+		reg = <0x40000894 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &sirc
+				&pll1clk0div &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		emvsim1clkdiv: emvsim1clkdiv@4000089c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::EMVSIM1CLKDIV[DIV] */
+			reg = <0x4000089c 0x3>;
+
+			emvsim1_clock: emvsim1-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	cmp0rrclksel: cmp0rrclksel@400005f8 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CMP0RRCLKSEL[SEL] */
+		reg = <0x400005f8 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &firc &sirc &sosc
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		cmp0rrclkdiv: cmp0rrclkdiv@400005fc {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CMP0RRCLKDIV[DIV] */
+			reg = <0x400005fc 0x4>;
+
+			cmp0rrdiv_clock: cmp0rrdiv-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	cmp0fclksel: cmp0fclksel@400005f0 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CMP0FCLKSEL[SEL] */
+		reg = <0x400005f0 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &firc &sirc &sosc
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		cmp0fclkdiv: cmp0fclkdiv@400005f4 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CMP0FCLKDIV[DIV] */
+			reg = <0x400005f4 0x4>;
+
+			cmp0fdiv_clock: cmp0fdiv-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	cmp1rrclksel: cmp1rrclksel@40000608 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CMP1RRCLKSEL[SEL] */
+		reg = <0x40000608 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &firc &sirc &sosc
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		cmp1rrclkdiv: cmp1rrclkdiv@4000060c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CMP1RRCLKDIV[DIV] */
+			reg = <0x4000060c 0x4>;
+
+			cmp1rrdiv_clock: cmp1rrdiv-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	cmp1fclksel: cmp1fclksel@40000600 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CMP1FCLKSEL[SEL] */
+		reg = <0x40000600 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &firc &sirc &sosc
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		cmp1fclkdiv: cmp1fclkdiv@40000604 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CMP1FCLKDIV[DIV] */
+			reg = <0x40000604 0x4>;
+
+			cmp1fdiv_clock: cmp1fdiv-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	cmp2rrclksel: cmp2rrclksel@40000618 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CMP2RRCLKSEL[SEL] */
+		reg = <0x40000618 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &firc &sirc &sosc
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		cmp2rrclkdiv: cmp2rrclkdiv@4000061c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CMP2RRCLKDIV[DIV] */
+			reg = <0x4000061c 0x4>;
+
+			cmp2rrdiv_clock: cmp2rrdiv-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	cmp2fclksel: cmp2fclksel@40000610 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::CMP2FCLKSEL[SEL] */
+		reg = <0x40000610 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &firc &sirc &sosc
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		cmp2fclkdiv: cmp2fclkdiv@40000614 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::CMP2FCLKDIV[DIV] */
+			reg = <0x40000614 0x4>;
+
+			cmp2fdiv_clock: cmp2fdiv-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	fcclksel0: fcclksel0@400002b0 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FCCLKSEL0[SEL] */
+		reg = <0x400002b0 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pllclkdiv &sirc &frohfdiv &sirc_div12
+				&pfd_clk_sel &rtcclksel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcomm0clkdiv: flexcomm0clkdiv@40000850 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCOMM0CLKDIV[DIV] */
+			reg = <0x40000850 0x8>;
+
+			flexcomm0_clock: flexcomm0-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	fcclksel1: fcclksel1@400002b4 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FCCLKSEL1[SEL] */
+		reg = <0x400002b4 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pllclkdiv &sirc &frohfdiv &sirc_div12
+				&pfd_clk_sel &rtcclksel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcomm1clkdiv: flexcomm1clkdiv@40000854 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCOMM1CLKDIV[DIV] */
+			reg = <0x40000854 0x8>;
+
+			flexcomm1_clock: flexcomm1-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	fcclksel2: fcclksel2@400002b8 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FCCLKSEL2[SEL] */
+		reg = <0x400002b8 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pllclkdiv &sirc &frohfdiv &sirc_div12
+				&pfd_clk_sel &rtcclksel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcomm2clkdiv: flexcomm2clkdiv@40000858 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCOMM2CLKDIV[DIV] */
+			reg = <0x40000858 0x8>;
+
+			flexcomm2_clock: flexcomm2-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	fcclksel3: fcclksel3@400002bc {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FCCLKSEL3[SEL] */
+		reg = <0x400002bc 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pllclkdiv &sirc &frohfdiv &sirc_div12
+				&pfd_clk_sel &rtcclksel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcomm3clkdiv: flexcomm3clkdiv@4000085c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCOMM3CLKDIV[DIV] */
+			reg = <0x4000085c 0x8>;
+
+			flexcomm3_clock: flexcomm3-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	fcclksel4: fcclksel4@400002c0 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FCCLKSEL4[SEL] */
+		reg = <0x400002c0 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pllclkdiv &sirc &frohfdiv &sirc_div12
+				&pfd_clk_sel &rtcclksel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcomm4clkdiv: flexcomm4clkdiv@40000860 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCOMM4CLKDIV[DIV] */
+			reg = <0x40000860 0x8>;
+
+			flexcomm4_clock: flexcomm4-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	fcclksel5: fcclksel5@400002c4 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FCCLKSEL5[SEL] */
+		reg = <0x400002c4 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pllclkdiv &sirc &frohfdiv &sirc_div12
+				&pfd_clk_sel &rtcclksel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcomm5clkdiv: flexcomm5clkdiv@40000864 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCOMM5CLKDIV[DIV] */
+			reg = <0x40000864 0x8>;
+
+			flexcomm5_clock: flexcomm5-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	fcclksel6: fcclksel6@400002c8 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FCCLKSEL6[SEL] */
+		reg = <0x400002c8 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pllclkdiv &sirc &frohfdiv &sirc_div12
+				&pfd_clk_sel &rtcclksel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcomm6clkdiv: flexcomm6clkdiv@40000868 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCOMM6CLKDIV[DIV] */
+			reg = <0x40000868 0x8>;
+
+			flexcomm6_clock: flexcomm6-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	fcclksel7: fcclksel7@400002cc {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FCCLKSEL7[SEL] */
+		reg = <0x400002cc 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pllclkdiv &sirc &frohfdiv &sirc_div12
+				&pfd_clk_sel &rtcclksel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcomm7clkdiv: flexcomm7clkdiv@4000086c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCOMM7CLKDIV[DIV] */
+			reg = <0x4000086c 0x8>;
+
+			flexcomm7_clock: flexcomm7-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	fcclksel8: fcclksel8@400002d0 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FCCLKSEL8[SEL] */
+		reg = <0x400002d0 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pllclkdiv &sirc &frohfdiv &sirc_div12
+				&pfd_clk_sel &rtcclksel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcomm8clkdiv: flexcomm8clkdiv@40000870 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCOMM8CLKDIV[DIV] */
+			reg = <0x40000870 0x8>;
+
+			flexcomm8_clock: flexcomm8-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	fcclksel9: fcclksel9@400002d4 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FCCLKSEL9[SEL] */
+		reg = <0x400002d4 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pllclkdiv &sirc &frohfdiv &sirc_div12
+				&pfd_clk_sel &rtcclksel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcomm9clkdiv: flexcomm9clkdiv@40000874 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCOMM9CLKDIV[DIV] */
+			reg = <0x40000874 0x8>;
+
+			flexcomm9_clock: flexcomm9-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	flexcan0clksel: flexcan0clksel@400005a0 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FLEXCAN0CLKSEL[SEL] */
+		reg = <0x400005a0 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &no_clock
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcan0clkdiv: flexcan0clkdiv@400005a4 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCAN0CLKDIV[DIV] */
+			reg = <0x400005a4 0x8>;
+
+			flexcan0_clock: flexcan0-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	flexcan1clksel: flexcan1clksel@400005a8 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FLEXCAN1CLKSEL[SEL] */
+		reg = <0x400005a8 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &no_clock
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexcan1clkdiv: flexcan1clkdiv@400005ac {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXCAN1CLKDIV[DIV] */
+			reg = <0x400005ac 0x8>;
+
+			flexcan1_clock: flexcan1-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	flexioclksel: flexioclksel@40000560 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::FLEXIOCLKSEL[SEL] */
+		reg = <0x40000560 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &sirc
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		flexioclkdiv: flexioclkdiv@40000564 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::FLEXIOCLKDIV[DIV] */
+			reg = <0x40000564 0x8>;
+
+			flexio_clock: flexio-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	usdhcclksel: usdhcclksel@40000558 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::uSDHCCLKSEL[SEL] */
+		reg = <0x40000558 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &sirc
+				&pll1clk1div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		usdhcclkdiv: usdhcclkdiv@4000055c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::uSDHCCLKDIV[DIV] */
+			reg = <0x4000055c 0x8>;
+
+			usdhc_clock: usdhc-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	sincfiltclksel: sincfiltclksel@40000360 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::SINCFILTCLKSEL[SEL] */
+		reg = <0x40000360 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &sirc
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+
+		sincfilt_clock: sincfilt-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	i3c0fclksel: i3c0fclksel@40000530 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::I3C0FCLKSEL[SEL] */
+		reg = <0x40000530 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &no_clock
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		i3c0fclkdiv: i3c0fclkdiv@40000540 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::I3C0FCLKDIV[DIV] */
+			reg = <0x40000540 0x8>;
+
+			i3c0_fclk_clock: i3c0-fclk-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	i3c0fclkstcsel: i3c0fclkstcsel@40000534 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::I3C0FCLKSTCSEL[SEL] */
+		reg = <0x40000534 0x3>;
+		offset = <0x0>;
+		input-sources = <&i3c0fclksel &sirc_div12 &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		i3c0fclkstcdiv: i3c0fclkstcdiv@40000538 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::I3C0FCLKSTCDIV[DIV] */
+			reg = <0x40000538 0x8>;
+
+			i3c0_slow_tc_clock: i3c0-slow-tc-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	i3c1fclksel: i3c1fclksel@40000b30 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::I3C1FCLKSEL[SEL] */
+		reg = <0x40000b30 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &no_clock
+				&pll1clk0div &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		i3c1fclkdiv: i3c1fclkdiv@40000b40 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::I3C1FCLKDIV[DIV] */
+			reg = <0x40000b40 0x8>;
+
+			i3c1_fclk_clock: i3c1-fclk-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	i3c1fclkstcsel: i3c1fclkstcsel@40000b34 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::I3C1FCLKSTCSEL[SEL] */
+		reg = <0x40000b34 0x3>;
+		offset = <0x0>;
+		input-sources = <&i3c1fclksel &sirc_div12 &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		i3c1fclkstcdiv: i3c1fclkstcdiv@40000b38 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::I3C1FCLKSTCDIV[DIV] */
+			reg = <0x40000b38 0x8>;
+
+			i3c1_slow_tc_clock: i3c1-slow-tc-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	sai0clksel: sai0clksel@40000880 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::SAI0CLKSEL[SEL] */
+		reg = <0x40000880 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &pll1clk0div
+				&no_clock &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		sai0clkdiv: sai0clkdiv@40000888 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::SAI0CLKDIV[DIV] */
+			reg = <0x40000888 0x3>;
+
+			sai0_clock: sai0-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	sai1clksel: sai1clksel@40000884 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::SAI1CLKSEL[SEL] */
+		reg = <0x40000884 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &firc &pll1clk0div
+				&no_clock &pfd_clk_sel &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		sai1clkdiv: sai1clkdiv@4000088c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::SAI1CLKDIV[DIV] */
+			reg = <0x4000088c 0x3>;
+
+			sai1_clock: sai1-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	enetrmiiclksel: enetrmiiclksel@400005b0 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::ENETRMIICLKSEL[SEL] */
+		reg = <0x400005b0 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &no_clock &no_clock
+				&pll1clk0div &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		enetrmiiclkdiv: enetrmiiclkdiv@400005b4 {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::ENETRMIICLKDIV[DIV] */
+			reg = <0x400005b4 0x8>;
+
+			enetrmii_clock: enetrmii-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	enetptprefclksel: enetptprefclksel@400005b8 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::ENETPTPREFCLKSEL[SEL] */
+		reg = <0x400005b8 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &pll0_directo &sosc &no_clock &enet0_tx_clk_in
+				&pll1clk1div &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		enetptprefclkdiv: enetptprefclkdiv@400005bc {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::ENETPTPREFCLKDIV[DIV] */
+			reg = <0x400005bc 0x8>;
+
+			enetptprefclk_clock: enetptprefclk-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	micfilfclksel: micfilfclksel@40000548 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::MICFILFCLKSEL[SEL] */
+		reg = <0x40000548 0x4>;
+		offset = <0x0>;
+		input-sources = <&sirc &pll0_directo &sosc &firc &pll1clk0div
+				&sai0_mclk_in &pfd_clk_sel &no_clock &sai1_mclk_in &no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		micfilfclkdiv: micfilfclkdiv@4000054c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::MICFILFCLKDIV[DIV] */
+			reg = <0x4000054c 0x3>;
+
+			micfilfclk_clock: micfilfclk-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	tsiclksel: tsiclksel@40000350 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::TSICLKSEL[SEL] */
+		reg = <0x40000350 0x3>;
+		offset = <0x0>;
+		input-sources = <&no_clock &no_clock &sosc &no_clock &sirc
+				&no_clock>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		tsiclkdiv: tsiclkdiv@4000037c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SYSCON0::TSICLKDIV[DIV] */
+			reg = <0x4000037c 0x8>;
+
+			tsi_clock: tsi-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	ewmclksel: ewmclksel@400005d4 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SYSCON0::EWM0CLKSEL[SEL] */
+		reg = <0x400005d4 0x1>;
+		offset = <0x0>;
+		input-sources = <&fro_16k &osc_32k>;
+
+		ewm_clock: ewm-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	firctrimsrcsel: firctrimsrcsel@4004430c {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* FIRCTCFG[TRIMSRC] */
+		reg = <0x4004430c 0x2>;
+		offset = <0x0>;
+		input-sources = <&no_clock &no_clock &sosc &osc_32k>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		firc_trimdiv: firc-trimdiv@4004430c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* FIRCTCFG[TRIMDIV] */
+			reg = <0x4004430c 0x7>;
+
+			scg.firc_trim_clock: scg.firc-trim-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	sirctrimsrcsel: sirctrimsrcsel@4004420c {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* SIRCTCFG[TRIMSRC] */
+		reg = <0x4004420c 0x2>;
+		offset = <0x0>;
+		input-sources = <&no_clock &no_clock &sosc &osc_32k>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		sirc_trimdiv: sirc-trimdiv@4004420c {
+			compatible = "nxp,syscon-clock-div";
+			#clock-cells = <1>;
+			/* SIRCTCFG[TRIMDIV] */
+			reg = <0x4004420c 0x7>;
+
+			scg.sirc_trim_clock: scg.sirc-trim-clock {
+				compatible = "clock-output";
+				#clock-cells = <1>;
+			};
+		};
+	};
+
+	freqmerefclksel: freqmerefclksel@40006180 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* INPUTMUX0::FREQMEAS_REF[INP] */
+		reg = <0x40006180 0x6>;
+		offset = <0x0>;
+		input-sources = <&sosc &sirc &firc_144m &no_clock &osc_32k
+				&ahbclkdiv &freqme_clk_in0 &freqme_clk_in1 &evtg_out0a &evtg_out1a
+				&no_clock>;
+
+		freqme_reference_clock: freqme-reference-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+
+	freqmetargetclksel: freqmetargetclksel@40006184 {
+		compatible = "nxp,syscon-clock-mux";
+		#clock-cells = <1>;
+		/* INPUTMUX0::FREQMEAS_TAR[INP] */
+		reg = <0x40006184 0x6>;
+		offset = <0x0>;
+		input-sources = <&sosc &sirc &firc_144m &no_clock &osc_32k
+				&ahbclkdiv &freqme_clk_in0 &freqme_clk_in1 &evtg_out0a &evtg_out1a
+				&no_clock>;
+
+		freqme_target_clock: freqme-target-clock {
+			compatible = "clock-output";
+			#clock-cells = <1>;
+		};
+	};
+};

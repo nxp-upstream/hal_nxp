@@ -114,6 +114,9 @@ class Register:
         Constructs a register object from provided register xml data
         """
         self._name = register_xml.attrib['name']
+        for alias in register_xml.findall('alias'):
+            if alias.attrib['type'] == 'id':
+                self._name = alias.attrib['value']
         self._offset = int(register_xml.attrib['offset'], 0)
         self._build_bitfield_map(register_xml)
         self._build_bitfield_offsets(register_xml)
@@ -127,11 +130,12 @@ class Register:
         for bit_field in register_xml.findall('bit_field'):
             bit_field_map = {}
             for bit_field_value in bit_field.findall('bit_field_value'):
-                if bit_field_value.get("description") == "Reserved":
-                    # Don't parse this bitfield
+                # Some reserved bitfields are encoded as 0b??. Replace
+                # ? with 0 so int decoding works
+                bit_field_str = bit_field_value.attrib['value'].replace('?', '0')
+                if not bit_field_str.isdigit():
+                    # Skip this bitfield
                     continue
-                # Some iMX8 fields have a ?, remove that
-                bit_field_str = bit_field_value.attrib['value'].strip('?')
                 field_val = int(bit_field_str, 0)
                 bit_field_map[field_val] = bit_field_value.attrib
 
@@ -262,3 +266,18 @@ def load_peripheral_map(reg_dir):
                 periph_map[peripheral.attrib['name']] = Peripheral(peripheral)
 
     return periph_map
+
+def find_register(periph_array, reg_name):
+    """
+    Finds a register within all peripheral sets. Note that this function is
+    inherently slow, as it will load register maps for all
+    peripherals provided in the search list
+    @param periph_array array of peripheral objects to search
+    @param reg_name: name of register to find
+    @return peripheral object containing the register, or None if not found
+    """
+    for periph in periph_array:
+        periph._load_registers()
+        if reg_name in periph._registers:
+            return periph
+    return None

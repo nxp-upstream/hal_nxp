@@ -2,6 +2,14 @@
 Common helper functions for SOC clock generation
 """
 import gen_soc_clocks
+import os
+import sys
+
+SHARED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
+sys.path.append(SHARED_DIR)
+
+from lib import registers
+
 
 def indent_string(string, indent):
     """
@@ -24,16 +32,18 @@ def get_addr_and_bitfield(peripheral_map, reg_expr, bitfield):
     @return tuple of (register address, bitfield width, bitfield offset)
     """
     if "::" not in reg_expr:
-        # Add the SCG to the register expression
-        reg_expr = "SCG0::" + reg_expr
-    # Read the bitfield and register expression (peripheral + reg)
-    (periph, reg) = reg_expr.split("::")
+        # Try to find the register by name. This is slow, but the best
+        # option we have
+        periph = registers.find_register(peripheral_map.values(), reg_expr)
+        reg = reg_expr
+    else:
+        # Read the bitfield and register expression (peripheral + reg)
+        (periph_name, reg) = reg_expr.split("::")
+        periph = peripheral_map[periph_name]
     # Get register offset and bitfield
-    reg_addr = peripheral_map[periph].get_reg_addr(reg)
-    bitfield_offset = (peripheral_map[periph].get_register(reg).
-                        get_bit_field_offset(bitfield))
-    bitfield_width = (peripheral_map[periph].get_register(reg).
-                        get_bit_field_width(bitfield))
+    reg_addr = periph.get_reg_addr(reg)
+    bitfield_offset = periph.get_register(reg).get_bit_field_offset(bitfield)
+    bitfield_width = periph.get_register(reg).get_bit_field_width(bitfield)
     return (reg_addr, bitfield_width, bitfield_offset)
 
 def parse_freq(freq):
@@ -75,4 +85,41 @@ def generate_children(peripheral_map, signal, level, proc_name):
         dts += indent_string(f"#address-cells = <1>;\n", level + 1)
         dts += indent_string(f"#size-cells = <1>;\n", level + 1)
     dts += child_dts
+    return dts
+
+def generate_node_with_compat(peripheral_map, signal, level, proc_name,
+                              compat, cell_cnt, reg, bitfield):
+    """
+    Generates devicetree node (and children nodes) for a given signal,
+    using the provided compatible, clock cell count, register, and width
+    @param peripheral_map: peripheral map used to resolve reset values
+    @param signal: signal to parse and output devicetree for
+    @param level: indentation level of output devicetree
+    @param proc_name: Processor name, used for special case signals handling
+    @param compat: compatible to use for generation
+    @param cell_cnt: number of clock cells to set
+    @param reg: name of register to use for register address
+    @param bitfield: name of bitfield in register to access
+    @return devicetree node string describing the signal, formatted like so:
+
+    {signal['id'].lower()}: {signal['id'].lower.replace('_','-')} {
+        compatible = "{compat}";
+        #clock-cells = <{cell_cnt}>;
+        /* {reg}[{bitfield}] */
+        reg = <{reg_address} {bitfield_width}>;
+    };
+    """
+    (reg_offset, width, _) = get_addr_and_bitfield(peripheral_map,
+                                                    reg, bitfield)
+    dts = "\n"
+    dts += indent_string(f"{signal['id'].lower()}: ", level)
+    dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
+    dts += indent_string(f"compatible = \"{compat}\";\n", level + 1)
+    dts += indent_string(f"#clock-cells = <{cell_cnt}>;\n", level + 1)
+    # Write register offset and width
+    dts += indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
+    dts += indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
+    # Generate children of frgdiv
+    dts += generate_children(peripheral_map, signal, level, proc_name)
+    dts += indent_string("};\n", level)
     return dts

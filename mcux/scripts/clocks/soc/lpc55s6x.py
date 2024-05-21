@@ -73,20 +73,9 @@ def handle_soc_signals(peripheral_map, signal, level, proc_name):
         (reg, bitfield) = reg_expr.split('[')
         # Strip trailing "] " from bitfield
         bitfield = bitfield[:-1]
-        (reg_offset, width, offset) = helpers.get_addr_and_bitfield(peripheral_map,
-                                                        reg, bitfield)
-        dts = "\n"
-        dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
-        dts += f"{signal['id'].lower().replace('_','-')}@{reg_offset:x} {{\n"
-        dts += helpers.indent_string(f"compatible = \"nxp,lpc55sxx-pll-pdec\";\n", level + 1)
-        # Write register offset
-        dts += helpers.indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
-        dts += helpers.indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
-        dts += helpers.indent_string(f"#clock-cells = <1>;\n", level + 1)
-        # Generate children
-        dts += helpers.generate_children(peripheral_map, signal, level, proc_name)
-        dts += helpers.indent_string("};\n", level)
-        return dts
+        return helpers.generate_node_with_compat(peripheral_map, signal, level,
+                                                 proc_name, "nxp,lpc55sxx-pll-pdec",
+                                                 1, reg, bitfield)
     elif signal["type"] == "pll":
         # Strip trailing "] " from bitfield
         if signal['id'] == "PLL0":

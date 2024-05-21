@@ -3,6 +3,12 @@ Implements handlers for generating common clock signals. These
 signals are shared across all multiple SOC lines.
 """
 import helpers
+import logging
+import re
+
+# Regex helper to extract register and bitfield from expression like
+# the following: SYSCON0::FROHFDIV[DIV]+1, or 1+SYSCON0::TRACECLKDIV[DIV]
+re_div_expr = re.compile(r'(\d\+([\w\d:]+)\[(\w+)\])|(([\w\d:]+)\[(\w+)\]\+\d)')
 
 def output_clock_enable(peripheral_map, signal, level):
     """
@@ -173,17 +179,22 @@ def output_clock_prescaler(peripheral_map, signal, level):
         if div_expr.isdigit():
             # Fixed divider
             dts = "\n"
-            dts += helpers.indent_string(f"{signal['id'].lower()}: ", level + 1)
+            dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
             dts += f"{signal['id'].lower().replace('_','-')} {{\n"
             dts += helpers.indent_string(f"compatible = \"fixed-divider\";\n", level + 1)
             dts += helpers.indent_string(f"#clock-cells = <0>;\n", level + 1)
             dts += helpers.indent_string(f"divider = <{int(div_expr, 0)}>;\n", level + 1)
         else:
             # Determine the div register and bitfield width
-            (_, reg_expr) = div_expr.split("+")
-            (reg, bitfield) = reg_expr.split('[')
-            # Strip trailing "]" from bitfield
-            bitfield = bitfield[:-1]
+            match = re_div_expr.match(div_expr)
+            if match is None:
+                breakpoint()
+            if match.group(2):
+                # Formatted like 1+reg_expr
+                (reg, bitfield) = (match.group(2), match.group(3))
+            elif match.group(4):
+                # Formatted like reg_expr+1
+                (reg, bitfield) = (match.group(5), match.group(6))
             (reg_offset, width, offset) = helpers.get_addr_and_bitfield(peripheral_map,
                                                             reg, bitfield)
             dts = "\n"
@@ -195,7 +206,19 @@ def output_clock_prescaler(peripheral_map, signal, level):
             dts += helpers.indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
             dts += helpers.indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
             if offset != 0:
-                logging.warning("Clock divider %s has invalid offset", reg_expr)
+                logging.warning("Clock divider %s has invalid offset", div_expr)
+    elif signal["source"].find("multiply") is not None:
+        mult_expr = signal["source"].find("multiply").get("expr")
+        if mult_expr.isdigit():
+            # Fixed multiplier
+            dts = "\n"
+            dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
+            dts += f"{signal['id'].lower().replace('_','-')} {{\n"
+            dts += helpers.indent_string(f"compatible = \"fixed-multiplier\";\n", level + 1)
+            dts += helpers.indent_string(f"#clock-cells = <0>;\n", level + 1)
+            dts += helpers.indent_string(f"multiplier = <{int(mult_expr, 0)}>;\n", level + 1)
+        else:
+            logging.warning("Variable multiplier on prescaler %s, not supported", signal["id"])
     else:
         logging.warning("Prescaler %s has unknown type, skipping", signal["id"])
         # Skip DTS generation
