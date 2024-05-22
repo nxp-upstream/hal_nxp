@@ -239,8 +239,11 @@ def output_signal(peripheral_map, signal, level, proc_name):
         if len(signal['children']) == 0:
             # Generate output clock
             dts = "\n"
-            dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
-            dts += f"{signal['id'].lower().replace('_','-')} {{\n"
+            signal_id = signal['id']
+            if '.' in signal_id:
+                signal_id = signal_id.split('.')[1]
+            dts += helpers.indent_string(f"{signal_id.lower()}: ", level)
+            dts += f"{signal_id.lower().replace('_','-')} {{\n"
             dts += helpers.indent_string(f"compatible = \"clock-output\";\n", level + 1)
             dts += helpers.indent_string(f"#clock-cells = <1>;\n", level + 1)
             dts += helpers.indent_string("};\n", level)

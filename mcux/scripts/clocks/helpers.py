@@ -28,7 +28,8 @@ def get_addr_and_bitfield(peripheral_map, reg_expr, bitfield):
     offset for register expression
     @param peripheral_map: map of peripheral names to peripheral objects
     @param reg_expr: expression describing register, formatted as PERIPHERAL::REGISTER
-    @param bitfield: name of bitfield to read from
+    @param bitfield: name of bitfield in register to access. If set to None,
+    bitfield width will be 0x20, and offset will be 0x0
     @return tuple of (register address, bitfield width, bitfield offset)
     """
     if "::" not in reg_expr:
@@ -40,10 +41,15 @@ def get_addr_and_bitfield(peripheral_map, reg_expr, bitfield):
         # Read the bitfield and register expression (peripheral + reg)
         (periph_name, reg) = reg_expr.split("::")
         periph = peripheral_map[periph_name]
-    # Get register offset and bitfield
+
     reg_addr = periph.get_reg_addr(reg)
-    bitfield_offset = periph.get_register(reg).get_bit_field_offset(bitfield)
-    bitfield_width = periph.get_register(reg).get_bit_field_width(bitfield)
+    if bitfield is not None:
+        # Get register offset and bitfield
+        bitfield_offset = periph.get_register(reg).get_bit_field_offset(bitfield)
+        bitfield_width = periph.get_register(reg).get_bit_field_width(bitfield)
+    else:
+        bitfield_offset = 0x0
+        bitfield_width = 0x20
     return (reg_addr, bitfield_width, bitfield_offset)
 
 def parse_freq(freq):
@@ -99,7 +105,8 @@ def generate_node_with_compat(peripheral_map, signal, level, proc_name,
     @param compat: compatible to use for generation
     @param cell_cnt: number of clock cells to set
     @param reg: name of register to use for register address
-    @param bitfield: name of bitfield in register to access
+    @param bitfield: name of bitfield in register to access. If set to None,
+    bitfield width will be 0x20.
     @return devicetree node string describing the signal, formatted like so:
 
     {signal['id'].lower()}: {signal['id'].lower.replace('_','-')} {
@@ -117,7 +124,10 @@ def generate_node_with_compat(peripheral_map, signal, level, proc_name,
     dts += indent_string(f"compatible = \"{compat}\";\n", level + 1)
     dts += indent_string(f"#clock-cells = <{cell_cnt}>;\n", level + 1)
     # Write register offset and width
-    dts += indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
+    if bitfield is not None:
+        dts += indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
+    else:
+        dts += indent_string(f"/* {reg} */\n", level + 1)
     dts += indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
     # Generate children of frgdiv
     dts += generate_children(peripheral_map, signal, level, proc_name)

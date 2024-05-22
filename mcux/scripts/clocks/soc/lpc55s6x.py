@@ -77,7 +77,6 @@ def handle_soc_signals(peripheral_map, signal, level, proc_name):
                                                  proc_name, "nxp,lpc55sxx-pll-pdec",
                                                  1, reg, bitfield)
     elif signal["type"] == "pll":
-        # Strip trailing "] " from bitfield
         if signal['id'] == "PLL0":
             (reg_offset, width, offset) = helpers.get_addr_and_bitfield(peripheral_map,
                     "SYSCON::PLL0CTRL", "SELR")

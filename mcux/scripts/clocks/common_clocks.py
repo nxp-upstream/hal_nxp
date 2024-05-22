@@ -187,8 +187,6 @@ def output_clock_prescaler(peripheral_map, signal, level):
         else:
             # Determine the div register and bitfield width
             match = re_div_expr.match(div_expr)
-            if match is None:
-                breakpoint()
             if match.group(2):
                 # Formatted like 1+reg_expr
                 (reg, bitfield) = (match.group(2), match.group(3))
@@ -206,7 +204,7 @@ def output_clock_prescaler(peripheral_map, signal, level):
             dts += helpers.indent_string(f"/* {reg}[{bitfield}] */\n", level + 1)
             dts += helpers.indent_string(f"reg = <0x{reg_offset:x} 0x{width:x}>;\n", level + 1)
             if offset != 0:
-                logging.warning("Clock divider %s has invalid offset", div_expr)
+                logging.warning("Clock divider %s[%s] has invalid offset", reg, bitfield)
     elif signal["source"].find("multiply") is not None:
         mult_expr = signal["source"].find("multiply").get("expr")
         if mult_expr.isdigit():

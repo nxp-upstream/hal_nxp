@@ -21,6 +21,12 @@
 		frequency = <0>;
 		#address-cells = <1>;
 		#size-cells = <1>;
+
+		pll: pll@40044600 {
+			compatible = "nxp,mcxn9x-usb-pll";
+			#clock-cells = <1>;
+			/* SCG0::SPLLCSR */
+			reg = <0x40044600 0x20>;
 			#address-cells = <1>;
 			#size-cells = <1>;
 
@@ -166,6 +172,12 @@
 			};
 		};
 	};
+
+	firc: firc@40044300 {
+		compatible = "nxp,mcxn9x-firc";
+		#clock-cells = <1>;
+		/* SCG0::FIRCCSR */
+		reg = <0x40044300 0x20>;
 		#address-cells = <1>;
 		#size-cells = <1>;
 
@@ -359,6 +371,22 @@
 		reg = <0x40044504 0x2>;
 		offset = <0x19>;
 		input-sources = <&sosc &firc_48m>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		pll0: pll0@40044500 {
+			compatible = "nxp,mcxn9x-pll";
+			#clock-cells = <6>;
+			/* SCG0::APLLCSR */
+			reg = <0x40044500 0x20>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			pll0_pdiv: pll0-pdiv@40044514 {
+				compatible = "nxp,mcxn9x-pll-pdec";
+				#clock-cells = <1>;
+				/* SCG0::APLLPDEC[PDIV] */
+				reg = <0x40044514 0x5>;
 			};
 		};
 	};
@@ -384,6 +412,22 @@
 		reg = <0x40044604 0x2>;
 		offset = <0x19>;
 		input-sources = <&sosc &firc_48m>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		pll1: pll1@40044600 {
+			compatible = "nxp,mcxn9x-pll";
+			#clock-cells = <6>;
+			/* SCG0::SPLLCSR */
+			reg = <0x40044600 0x20>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			pll1_pdiv: pll1-pdiv@40044614 {
+				compatible = "nxp,mcxn9x-pll-pdec";
+				#clock-cells = <1>;
+				/* SPLLPDEC[PDIV] */
+				reg = <0x40044614 0x5>;
 			};
 		};
 	};
@@ -1766,12 +1810,12 @@
 		#size-cells = <1>;
 
 		firc_trimdiv: firc-trimdiv@4004430c {
-			compatible = "nxp,syscon-clock-div";
+			compatible = "nxp,mcxn9x-irc-trimdiv";
 			#clock-cells = <1>;
 			/* FIRCTCFG[TRIMDIV] */
 			reg = <0x4004430c 0x7>;
 
-			scg.firc_trim_clock: scg.firc-trim-clock {
+			firc_trim_clock: firc-trim-clock {
 				compatible = "clock-output";
 				#clock-cells = <1>;
 			};
@@ -1789,12 +1833,12 @@
 		#size-cells = <1>;
 
 		sirc_trimdiv: sirc-trimdiv@4004420c {
-			compatible = "nxp,syscon-clock-div";
+			compatible = "nxp,mcxn9x-irc-trimdiv";
 			#clock-cells = <1>;
 			/* SIRCTCFG[TRIMDIV] */
 			reg = <0x4004420c 0x7>;
 
-			scg.sirc_trim_clock: scg.sirc-trim-clock {
+			sirc_trim_clock: sirc-trim-clock {
 				compatible = "clock-output";
 				#clock-cells = <1>;
 			};
