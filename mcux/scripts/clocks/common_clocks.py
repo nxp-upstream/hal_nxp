@@ -71,8 +71,8 @@ def output_clock_source(peripheral_map, signal, level):
         dts = "\n"
         dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
         dts += f"{signal['id'].lower().replace('_','-')}@{reg_addr:x} {{\n"
-        dts += helpers.indent_string(f"compatible = \"nxp,syscon-clock-source\";\n", level + 1)
-        dts += helpers.indent_string(f"offset = <0x{offset:x}>;\n", level + 1)
+        dts += helpers.indent_string(f"compatible = \"clock-source\";\n", level + 1)
+        dts += helpers.indent_string(f"gate-offset = <0x{offset:x}>;\n", level + 1)
         dts += helpers.indent_string(f"#clock-cells = <1>;\n", level + 1)
         # Write register name as comment
         dts += helpers.indent_string(f"/* {periph_reg}[{bitfield}] */\n", level + 1)
@@ -181,7 +181,7 @@ def output_clock_prescaler(peripheral_map, signal, level):
             dts = "\n"
             dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
             dts += f"{signal['id'].lower().replace('_','-')} {{\n"
-            dts += helpers.indent_string(f"compatible = \"fixed-divider\";\n", level + 1)
+            dts += helpers.indent_string(f"compatible = \"fixed-clock-divider\";\n", level + 1)
             dts += helpers.indent_string(f"#clock-cells = <0>;\n", level + 1)
             dts += helpers.indent_string(f"divider = <{int(div_expr, 0)}>;\n", level + 1)
         else:
@@ -212,7 +212,7 @@ def output_clock_prescaler(peripheral_map, signal, level):
             dts = "\n"
             dts += helpers.indent_string(f"{signal['id'].lower()}: ", level)
             dts += f"{signal['id'].lower().replace('_','-')} {{\n"
-            dts += helpers.indent_string(f"compatible = \"fixed-multiplier\";\n", level + 1)
+            dts += helpers.indent_string(f"compatible = \"fixed-clock-multiplier\";\n", level + 1)
             dts += helpers.indent_string(f"#clock-cells = <0>;\n", level + 1)
             dts += helpers.indent_string(f"multiplier = <{int(mult_expr, 0)}>;\n", level + 1)
         else:
