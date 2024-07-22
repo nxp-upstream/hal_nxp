@@ -235,6 +235,7 @@ Canexcel_Ip_StatusType CanXL_SoftReset(CANXL_SIC_Type * base)
     Canexcel_Ip_StatusType returnResult = CANEXCEL_STATUS_SUCCESS;
     uint32 uS2Ticks = OsIf_MicrosToTicks(CANEXCEL_IP_TIMEOUT_DURATION, CANEXCEL_IP_SERVICE_TIMEOUT_TYPE);
     base->SYSMC = CANXL_SIC_SYSMC_SOFRST_MASK;
+    timeStart = OsIf_GetCounter(CANEXCEL_IP_SERVICE_TIMEOUT_TYPE);
     while ((base->SYSMC & CANXL_SIC_SYSMC_SOFRST_MASK) == CANXL_SIC_SYSMC_SOFRST_MASK)
     {
         timeElapsed += OsIf_GetElapsed(&timeStart, CANEXCEL_IP_SERVICE_TIMEOUT_TYPE);
@@ -444,6 +445,7 @@ Canexcel_Ip_StatusType CanXL_ExitFreezeMode(CANXL_SIC_Type * base)
         SchM_Enter_Can_43_CANEXCEL_CAN_EXCLUSIVE_AREA_02();
         base->SYSMC |= CANXL_SIC_SYSMC_LPMREQ_MASK;
         SchM_Exit_Can_43_CANEXCEL_CAN_EXCLUSIVE_AREA_02();
+        timeStart = OsIf_GetCounter(CANEXCEL_IP_SERVICE_TIMEOUT_TYPE);
         while(0U == (base->SYSS & CANXL_SIC_SYSS_LPMACKF_MASK))
         {
             timeElapsed += OsIf_GetElapsed(&timeStart, CANEXCEL_IP_SERVICE_TIMEOUT_TYPE);

@@ -272,6 +272,8 @@ Canexcel_Ip_StatusType Canexcel_Ip_Init(uint8 instance, const Canexcel_Ip_Config
   uint32 timeStart = 0U;
   uint32 timeElapsed = 0U;
   uint32 uS2Ticks = OsIf_MicrosToTicks(CANEXCEL_IP_TIMEOUT_DURATION, CANEXCEL_IP_SERVICE_TIMEOUT_TYPE);
+
+  timeStart = OsIf_GetCounter(CANEXCEL_IP_SERVICE_TIMEOUT_TYPE);
   /* Wait Hardware to became available after clock start */
   while ((CANEXCEL.EXL_SIC[instance]->SYSS & CANXL_SIC_SYSS_FRZACKF_MASK) == 0U)
   {
