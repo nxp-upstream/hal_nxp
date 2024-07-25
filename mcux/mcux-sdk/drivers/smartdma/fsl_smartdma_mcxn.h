@@ -19,9 +19,6 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#if defined(MCXN236_SERIES) || defined(MCXN235_SERIES)
-#define SMARTDMA_USE_FLEXIO_SHIFTER_DMA 1
-#endif
 
 /*! @brief The firmware used for display. */
 extern const uint8_t s_smartdmaDisplayFirmware[];
@@ -109,16 +106,6 @@ typedef struct _smartdma_camera_param
     uint32_t *p_buffer;       /*!< Buffer to store the received camera data. */
 } smartdma_camera_param_t;
 
-/*!
- * @brief Parameter for all supported APIs.
- */
-typedef union
-{
-    smartdma_flexio_mculcd_param_t flexioMcuLcdParam;   /*!< Parameter for flexio MCULCD. */
-    smartdma_rgb565_rgb888_param_t rgb565_rgb888Param;  /*!< Parameter for RGB565_RGB888 convertion. */
-    smartdma_camera_param_t cameraParam;                /*!< Parameter for camera. */
-} smartdma_param_t;
-
 /*******************************************************************************
  * APIs
  ******************************************************************************/
@@ -131,6 +118,6 @@ extern "C" {
 }
 #endif
 
-/* @} */
+/*! @} */
 
 #endif /* FSL_SMARTDMA_MCXN_H_ */
