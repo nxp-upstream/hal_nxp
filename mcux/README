@@ -66,29 +66,30 @@ License Link:
    https://spdx.org/licenses/BSD-3-Clause.html
 
 Patch List:
-  1. mcux-sdk/drivers/caam/fsl_caam.c: Move used job descriptors in the CAAM driver from the stack to noncacheable section. At time of writing, there should
+  - mcux-sdk/drivers/caam/fsl_caam.c: Move used job descriptors in the CAAM driver from the stack to noncacheable section. At time of writing, there should
      be four being used for entropy in zephyr.
      
   Not valid anymore?? 2. Patched middleware_usb_common_header.cmake file to address build issue. PR submitted to upstream
   
   
-  3. exclude the following directories and files from mcux-sdk update to reduce HAL size:
+  - exclude the following directories and files from mcux-sdk update to reduce HAL size:
      - All *.a binary archive files. Files are still present in the SDK github repo but are not allowed in Zephyr Project
      - mcux-sdk\manifests
      - mcux-sdk\docs
 
 // Can we update to the 2.16.000 USB middleware?
-  6. Add usb_device_mcux_drv_port.h file for using MCUX SDK USB device controller driver easily in Zephyr.
+  - Add usb_device_mcux_drv_port.h file for using MCUX SDK USB device controller driver easily in Zephyr.
       - usb_device_mcux_drv_port.h contains the simplified structs, enums and APIs that MCUX SDK USB device controller drivers need.
       - Update usb_device_ehci.c and usb_device_lpcip3511.c if in Zephyr environment.
         - Add include of usb_device_mcux_drv_port.h.
         - Remove include of usb_device.h and usb_device_dci.h.
 
 
-  10. mcux-sdk-middleware-connectivity-framework: Add new CMake file connectivity_framework.cmake
-  11. mcux-sdk-middleware-connectivity-framework: rw61x: Fix assertion OSA Mutex Alloc fail
-  12. mcux-sdk-middleware-connectivity-framework: rw61x: Remove static from hci_cal_data buffers to be used inside Zephyr
-  
   
   - skipped update of mcux-sdk\components\osa\ due to build errors
   - skipped update of mcux-sdk\components\conn_fwloader\mcux-sdk\components\conn_fwloader\ due to build errors
+
+  - mcux-sdk-middleware-connectivity-framework: Add new CMake file connectivity_framework.cmake
+  - mcux-sdk-middleware-connectivity-framework: rw61x: Fix assertion OSA Mutex Alloc fail
+  - mcux-sdk-middleware-connectivity-framework: rw61x: Remove static from hci_cal_data buffers to be used inside Zephyr
+  - mcux-sdk/drivers/s3mu/fsl_s3mu.c: rename _BIT macro to avoid collision from util_macro.h in Zephyr
