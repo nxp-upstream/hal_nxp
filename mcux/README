@@ -89,3 +89,8 @@ Patch List:
   
   - Skipped updates from mcux-sdk\devices\MIMX9352\ as this overrides the Cortex A support
   - Modifed mcux\mcux-sdk\drivers\mipi_dsi_split\fsl_mipi_dsi.c line 541 to force 8.0 to float (8.0f) to avoid [-Double-promotion] warning
+  - Wrap conditional code setting SCB->VTOR with !defined(__ZEPHYR__) in: 
+      - MCXN946/system_MCXN946_cm33_core0.c
+      - MCXN946/system_MCXN946_cm33_core1.c
+      - MCXN947/system_MCXN947_cm33_core0.c
+      - MCXN947/system_MCXN947_cm33_core1.c
