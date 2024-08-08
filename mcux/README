@@ -87,4 +87,4 @@ Patch List:
   - mcux-sdk-middleware-connectivity-framework: rw61x: Remove static from hci_cal_data buffers to be used inside Zephyr
   
   
-  - skipped update of mcux-sdk\components\conn_fwloader\mcux-sdk\components\conn_fwloader\ due to build errors
+  - Patched mcux-sdk\components\conn_fwloader\mcux-sdk\components\conn_fwloader\driver_conn_fwloader.cmake for TFM support
