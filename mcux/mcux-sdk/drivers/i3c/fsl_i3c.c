@@ -32,34 +32,86 @@
 enum _i3c_flag_constants
 {
     /*! All flags which are cleared by the driver upon starting a transfer. */
-    kMasterClearFlags = kI3C_MasterSlaveStartFlag | kI3C_MasterControlDoneFlag | kI3C_MasterCompleteFlag |
-                        kI3C_MasterArbitrationWonFlag | kI3C_MasterSlave2MasterFlag | kI3C_MasterErrorFlag,
+    kMasterClearFlags =
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART)
+                        kI3C_MasterSlaveStartFlag |
+#endif
+                        kI3C_MasterControlDoneFlag | kI3C_MasterCompleteFlag |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON)
+                        kI3C_MasterArbitrationWonFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_NOWMASTER) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_NOWMASTER)
+                        kI3C_MasterSlave2MasterFlag |
+#endif
+                        kI3C_MasterErrorFlag,
 
     /*! IRQ sources enabled by the non-blocking transactional API. */
-    kMasterIrqFlags = kI3C_MasterSlaveStartFlag | kI3C_MasterControlDoneFlag | kI3C_MasterCompleteFlag |
-                      kI3C_MasterRxReadyFlag /* | kI3C_MasterTxReadyFlag */ | kI3C_MasterArbitrationWonFlag |
-                      kI3C_MasterErrorFlag | kI3C_MasterSlave2MasterFlag,
+    kMasterIrqFlags =
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART)
+                      kI3C_MasterSlaveStartFlag |
+#endif
+                      kI3C_MasterControlDoneFlag | kI3C_MasterCompleteFlag |
+                      kI3C_MasterRxReadyFlag /* | kI3C_MasterTxReadyFlag */ |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON)
+                      kI3C_MasterArbitrationWonFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_NOWMASTER) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_NOWMASTER)
+                      | kI3C_MasterSlave2MasterFlag |
+#endif
+                      kI3C_MasterErrorFlag,
 
     /*! Errors to check for. */
     kMasterErrorFlags = kI3C_MasterErrorNackFlag | kI3C_MasterErrorWriteAbortFlag |
 #if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_TERM) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_TERM)
                         kI3C_MasterErrorTermFlag |
 #endif
-                        kI3C_MasterErrorParityFlag | kI3C_MasterErrorCrcFlag | kI3C_MasterErrorReadFlag |
-                        kI3C_MasterErrorWriteFlag | kI3C_MasterErrorMsgFlag | kI3C_MasterErrorInvalidReqFlag |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_HPAR) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_HPAR)
+                        kI3C_MasterErrorParityFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_HCRC) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_HCRC)
+                        kI3C_MasterErrorCrcFlag |
+#endif
+                        kI3C_MasterErrorReadFlag |
+                        kI3C_MasterErrorWriteFlag | kI3C_MasterErrorMsgFlag |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_INVREQ) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_INVREQ)
+                        kI3C_MasterErrorInvalidReqFlag |
+#endif
                         kI3C_MasterErrorTimeoutFlag,
     /*! All flags which are cleared by the driver upon starting a transfer. */
     kSlaveClearFlags = kI3C_SlaveBusStartFlag | kI3C_SlaveMatchedFlag | kI3C_SlaveBusStopFlag,
 
     /*! IRQ sources enabled by the non-blocking transactional API. */
-    kSlaveIrqFlags = kI3C_SlaveBusStartFlag | kI3C_SlaveMatchedFlag | kI3C_SlaveBusStopFlag | kI3C_SlaveRxReadyFlag |
-                     kI3C_SlaveDynamicAddrChangedFlag | kI3C_SlaveReceivedCCCFlag | kI3C_SlaveErrorFlag |
-                     kI3C_SlaveHDRCommandMatchFlag | kI3C_SlaveCCCHandledFlag | kI3C_SlaveEventSentFlag,
+    kSlaveIrqFlags = kI3C_SlaveBusStartFlag | kI3C_SlaveMatchedFlag | kI3C_SlaveBusStopFlag |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_DACHG) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_DACHG)
+                     kI3C_SlaveDynamicAddrChangedFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC)
+                     kI3C_SlaveReceivedCCCFlag |
+#endif
+                     kI3C_SlaveErrorFlag |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_HDRMATCH) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_HDRMATCH)
+                     kI3C_SlaveHDRCommandMatchFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_CHANDLED) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_CHANDLED) 
+                     kI3C_SlaveCCCHandledFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT)
+                     kI3C_SlaveEventSentFlag
+#endif
+                     kI3C_SlaveRxReadyFlag,
 
     /*! Errors to check for. */
     kSlaveErrorFlags = kI3C_SlaveErrorOverrunFlag | kI3C_SlaveErrorUnderrunFlag | kI3C_SlaveErrorUnderrunNakFlag |
                        kI3C_SlaveErrorTermFlag | kI3C_SlaveErrorInvalidStartFlag | kI3C_SlaveErrorSdrParityFlag |
-                       kI3C_SlaveErrorHdrParityFlag | kI3C_SlaveErrorHdrCRCFlag | kI3C_SlaveErrorS0S1Flag |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_HPAR) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_HPAR)
+                       kI3C_SlaveErrorHdrParityFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_HCRC) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_HCRC)
+                       kI3C_SlaveErrorHdrCRCFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SERRWARN_S0S1) || (!FSL_FEATURE_I3C_HAS_NO_SERRWARN_S0S1)
+                       kI3C_SlaveErrorS0S1Flag |
+#endif
                        kI3C_SlaveErrorOverreadFlag | kI3C_SlaveErrorOverwriteFlag,
 };
 
@@ -67,8 +119,12 @@ enum _i3c_flag_constants
 enum _i3c_transfer_states
 {
     kIdleState = 0,
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON)
     kIBIWonState,
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART)
     kSlaveStartState,
+#endif
     kSendCommandState,
     kWaitRepeatedStartCompleteState,
     kTransferDataState,
@@ -139,8 +195,10 @@ static clock_ip_name_t const kI3cClocks[] = I3C_CLOCKS;
 static const reset_ip_name_t kI3cResets[] = I3C_RSTS;
 #endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MDYNADDR) && FSL_FEATURE_I3C_HAS_NO_MDYNADDR)
 static i3c_device_info_t devList[I3C_MAX_DEVCNT]; /*!< I3C slave record list */
 static uint8_t usedDevCount = 0;
+#endif
 
 /*! @brief Pointer to master IRQ handler for each instance. */
 i3c_master_isr_t s_i3cMasterIsr;
@@ -154,6 +212,7 @@ i3c_slave_isr_t s_i3cSlaveIsr;
 /*! @brief Pointers to slave handles for each instance. */
 void *s_i3cSlaveHandle[ARRAY_SIZE(kI3cBases)];
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
 /*!
  * @brief introduce function I3C_TransferStateMachineIBIWonState.
  * This function was deal with init function I3C_RunTransferStateMachine`s variable.
@@ -163,9 +222,10 @@ void *s_i3cSlaveHandle[ARRAY_SIZE(kI3cBases)];
  * @param stateParams Pass the address of the parent function variable.
  */
 static void I3C_TransferStateMachineIBIWonState(I3C_Type *base,
+                                         
                                                 i3c_master_handle_t *handle,
                                                 i3c_master_state_machine_param_t *stateParams);
-
+#endif
 /*!
  * @brief introduce function static bool I3C_TransferStateMachineSendCommandState.
  * This function was deal with when state is stop.
@@ -246,6 +306,7 @@ static bool I3C_SlaveTransferHandleGetStatusFlags(I3C_Type *base,
  */
 static void I3C_SlaveTransferHandleBusStart(I3C_Type *base, i3c_slave_transfer_t *xfer, uint32_t *pendingInts);
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT) && FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT)
 /*!
  * @brief introduce function I3C_SlaveTransferHandleEventSent.
  * This function was deal sent event.
@@ -255,7 +316,9 @@ static void I3C_SlaveTransferHandleBusStart(I3C_Type *base, i3c_slave_transfer_t
  * @param xfer address to xfer.
  */
 static void I3C_SlaveTransferHandleEventSent(I3C_Type *base, i3c_slave_handle_t *handle, i3c_slave_transfer_t *xfer);
+#endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC) && FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC)
 /*!
  * @brief introduce function I3C_SlaveTransferHandleReceivedCCC.
  * This function was deal Received.
@@ -265,7 +328,7 @@ static void I3C_SlaveTransferHandleEventSent(I3C_Type *base, i3c_slave_handle_t 
  * @param xfer address to xfer.
  */
 static void I3C_SlaveTransferHandleReceivedCCC(I3C_Type *base, i3c_slave_handle_t *handle, i3c_slave_transfer_t *xfer);
-
+#endif
 /*!
  * @brief introduce function I3C_SlaveTransferHandleBusStop.
  * This function was deal stop Bus.
@@ -392,18 +455,24 @@ status_t I3C_MasterCheckAndClearError(I3C_Type *base, uint32_t status)
             result = kStatus_I3C_Term;
         }
 #endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_HPAR) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_HPAR)
         else if (0UL != (status & (uint32_t)kI3C_MasterErrorParityFlag))
         {
             result = kStatus_I3C_HdrParityError;
         }
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_HCRC) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_HCRC)
         else if (0UL != (status & (uint32_t)kI3C_MasterErrorCrcFlag))
         {
             result = kStatus_I3C_CrcError;
         }
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_INVREQ) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_INVREQ)
         else if (0UL != (status & (uint32_t)kI3C_MasterErrorMsgFlag))
         {
             result = kStatus_I3C_MsgError;
         }
+#endif
         else if (0UL != (status & (uint32_t)kI3C_MasterErrorReadFlag))
         {
             result = kStatus_I3C_ReadFifoError;
@@ -412,10 +481,12 @@ status_t I3C_MasterCheckAndClearError(I3C_Type *base, uint32_t status)
         {
             result = kStatus_I3C_WriteFifoError;
         }
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_INVREQ) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_INVREQ)
         else if (0UL != (status & (uint32_t)kI3C_MasterErrorInvalidReqFlag))
         {
             result = kStatus_I3C_InvalidReq;
         }
+#endif
         else
         {
             assert(false);
@@ -614,18 +685,24 @@ status_t I3C_SlaveCheckAndClearError(I3C_Type *base, uint32_t status)
         {
             result = kStatus_I3C_SdrParityError;
         }
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SERRWARN_HPAR) || (!FSL_FEATURE_I3C_HAS_NO_SERRWARN_HPAR)
         else if (0UL != (status & (uint32_t)kI3C_SlaveErrorHdrParityFlag))
         {
             result = kStatus_I3C_HdrParityError;
         }
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SERRWARN_HCRC) || (!FSL_FEATURE_I3C_HAS_NO_SERRWARN_HCRC)
         else if (0UL != (status & (uint32_t)kI3C_SlaveErrorHdrCRCFlag))
         {
             result = kStatus_I3C_CrcError;
         }
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SERRWARN_S0S1) || (!FSL_FEATURE_I3C_HAS_NO_SERRWARN_S0S1)
         else if (0UL != (status & (uint32_t)kI3C_SlaveErrorS0S1Flag))
         {
             result = kStatus_I3C_S0S1Error;
         }
+#endif
         else if (0UL != (status & (uint32_t)kI3C_SlaveErrorOverreadFlag))
         {
             result = kStatus_I3C_ReadFifoError;
@@ -707,7 +784,7 @@ static status_t I3C_MasterEmitStop(I3C_Type *base, bool waitIdle)
 
     return result;
 }
-
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
 /*!
  * brief I3C master get IBI Type.
  *
@@ -734,7 +811,7 @@ i3c_ibi_type_t I3C_GetIBIType(I3C_Type *base)
 
     return ibiType;
 }
-
+#endif
 /*!
  * @brief Make sure the bus isn't already busy.
  *
@@ -813,15 +890,22 @@ void I3C_Init(I3C_Type *base, const i3c_config_t *config, uint32_t sourceClock_H
     RESET_PeripheralReset(kI3cResets[instance]);
 #endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MDYNADDR) && FSL_FEATURE_I3C_HAS_NO_MDYNADDR)
     if ((config->masterDynamicAddress != 0U) && (config->enableMaster == kI3C_MasterOn))
     {
         base->MDYNADDR &= ~I3C_MDYNADDR_DADDR_MASK;
         base->MDYNADDR |= I3C_MDYNADDR_DADDR(config->masterDynamicAddress) | I3C_MDYNADDR_DAVALID_MASK;
     }
-
+#endif
     base->MCONFIG = I3C_MCONFIG_MSTENA(config->enableMaster) | I3C_MCONFIG_DISTO(config->disableTimeout) |
-                    I3C_MCONFIG_HKEEP(config->hKeep) | I3C_MCONFIG_ODSTOP(config->enableOpenDrainStop) |
-                    I3C_MCONFIG_ODHPP(config->enableOpenDrainHigh);
+                    I3C_MCONFIG_HKEEP(config->hKeep)
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MCONFIG_ODSTOP) && FSL_FEATURE_I3C_HAS_NO_MCONFIG_ODSTOP)                    
+                    | I3C_MCONFIG_ODSTOP(config->enableOpenDrainStop)
+#endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MCONFIG_ODHPP) && FSL_FEATURE_I3C_HAS_NO_MCONFIG_ODHPP)  
+                    | I3C_MCONFIG_ODHPP(config->enableOpenDrainHigh)
+#endif
+                    ;
 
 #if defined(FSL_FEATURE_I3C_HAS_START_SCL_DELAY) && FSL_FEATURE_I3C_HAS_START_SCL_DELAY
     base->MCONFIG_EXT = I3C_MCONFIG_EXT_I3C_CAS_DEL(config->startSclDelay) | I3C_MCONFIG_EXT_I3C_CASR_DEL(config->restartSclDelay);
@@ -856,36 +940,54 @@ void I3C_Init(I3C_Type *base, const i3c_config_t *config, uint32_t sourceClock_H
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH)
           I3C_SCONFIG_BAMATCH_MASK |
 #endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_OFFLINE) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_OFFLINE)
           I3C_SCONFIG_OFFLINE_MASK |
+#endif
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND)
           I3C_SCONFIG_IDRAND_MASK |
 #endif
 #if defined(FSL_FEATURE_I3C_HAS_HDROK) && FSL_FEATURE_I3C_HAS_HDROK
           I3C_SCONFIG_HDROK_MASK |
 #else
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_DDROK) && FSL_FEATURE_I3C_HAS_NO_DDROK)
           I3C_SCONFIG_DDROK_MASK |
 #endif
-          I3C_SCONFIG_S0IGNORE_MASK | I3C_SCONFIG_MATCHSS_MASK | I3C_SCONFIG_NACK_MASK | I3C_SCONFIG_SLVENA_MASK);
+#endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_S0IGNORE) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_S0IGNORE)
+          I3C_SCONFIG_S0IGNORE_MASK |
+#endif
+          I3C_SCONFIG_MATCHSS_MASK | I3C_SCONFIG_NACK_MASK | I3C_SCONFIG_SLVENA_MASK);
 
     configValue |= I3C_SCONFIG_SADDR(config->staticAddr) |
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH)
                    I3C_SCONFIG_BAMATCH(matchCount) |
 #endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_OFFLINE) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_OFFLINE)
                    I3C_SCONFIG_OFFLINE(config->offline) |
+#endif
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND)
                    I3C_SCONFIG_IDRAND(config->enableRandomPart) |
 #endif
+
 #if defined(FSL_FEATURE_I3C_HAS_HDROK) && FSL_FEATURE_I3C_HAS_HDROK
                    I3C_SCONFIG_HDROK((0U != (config->hdrMode & (uint8_t)kI3C_HDRModeDDR)) ? 1U : 0U) |
 #else
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_DDROK) && FSL_FEATURE_I3C_HAS_NO_DDROK)
                    I3C_SCONFIG_DDROK((0U != (config->hdrMode & (uint8_t)kI3C_HDRModeDDR)) ? 1U : 0U) |
 #endif
-                   I3C_SCONFIG_S0IGNORE(config->ignoreS0S1Error) | I3C_SCONFIG_MATCHSS(config->matchSlaveStartStop) |
+#endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_S0IGNORE) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_S0IGNORE)
+                   I3C_SCONFIG_S0IGNORE(config->ignoreS0S1Error) |
+#endif
+                   I3C_SCONFIG_MATCHSS(config->matchSlaveStartStop) |
                    I3C_SCONFIG_NACK(config->nakAllRequest) | I3C_SCONFIG_SLVENA(config->enableSlave);
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SVENDORID) && FSL_FEATURE_I3C_HAS_NO_SVENDORID)
     base->SVENDORID &= ~I3C_SVENDORID_VID_MASK;
     base->SVENDORID |= I3C_SVENDORID_VID(config->vendorID);
+#endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SIDPARTNO) && FSL_FEATURE_I3C_HAS_NO_SIDPARTNO)
 #if defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND
     base->SIDPARTNO = config->partNumber;
 #else
@@ -894,13 +996,17 @@ void I3C_Init(I3C_Type *base, const i3c_config_t *config, uint32_t sourceClock_H
         base->SIDPARTNO = config->partNumber;
     }
 #endif
+#endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SIDEXT) && FSL_FEATURE_I3C_HAS_NO_SIDEXT)
     base->SIDEXT &= ~(I3C_SIDEXT_BCR_MASK | I3C_SIDEXT_DCR_MASK);
     base->SIDEXT |= I3C_SIDEXT_BCR(config->bcr) | I3C_SIDEXT_DCR(config->dcr);
+#endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SMAXLIMITS) && FSL_FEATURE_I3C_HAS_NO_SMAXLIMITS)
     base->SMAXLIMITS &= ~(I3C_SMAXLIMITS_MAXRD_MASK | I3C_SMAXLIMITS_MAXWR_MASK);
     base->SMAXLIMITS |= (I3C_SMAXLIMITS_MAXRD(config->maxReadLength) | I3C_SMAXLIMITS_MAXWR(config->maxWriteLength));
-
+#endif
     base->SCONFIG = configValue;
 }
 
@@ -966,8 +1072,14 @@ void I3C_MasterInit(I3C_Type *base, const i3c_master_config_t *masterConfig, uin
     RESET_PeripheralReset(kI3cResets[instance]);
 #endif
     base->MCONFIG = I3C_MCONFIG_MSTENA(masterConfig->enableMaster) | I3C_MCONFIG_DISTO(masterConfig->disableTimeout) |
-                    I3C_MCONFIG_HKEEP(masterConfig->hKeep) | I3C_MCONFIG_ODSTOP(masterConfig->enableOpenDrainStop) |
-                    I3C_MCONFIG_ODHPP(masterConfig->enableOpenDrainHigh);
+                    I3C_MCONFIG_HKEEP(masterConfig->hKeep)
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MCONFIG_ODSTOP) && FSL_FEATURE_I3C_HAS_NO_MCONFIG_ODSTOP)                    
+                    | I3C_MCONFIG_ODSTOP(config->enableOpenDrainStop)
+#endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MCONFIG_ODHPP) && FSL_FEATURE_I3C_HAS_NO_MCONFIG_ODHPP)  
+                    | I3C_MCONFIG_ODHPP(config->enableOpenDrainHigh)
+#endif
+                    ;
 
 #if defined(FSL_FEATURE_I3C_HAS_START_SCL_DELAY) && FSL_FEATURE_I3C_HAS_START_SCL_DELAY
     base->MCONFIG_EXT = I3C_MCONFIG_EXT_I3C_CAS_DEL(masterConfig->startSclDelay) | I3C_MCONFIG_EXT_I3C_CASR_DEL(masterConfig->restartSclDelay);
@@ -1029,12 +1141,14 @@ i3c_master_state_t I3C_MasterGetState(I3C_Type *base)
         case (uint32_t)kI3C_MasterStateDaa:
             returnCode = kI3C_MasterStateDaa;
             break;
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
         case (uint32_t)kI3C_MasterStateIbiAck:
             returnCode = kI3C_MasterStateIbiAck;
             break;
         case (uint32_t)kI3C_MasterStateIbiRcv:
             returnCode = kI3C_MasterStateIbiRcv;
             break;
+#endif
         default:
             returnCode = kI3C_MasterStateIdle;
             break;
@@ -1103,7 +1217,7 @@ void I3C_MasterSetBaudRate(I3C_Type *base, const i3c_baudrate_hz_t *baudRate_Hz,
     uint32_t i3cODBaudMax_HZ = i3cODBaud_HZ / 10U + i3cODBaud_HZ; /* max is 1.1*i3cODBaud_HZ */
     uint32_t i2cBaud_HZ      = baudRate_Hz->i2cBaud;
     uint32_t i3cPPLow_Ns, i3cOdLow_Ns;
-    bool isODHigh = (0U != (base->MCONFIG & I3C_MCONFIG_ODHPP_MASK)) ? true : false;
+    bool isODHigh = 0;
 
     /* Find out the div to generate target freq */
     freq = sourceClock_Hz / 2UL;
@@ -1328,6 +1442,7 @@ void I3C_MasterEmitRequest(I3C_Type *base, i3c_bus_request_t masterReq)
     base->MCTRL = mctrlReg;
 }
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
 /*!
  * brief I3C master register IBI rule.
  *
@@ -1374,6 +1489,7 @@ void I3C_MasterGetIBIRules(I3C_Type *base, i3c_register_ibi_addr_t *ibiRule)
 
     ibiRule->ibiHasPayload = (0U == (ruleValue & I3C_MIBIRULES_NOBYTE_MASK));
 }
+#endif /* !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) */
 
 /*!
  * brief Performs a polling receive transfer on the I2C/I3C bus.
@@ -1572,6 +1688,7 @@ status_t I3C_MasterSend(I3C_Type *base, const void *txBuff, size_t txSize, uint3
     return result;
 }
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MDYNADDR) && FSL_FEATURE_I3C_HAS_NO_MDYNADDR)
 /*!
  * brief Performs a DAA in the i3c bus with specified temporary baud rate.
  *
@@ -1733,6 +1850,7 @@ i3c_device_info_t *I3C_MasterGetDeviceListAfterDAA(I3C_Type *base, uint8_t *coun
 
     return devList;
 }
+#endif /* !(defined(FSL_FEATURE_I3C_HAS_NO_MDYNADDR) && FSL_FEATURE_I3C_HAS_NO_MDYNADDR) */
 
 /*!
  * @brief introduce function I3C_MasterClearFlagsAndEnableIRQ.
@@ -1769,12 +1887,14 @@ static bool I3C_MasterTransferNoStartFlag(I3C_Type *base, i3c_master_transfer_t 
         I3C_MasterGetFifoCounts(base, NULL, &txCount);
     }
 
+#ifndef FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON
     /* Check if device request wins arbitration. */
     if (0UL != (I3C_MasterGetStatusFlags(base) & (uint32_t)kI3C_MasterArbitrationWonFlag))
     {
         I3C_MasterClearFlagsAndEnableIRQ(base);
         return true;
     }
+#endif
     return false;
 }
 
@@ -2053,6 +2173,7 @@ void I3C_MasterTransferCreateHandle(I3C_Type *base,
     I3C_MasterEnableInterrupts(base, (uint32_t)kMasterIrqFlags);
 }
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
 static void I3C_TransferStateMachineIBIWonState(I3C_Type *base,
                                                 i3c_master_handle_t *handle,
                                                 i3c_master_state_machine_param_t *stateParams)
@@ -2098,7 +2219,7 @@ static void I3C_TransferStateMachineIBIWonState(I3C_Type *base,
         stateParams->state_complete = true;
     }
 }
-
+#endif /* !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) */
 static void I3C_TransferStateMachineSendCommandState(I3C_Type *base,
                                                      i3c_master_handle_t *handle,
                                                      i3c_master_state_machine_param_t *stateParams)
@@ -2312,6 +2433,7 @@ static status_t I3C_RunTransferStateMachine(I3C_Type *base, i3c_master_handle_t 
         return stateParams.result;
     }
 
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_NOWMASTER) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_NOWMASTER)
     if (0UL != (stateParams.status & (uint32_t)kI3C_MasterSlave2MasterFlag))
     {
         if (handle->callback.slave2Master != NULL)
@@ -2319,18 +2441,22 @@ static status_t I3C_RunTransferStateMachine(I3C_Type *base, i3c_master_handle_t 
             handle->callback.slave2Master(base, handle->userData);
         }
     }
+#endif
 
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART)
     if ((0UL != (stateParams.status & (uint32_t)kI3C_MasterSlaveStartFlag)) &&
         (handle->transfer.busType != kI3C_TypeI2C))
     {
         handle->state = (uint8_t)kSlaveStartState;
     }
+#endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
     if ((stateParams.masterState == kI3C_MasterStateIbiRcv) || (stateParams.masterState == kI3C_MasterStateIbiAck))
     {
         handle->state = (uint8_t)kIBIWonState;
     }
-
+#endif
     if (handle->state == (uint8_t)kIdleState)
     {
         return stateParams.result;
@@ -2345,6 +2471,7 @@ static status_t I3C_RunTransferStateMachine(I3C_Type *base, i3c_master_handle_t 
         /* Execute the state. */
         switch (handle->state)
         {
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
             case (uint8_t)kSlaveStartState:
                 /* Emit start + 0x7E */
                 I3C_MasterEmitRequest(base, kI3C_RequestAutoIbi);
@@ -2355,7 +2482,7 @@ static status_t I3C_RunTransferStateMachine(I3C_Type *base, i3c_master_handle_t 
             case (uint8_t)kIBIWonState:
                 I3C_TransferStateMachineIBIWonState(base, handle, &stateParams);
                 break;
-
+#endif
             case (uint8_t)kSendCommandState:
                 I3C_TransferStateMachineSendCommandState(base, handle, &stateParams);
                 break;
@@ -2516,10 +2643,11 @@ status_t I3C_MasterTransferNonBlocking(I3C_Type *base, i3c_master_handle_t *hand
     handle->transfer       = *transfer;
     handle->remainingBytes = transfer->dataSize;
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
     /* Configure IBI response type. */
     base->MCTRL &= ~I3C_MCTRL_IBIRESP_MASK;
     base->MCTRL |= I3C_MCTRL_IBIRESP(transfer->ibiResponse);
-
+#endif
     /* Clear all flags. */
     I3C_MasterClearErrorStatusFlags(base, (uint32_t)kMasterErrorFlags);
     I3C_MasterClearStatusFlags(base, (uint32_t)kMasterClearFlags);
@@ -2672,25 +2800,26 @@ void I3C_MasterTransferHandleIRQ(I3C_Type *base, void *intHandle)
     {
         /* XXX need to handle data that may be in rx fifo below watermark level? */
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
         /* XXX handle error, terminate xfer */
         if ((result == kStatus_I3C_Nak) || (result == kStatus_I3C_IBIWon))
         {
             (void)I3C_MasterEmitStop(base, false);
         }
-
+#endif
         /* Disable internal IRQ enables. */
         I3C_MasterDisableInterrupts(base, (uint32_t)kI3C_MasterTxReadyFlag);
 
         /* Set handle to idle state. */
         handle->state = (uint8_t)kIdleState;
-
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
         /* Invoke IBI user callback. */
         if ((result == kStatus_I3C_IBIWon) && (handle->callback.ibiCallback != NULL))
         {
             handle->callback.ibiCallback(base, handle, handle->ibiType, kI3C_IbiReady);
             handle->ibiPayloadSize = 0;
         }
-
+#endif
         /* Invoke callback. */
         if (NULL != handle->callback.transferComplete)
         {
@@ -2797,36 +2926,52 @@ void I3C_SlaveInit(I3C_Type *base, const i3c_slave_config_t *slaveConfig, uint32
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH)
           I3C_SCONFIG_BAMATCH_MASK |
 #endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_OFFLINE) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_OFFLINE)
           I3C_SCONFIG_OFFLINE_MASK |
+#endif
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND)
           I3C_SCONFIG_IDRAND_MASK |
 #endif
 #if defined(FSL_FEATURE_I3C_HAS_HDROK) && FSL_FEATURE_I3C_HAS_HDROK
           I3C_SCONFIG_HDROK_MASK |
 #else
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_DDROK) && FSL_FEATURE_I3C_HAS_NO_DDROK)
           I3C_SCONFIG_DDROK_MASK |
 #endif
-          I3C_SCONFIG_S0IGNORE_MASK | I3C_SCONFIG_MATCHSS_MASK | I3C_SCONFIG_NACK_MASK | I3C_SCONFIG_SLVENA_MASK);
+#endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_S0IGNORE) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_S0IGNORE)
+          I3C_SCONFIG_S0IGNORE_MASK |
+#endif
+          I3C_SCONFIG_MATCHSS_MASK | I3C_SCONFIG_NACK_MASK | I3C_SCONFIG_SLVENA_MASK);
     configValue |= I3C_SCONFIG_SADDR(slaveConfig->staticAddr) |
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_BAMATCH)
                    I3C_SCONFIG_BAMATCH(matchCount) |
 #endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_OFFLINE) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_OFFLINE)
                    I3C_SCONFIG_OFFLINE(slaveConfig->offline) |
+#endif
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND)
                    I3C_SCONFIG_IDRAND(slaveConfig->enableRandomPart) |
 #endif
 #if defined(FSL_FEATURE_I3C_HAS_HDROK) && FSL_FEATURE_I3C_HAS_HDROK
                    I3C_SCONFIG_HDROK((0U != (slaveConfig->hdrMode & (uint8_t)kI3C_HDRModeDDR)) ? 1U : 0U) |
 #else
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_DDROK) && FSL_FEATURE_I3C_HAS_NO_DDROK)
                    I3C_SCONFIG_DDROK((0U != (slaveConfig->hdrMode & (uint8_t)kI3C_HDRModeDDR)) ? 1U : 0U) |
 #endif
+#endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_S0IGNORE) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_S0IGNORE)
                    I3C_SCONFIG_S0IGNORE(slaveConfig->ignoreS0S1Error) |
+#endif
                    I3C_SCONFIG_MATCHSS(slaveConfig->matchSlaveStartStop) |
                    I3C_SCONFIG_NACK(slaveConfig->nakAllRequest) | I3C_SCONFIG_SLVENA(slaveConfig->enableSlave);
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SVENDORID) && FSL_FEATURE_I3C_HAS_NO_SVENDORID)
     base->SVENDORID &= ~I3C_SVENDORID_VID_MASK;
     base->SVENDORID |= I3C_SVENDORID_VID(slaveConfig->vendorID);
+#endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SIDPARTNO) && FSL_FEATURE_I3C_HAS_NO_SIDPARTNO)
 #if defined(FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND) && FSL_FEATURE_I3C_HAS_NO_SCONFIG_IDRAND
     base->SIDPARTNO = slaveConfig->partNumber;
 #else
@@ -2835,13 +2980,18 @@ void I3C_SlaveInit(I3C_Type *base, const i3c_slave_config_t *slaveConfig, uint32
         base->SIDPARTNO = slaveConfig->partNumber;
     }
 #endif
+#endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SIDEXT) && FSL_FEATURE_I3C_HAS_NO_SIDEXT)
     base->SIDEXT &= ~(I3C_SIDEXT_BCR_MASK | I3C_SIDEXT_DCR_MASK);
     base->SIDEXT |= I3C_SIDEXT_BCR(slaveConfig->bcr) | I3C_SIDEXT_DCR(slaveConfig->dcr);
+#endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SMAXLIMITS) && FSL_FEATURE_I3C_HAS_NO_SMAXLIMITS)
     base->SMAXLIMITS &= ~(I3C_SMAXLIMITS_MAXRD_MASK | I3C_SMAXLIMITS_MAXWR_MASK);
     base->SMAXLIMITS |=
         (I3C_SMAXLIMITS_MAXRD(slaveConfig->maxReadLength) | I3C_SMAXLIMITS_MAXWR(slaveConfig->maxWriteLength));
+#endif
 
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SLAVE_IBI_MR_HJ) && FSL_FEATURE_I3C_HAS_NO_SLAVE_IBI_MR_HJ)
     if (slaveConfig->isHotJoin)
@@ -2878,6 +3028,7 @@ void I3C_SlaveDeinit(I3C_Type *base)
     s_i3cSlaveHandle[idx] = NULL;
 }
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_ACTSTATE) && FSL_FEATURE_I3C_HAS_NO_SSTATUS_ACTSTATE)
 /*!
  * @brief Gets the I3C slave state.
  *
@@ -2909,6 +3060,7 @@ i3c_slave_activity_state_t I3C_SlaveGetActivityState(I3C_Type *base)
 
     return returnCode;
 }
+#endif
 
 #if !(defined(FSL_FEATURE_I3C_HAS_NO_SLAVE_IBI_MR_HJ) && FSL_FEATURE_I3C_HAS_NO_SLAVE_IBI_MR_HJ)
 /*!
@@ -3292,6 +3444,7 @@ static void I3C_SlaveTransferHandleBusStart(I3C_Type *base, i3c_slave_transfer_t
     (*pendingInts) |= (uint32_t)kI3C_SlaveTxReadyFlag;
 }
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT) && FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT)
 static void I3C_SlaveTransferHandleEventSent(I3C_Type *base, i3c_slave_handle_t *handle, i3c_slave_transfer_t *xfer)
 {
     xfer->event = (uint32_t)kI3C_SlaveRequestSentEvent;
@@ -3300,7 +3453,9 @@ static void I3C_SlaveTransferHandleEventSent(I3C_Type *base, i3c_slave_handle_t 
         handle->callback(base, xfer, handle->userData);
     }
 }
+#endif
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC) && FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC)
 static void I3C_SlaveTransferHandleReceivedCCC(I3C_Type *base, i3c_slave_handle_t *handle, i3c_slave_transfer_t *xfer)
 {
     handle->isBusy = true;
@@ -3310,6 +3465,7 @@ static void I3C_SlaveTransferHandleReceivedCCC(I3C_Type *base, i3c_slave_handle_
         handle->callback(base, xfer, handle->userData);
     }
 }
+#endif
 
 static void I3C_SlaveTransferHandleBusStop(I3C_Type *base,
                                            i3c_slave_handle_t *handle,
@@ -3367,11 +3523,13 @@ static void I3C_SlaveTransferHandleTxReady(I3C_Type *base,
     if ((NULL == handle->transfer.txData) || (0UL == handle->transfer.txDataSize))
     {
         handle->transfer.event = (uint32_t)kI3C_SlaveTransmitEvent;
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_STHDR) && FSL_FEATURE_I3C_HAS_NO_SSTATUS_STHDR)
         if (0UL != (stateParams->flags & (uint32_t)kI3C_SlaveBusHDRModeFlag))
         {
             handle->transfer.event |= (uint32_t)kI3C_SlaveHDRCommandMatchEvent;
             handle->isBusy = true;
         }
+#endif
         if (NULL != handle->callback)
         {
             handle->callback(base, &handle->transfer, handle->userData);
@@ -3414,11 +3572,13 @@ static void I3C_SlaveTransferHandleRxReady(I3C_Type *base,
     if ((NULL == handle->transfer.rxData) || (0UL == handle->transfer.rxDataSize))
     {
         handle->transfer.event = (uint32_t)kI3C_SlaveReceiveEvent;
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_STHDR) && FSL_FEATURE_I3C_HAS_NO_SSTATUS_STHDR)
         if (0UL != (stateParams->flags & (uint32_t)kI3C_SlaveBusHDRModeFlag))
         {
             handle->transfer.event |= (uint32_t)kI3C_SlaveHDRCommandMatchEvent;
             handle->isBusy = true;
         }
+#endif
         if (NULL != handle->callback)
         {
             handle->callback(base, &handle->transfer, handle->userData);
@@ -3468,17 +3628,18 @@ void I3C_SlaveTransferHandleIRQ(I3C_Type *base, void *intHandle)
     {
         I3C_SlaveTransferHandleBusStart(base, &handle->transfer, &stateParams.pendingInts);
     }
-
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT) && FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT)
     if (0UL != (stateParams.flags & (uint32_t)kI3C_SlaveEventSentFlag))
     {
         I3C_SlaveTransferHandleEventSent(base, handle, &handle->transfer);
     }
-
+#endif
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC) && FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC)
     if (0UL != (stateParams.flags & (uint32_t)kI3C_SlaveReceivedCCCFlag))
     {
         I3C_SlaveTransferHandleReceivedCCC(base, handle, &handle->transfer);
     }
-
+#endif
     if (0UL != (stateParams.flags & (uint32_t)kI3C_SlaveMatchedFlag))
     {
         I3C_SlaveTransferHandleMatched(base, handle, &handle->transfer);

@@ -113,16 +113,32 @@ enum _i3c_master_flags
 {
     kI3C_MasterBetweenFlag        = I3C_MSTATUS_BETWEEN_MASK,   /*!< Between messages/DAAs flag */
     kI3C_MasterNackDetectFlag     = I3C_MSTATUS_NACKED_MASK,    /*!< NACK detected flag */
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART)
     kI3C_MasterSlaveStartFlag     = I3C_MSTATUS_SLVSTART_MASK,  /*!< Slave request start flag */
+#endif
     kI3C_MasterControlDoneFlag    = I3C_MSTATUS_MCTRLDONE_MASK, /*!< Master request complete flag */
     kI3C_MasterCompleteFlag       = I3C_MSTATUS_COMPLETE_MASK,  /*!< Transfer complete flag */
     kI3C_MasterRxReadyFlag        = I3C_MSTATUS_RXPEND_MASK,    /*!< Rx data ready in Rx buffer flag */
     kI3C_MasterTxReadyFlag        = I3C_MSTATUS_TXNOTFULL_MASK, /*!< Tx buffer ready for Tx data flag */
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON)
     kI3C_MasterArbitrationWonFlag = I3C_MSTATUS_IBIWON_MASK,    /*!< Header address won arbitration flag */
+#endif
     kI3C_MasterErrorFlag          = I3C_MSTATUS_ERRWARN_MASK,   /*!< Error occurred flag */
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_NOWMASTER) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_NOWMASTER)
     kI3C_MasterSlave2MasterFlag   = I3C_MSTATUS_NOWMASTER_MASK, /*!< Switch from slave to master flag */
-    kI3C_MasterClearFlags         = kI3C_MasterSlaveStartFlag | kI3C_MasterControlDoneFlag | kI3C_MasterCompleteFlag |
-                            kI3C_MasterArbitrationWonFlag | kI3C_MasterSlave2MasterFlag | kI3C_MasterErrorFlag,
+#endif
+    kI3C_MasterClearFlags         = kI3C_MasterControlDoneFlag |
+                                    kI3C_MasterCompleteFlag |
+                                    kI3C_MasterErrorFlag
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_SLVSTART)
+                                    | kI3C_MasterSlaveStartFlag
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBIWON)
+                                    | kI3C_MasterArbitrationWonFlag
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_NOWMASTER) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_NOWMASTER)
+                                    | kI3C_MasterSlave2MasterFlag
+#endif
 };
 
 /*!
@@ -137,20 +153,35 @@ enum _i3c_master_error_flags
 #if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_TERM) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_TERM)
     kI3C_MasterErrorTermFlag = I3C_MERRWARN_TERM_MASK, /*!< Master terminates slave read */
 #endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_HPAR) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_HPAR)
     kI3C_MasterErrorParityFlag = I3C_MERRWARN_HPAR_MASK,        /*!< Parity error from DDR read */
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_HCRC) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_HCRC)
     kI3C_MasterErrorCrcFlag    = I3C_MERRWARN_HCRC_MASK,        /*!< CRC error from DDR read */
+#endif
     kI3C_MasterErrorReadFlag   = I3C_MERRWARN_OREAD_MASK,       /*!< Read from MRDATAB register when FIFO empty */
     kI3C_MasterErrorWriteFlag  = I3C_MERRWARN_OWRITE_MASK,      /*!< Write to MWDATAB register when FIFO full */
     kI3C_MasterErrorMsgFlag    = I3C_MERRWARN_MSGERR_MASK,      /*!< Message SDR/DDR mismatch or
             read/write message in wrong state */
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_INVREQ) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_INVREQ)
     kI3C_MasterErrorInvalidReqFlag = I3C_MERRWARN_INVREQ_MASK,  /*!< Invalid use of request */
+#endif
     kI3C_MasterErrorTimeoutFlag    = I3C_MERRWARN_TIMEOUT_MASK, /*!< The module has stalled too long in a frame */
     kI3C_MasterAllErrorFlags       = kI3C_MasterErrorNackFlag | kI3C_MasterErrorWriteAbortFlag |
 #if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_TERM) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_TERM)
                                kI3C_MasterErrorTermFlag |
 #endif
-                               kI3C_MasterErrorParityFlag | kI3C_MasterErrorCrcFlag | kI3C_MasterErrorReadFlag |
-                               kI3C_MasterErrorWriteFlag | kI3C_MasterErrorMsgFlag | kI3C_MasterErrorInvalidReqFlag |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_HPAR) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_HPAR)
+                               kI3C_MasterErrorParityFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_HCRC) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_HCRC)
+                               kI3C_MasterErrorCrcFlag |
+#endif
+                               kI3C_MasterErrorReadFlag |
+                               kI3C_MasterErrorWriteFlag | kI3C_MasterErrorMsgFlag |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MERRWARN_INVREQ) || (!FSL_FEATURE_I3C_HAS_NO_MERRWARN_INVREQ)
+                               kI3C_MasterErrorInvalidReqFlag |
+#endif
                                kI3C_MasterErrorTimeoutFlag, /*!< All error flags */
 };
 
@@ -435,32 +466,66 @@ enum _i3c_slave_flags
                                                                read from slave, or is IBI pushing out. */
     kI3C_SlaveRequiredWriteFlag = I3C_SSTATUS_STREQWR_MASK, /*!< Slave status request write, master is doing SDR
                                                                write to slave, except slave in ENTDAA mode */
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_STDAA) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_STDAA)
     kI3C_SlaveBusDAAFlag     = I3C_SSTATUS_STDAA_MASK,      /*!< I3C bus is in ENTDAA mode */
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_STHDR) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_STHDR)
     kI3C_SlaveBusHDRModeFlag = I3C_SSTATUS_STHDR_MASK,      /*!< I3C bus is in HDR mode */
+#endif
     kI3C_SlaveBusStartFlag = I3C_SSTATUS_START_MASK, /*!< Start/Re-start event is seen since the bus was last cleared */
     kI3C_SlaveMatchedFlag  = I3C_SSTATUS_MATCHED_MASK, /*!< Slave address(dynamic/static) matched since last cleared */
     kI3C_SlaveBusStopFlag  = I3C_SSTATUS_STOP_MASK,    /*!<Stop event is seen since the bus was last cleared */
     kI3C_SlaveRxReadyFlag  = I3C_SSTATUS_RX_PEND_MASK, /*!< Rx data ready in rx buffer flag */
     kI3C_SlaveTxReadyFlag  = I3C_SSTATUS_TXNOTFULL_MASK, /*!< Tx buffer ready for Tx data flag */
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_DACHG) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_DACHG)
     kI3C_SlaveDynamicAddrChangedFlag =
         I3C_SSTATUS_DACHG_MASK, /*!< Slave dynamic address has been assigned, re-assigned, or lost */
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC)
     kI3C_SlaveReceivedCCCFlag     = I3C_SSTATUS_CCC_MASK,      /*!< Slave received Common command code */
+#endif
     kI3C_SlaveErrorFlag           = I3C_SSTATUS_ERRWARN_MASK,  /*!< Error occurred flag */
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_HDRMATCH) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_HDRMATCH)
     kI3C_SlaveHDRCommandMatchFlag = I3C_SSTATUS_HDRMATCH_MASK, /*!< High data rate command match */
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_CHANDLED) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_CHANDLED) 
     kI3C_SlaveCCCHandledFlag =
         I3C_SSTATUS_CHANDLED_MASK, /*!< Slave received Common command code is handled by I3C module */
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT)
     kI3C_SlaveEventSentFlag             = I3C_SSTATUS_EVENT_MASK,  /*!< Slave IBI/P2P/MR/HJ event has been sent */
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_IBIDIS) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_IBIDIS)
     kI3C_SlaveIbiDisableFlag            = I3C_SSTATUS_IBIDIS_MASK, /*!< Slave in band interrupt is disabled. */
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_MRDIS) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_MRDIS)
     kI3C_SlaveMasterRequestDisabledFlag = I3C_SSTATUS_MRDIS_MASK,  /*!< Slave master request is disabled. */
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_HJDIS) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_HJDIS)
     kI3C_SlaveHotJoinDisabledFlag       = I3C_SSTATUS_HJDIS_MASK,  /*!< Slave Hot-Join is disabled. */
+#endif
     /*! All flags which are cleared by the driver upon starting a transfer. */
     kI3C_SlaveClearFlags = kI3C_SlaveBusStartFlag | kI3C_SlaveMatchedFlag | kI3C_SlaveBusStopFlag,
 
     kI3C_SlaveAllIrqFlags = kI3C_SlaveBusStartFlag | kI3C_SlaveMatchedFlag | kI3C_SlaveBusStopFlag |
-                            kI3C_SlaveRxReadyFlag | kI3C_SlaveTxReadyFlag | kI3C_SlaveDynamicAddrChangedFlag |
-                            kI3C_SlaveReceivedCCCFlag | kI3C_SlaveErrorFlag | kI3C_SlaveHDRCommandMatchFlag |
-                            kI3C_SlaveCCCHandledFlag | kI3C_SlaveEventSentFlag,
-
+                            kI3C_SlaveRxReadyFlag |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_DACHG) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_DACHG)
+                            kI3C_SlaveDynamicAddrChangedFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_CCC)
+                            kI3C_SlaveReceivedCCCFlag |
+#endif
+                            kI3C_SlaveErrorFlag |
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_HDRMATCH) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_HDRMATCH)
+                            kI3C_SlaveHDRCommandMatchFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_CHANDLED) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_CHANDLED) 
+                            kI3C_SlaveCCCHandledFlag |
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVENT)
+                            kI3C_SlaveEventSentFlag
+#endif
+                            kI3C_SlaveTxReadyFlag,
 };
 
 /*!
@@ -477,9 +542,15 @@ enum _i3c_slave_error_flags
     kI3C_SlaveErrorTermFlag         = I3C_SERRWARN_TERM_MASK,     /*!< Terminate error from master */
     kI3C_SlaveErrorInvalidStartFlag = I3C_SERRWARN_INVSTART_MASK, /*!< Slave invalid start flag */
     kI3C_SlaveErrorSdrParityFlag    = I3C_SERRWARN_SPAR_MASK,     /*!< SDR parity error */
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SERRWARN_HPAR) || (!FSL_FEATURE_I3C_HAS_NO_SERRWARN_HPAR)
     kI3C_SlaveErrorHdrParityFlag    = I3C_SERRWARN_HPAR_MASK,     /*!< HDR parity error */
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SERRWARN_HCRC) || (!FSL_FEATURE_I3C_HAS_NO_SERRWARN_HCRC)
     kI3C_SlaveErrorHdrCRCFlag       = I3C_SERRWARN_HCRC_MASK,     /*!< HDR-DDR CRC error */
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SERRWARN_S0S1) || (!FSL_FEATURE_I3C_HAS_NO_SERRWARN_S0S1)
     kI3C_SlaveErrorS0S1Flag         = I3C_SERRWARN_S0S1_MASK,     /*!< S0 or S1 error */
+#endif
     kI3C_SlaveErrorOverreadFlag     = I3C_SERRWARN_OREAD_MASK,    /*!< Over-read error */
     kI3C_SlaveErrorOverwriteFlag    = I3C_SERRWARN_OWRITE_MASK,   /*!< Over-write error */
 };
@@ -844,7 +915,11 @@ static inline void I3C_MasterEnable(I3C_Type *base, i3c_master_enable_t enable)
  */
 static inline uint32_t I3C_MasterGetStatusFlags(I3C_Type *base)
 {
-    return base->MSTATUS & ~(I3C_MSTATUS_STATE_MASK | I3C_MSTATUS_IBITYPE_MASK);
+    return base->MSTATUS & ~(I3C_MSTATUS_STATE_MASK
+#if !defined(FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBITYPE) || (!FSL_FEATURE_I3C_HAS_NO_MSTATUS_IBITYPE)
+                            | I3C_MSTATUS_IBITYPE_MASK
+#endif
+                            );
 }
 
 /*!
@@ -1241,6 +1316,7 @@ status_t I3C_MasterStop(I3C_Type *base);
  */
 void I3C_MasterEmitRequest(I3C_Type *base, i3c_bus_request_t masterReq);
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP)
 /*!
  * @brief I3C master emit request.
  *
@@ -1289,7 +1365,9 @@ static inline uint8_t I3C_GetIBIAddress(I3C_Type *base)
 {
     return (uint8_t)((base->MSTATUS & I3C_MSTATUS_IBIADDR_MASK) >> I3C_MSTATUS_IBIADDR_SHIFT);
 }
+#endif /* !(defined(FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) && FSL_FEATURE_I3C_HAS_NO_MASTER_IBIRESP) */
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_MDYNADDR) && FSL_FEATURE_I3C_HAS_NO_MDYNADDR)
 /*!
  * @brief Performs a DAA in the i3c bus with specified temporary baud rate.
  *
@@ -1333,6 +1411,7 @@ static inline status_t I3C_MasterProcessDAA(I3C_Type *base, uint8_t *addressList
  * @return Pointer to the i3c_device_info_t array.
  */
 i3c_device_info_t *I3C_MasterGetDeviceListAfterDAA(I3C_Type *base, uint8_t *count);
+#endif /* !(defined(FSL_FEATURE_I3C_HAS_NO_MDYNADDR) && FSL_FEATURE_I3C_HAS_NO_MDYNADDR) */
 /*!
  * @brief Performs a master polling transfer on the I2C/I3C bus.
  *
@@ -1513,7 +1592,17 @@ static inline void I3C_SlaveEnable(I3C_Type *base, bool isEnable)
  */
 static inline uint32_t I3C_SlaveGetStatusFlags(I3C_Type *base)
 {
-    return base->SSTATUS & ~(I3C_SSTATUS_EVDET_MASK | I3C_SSTATUS_ACTSTATE_MASK | I3C_SSTATUS_TIMECTRL_MASK);
+    return base->SSTATUS & ~(0
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVDET) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_EVDET)
+                            | I3C_SSTATUS_EVDET_MASK
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_ACTSTATE) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_ACTSTATE)
+                            | I3C_SSTATUS_ACTSTATE_MASK
+#endif
+#if !defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_TIMECTRL) || (!FSL_FEATURE_I3C_HAS_NO_SSTATUS_TIMECTRL)
+                            | I3C_SSTATUS_TIMECTRL_MASK
+#endif
+                            );
 }
 
 /*!
@@ -1568,6 +1657,7 @@ static inline void I3C_SlaveClearErrorStatusFlags(I3C_Type *base, uint32_t statu
     base->SERRWARN = statusMask;
 }
 
+#if !(defined(FSL_FEATURE_I3C_HAS_NO_SSTATUS_ACTSTATE) && FSL_FEATURE_I3C_HAS_NO_SSTATUS_ACTSTATE)
 /*!
  * @brief Gets the I3C slave state.
  *
@@ -1575,6 +1665,7 @@ static inline void I3C_SlaveClearErrorStatusFlags(I3C_Type *base, uint32_t statu
  * @return I3C slave activity state, refer #i3c_slave_activity_state_t.
  */
 i3c_slave_activity_state_t I3C_SlaveGetActivityState(I3C_Type *base);
+#endif
 
 /* Not static so it can be used from fsl_i3c_dma.c. */
 status_t I3C_SlaveCheckAndClearError(I3C_Type *base, uint32_t status);

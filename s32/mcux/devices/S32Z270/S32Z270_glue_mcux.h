@@ -24,20 +24,13 @@
 #define I3C0_BASE                                IP_I3C_0_BASE
 /** Peripheral I3C0 base pointer */
 #define I3C0                                     IP_I3C_0
-/** Peripheral I3C1 base address */
-#define I3C1_BASE                                IP_I3C_1_BASE
-/** Peripheral I3C1 base pointer */
-#define I3C1                                     IP_I3C_1
-/** Peripheral I3C2 base address */
-#define I3C2_BASE                                IP_I3C_2_BASE
-/** Peripheral I3C1 base pointer */
-#define I3C2                                     IP_I3C_2
+
 /** Array initializer of I3C peripheral base addresses */
 #define I3C_BASE_ADDRS                           IP_I3C_BASE_ADDRS
 /** Array initializer of I3C peripheral base pointers */
 #define I3C_BASE_PTRS                            IP_I3C_BASE_PTRS
 /** Interrupt vectors for the I3C peripheral type */
-#define I3C_IRQS                                 { RTU_I3C0_IRQn, RTU_I3C1_IRQn, RTU_I3C2_IRQn }
+#define I3C_IRQS                                 { RTU_I3C0_IRQn }
 
 /*
  * These bit fields are not existed on this SoC, I3C slave request IBI will not be

@@ -90,7 +90,7 @@ typedef struct {
   union {                                          /* offset: 0x48 */
     __I  uint32_t MRDATAH;                           /**< Controller Read Data Halfword, offset: 0x48 */
     __I  uint32_t SRDATAH;                           /**< Target Read Data Halfword, offset: 0x48 */
-  } SRDATAH_MRDATAH;
+  };
   uint8_t RESERVED_3[8];
   union {                                          /* offset: 0x54 */
     __O  uint32_t SWDATAB1;                          /**< Target Write Data Byte, offset: 0x54 */
