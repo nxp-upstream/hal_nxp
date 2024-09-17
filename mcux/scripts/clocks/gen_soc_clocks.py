@@ -245,7 +245,7 @@ def output_signal(peripheral_map, signal, level, proc_name):
             dts += helpers.indent_string(f"{signal_id.lower()}: ", level)
             dts += f"{signal_id.lower().replace('_','-')} {{\n"
             dts += helpers.indent_string(f"compatible = \"clock-output\";\n", level + 1)
-            dts += helpers.indent_string(f"#clock-cells = <1>;\n", level + 1)
+            dts += helpers.indent_string(f"#clock-cells = <0>;\n", level + 1)
             dts += helpers.indent_string("};\n", level)
         # Generate children
         for child in signal['children']:
