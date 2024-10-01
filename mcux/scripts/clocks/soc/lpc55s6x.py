@@ -11,6 +11,9 @@ PDOWN_REGS = {
     "XTAL32M": ("PMC::PDRUNCFG0", ["PDEN_LDOXO32M", "PDEN_XTAL32M"]),
     "XTAL32K": ("PMC::PDRUNCFG0", ["PDEN_XTAL32K"]),
     "fro_32k": ("PMC::PDRUNCFG0", ["PDEN_FRO32K"]),
+    "fro_12m": ("PMC::PDRUNCFG0", []),
+    "fro_1m": ("PMC::PDRUNCFG0", []),
+    "fro_hf": ("PMC::PDRUNCFG0", []),
 }
 
 def handle_soc_signals(peripheral_map, signal, level, proc_name):
@@ -130,7 +133,8 @@ def handle_soc_signals(peripheral_map, signal, level, proc_name):
             )
             pdown_bitmask |= (0x1 << pdown_offset)
         # Write register name as comment
-        dts += helpers.indent_string(f"/* {pdown_periph}[{' | '.join(pdown_bitfields)}] */\n", level + 1)
+        if pdown_bitmask != 0:
+            dts += helpers.indent_string(f"/* {pdown_periph}[{' | '.join(pdown_bitfields)}] */\n", level + 1)
         dts += helpers.indent_string(f"pdown-mask = <0x{pdown_bitmask:x}>;\n", level + 1)
         # Write register name as comment
         dts += helpers.indent_string(f"/* {periph_reg}[{bitfield}] */\n", level + 1)

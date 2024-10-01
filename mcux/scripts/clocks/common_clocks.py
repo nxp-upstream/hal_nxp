@@ -105,7 +105,6 @@ def output_clock_source(peripheral_map, signal, level):
         dts += helpers.indent_string(f"#clock-cells = <0>;\n", level + 1)
         dts += helpers.indent_string(f"/* External clock source */\n", level + 1)
         dts += helpers.indent_string(f"frequency = <0>;\n", level + 1)
-        dts += helpers.indent_string(f"precision = <0>;\n", level + 1)
     return dts
 
 def output_no_clock(signal, level):
@@ -123,7 +122,6 @@ def output_no_clock(signal, level):
     dts += helpers.indent_string(f"compatible = \"fixed-clock-source\";\n", level + 1)
     dts += helpers.indent_string(f"#clock-cells = <0>;\n", level + 1)
     dts += helpers.indent_string(f"frequency = <0>;\n", level + 1)
-    dts += helpers.indent_string(f"precision = <0>;\n", level + 1)
     return dts
 
 def output_clock_select(peripheral_map, signal, level):
