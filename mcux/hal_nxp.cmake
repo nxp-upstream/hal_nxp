@@ -267,6 +267,7 @@ include_driver_ifdef(CONFIG_S3MU_MCUX_S3MU              s3mu            driver_s
 include_driver_ifdef(CONFIG_PINCTRL_NXP_KINETIS         port            driver_port)
 if(CONFIG_BT_NXP)
 include_driver_ifdef(CONFIG_SOC_SERIES_MCXW		spc		driver_spc)
+include_driver_ifdef(CONFIG_SOC_SERIES_KINETIS_KW45	spc		driver_spc)
 endif()
 
 if (${MCUX_DEVICE} MATCHES "MIMXRT1189")
@@ -315,7 +316,11 @@ endif()
 
 if("${CONFIG_SOC_FAMILY}" STREQUAL "nxp_kinetis")
 
-  include_driver_ifdef(CONFIG_SOC_FLASH_MCUX		flash		driver_flash)
+  if("${CONFIG_SOC_SERIES}" STREQUAL "kw45")
+    include_driver_ifdef(CONFIG_SOC_FLASH_MCUX		flash_k4		driver_flash_k4)
+  else()
+    include_driver_ifdef(CONFIG_SOC_FLASH_MCUX		flash		driver_flash)
+  endif()
 
   include(${CMAKE_CURRENT_LIST_DIR}/mcux-sdk/drivers/port/driver_port.cmake)
   zephyr_include_directories(${CMAKE_CURRENT_LIST_DIR}/mcux-sdk/drivers/port)
@@ -334,7 +339,7 @@ elseif(CONFIG_SOC_SERIES_MCXA)
 elseif(CONFIG_SOC_SERIES_MCXN)
     include_driver_ifdef(CONFIG_SOC_FLASH_MCUX		mcx_romapi	driver_flashiap)
     zephyr_include_directories(${CMAKE_CURRENT_LIST_DIR}/mcux-sdk/drivers/mcx_romapi/flash)
-elseif(CONFIG_SOC_SERIES_MCXW)
+elseif(CONFIG_SOC_SERIES_MCXW OR CONFIG_SOC_SERIES_KINETIS_KW45)
     include_driver_ifdef(CONFIG_SOC_FLASH_MCUX		flash_k4	driver_flash_k4)
 endif()
 
@@ -473,7 +478,7 @@ if(CONFIG_NXP_RF_IMU)
           ${CMAKE_CURRENT_LIST_DIR}/mcux-sdk/drivers/gdma
       )
     include(component_wireless_imu_adapter)
-  elseif(CONFIG_SOC_SERIES_MCXW)
+  elseif(CONFIG_SOC_SERIES_MCXW OR CONFIG_SOC_SERIES_KINETIS_KW45)
       zephyr_include_directories(${CMAKE_CURRENT_LIST_DIR}/mcux-sdk/components/rpmsg)
       zephyr_library_sources(${CMAKE_CURRENT_LIST_DIR}/mcux-sdk/components/rpmsg/fsl_adapter_rpmsg.c)
       include(component_lists)
@@ -481,7 +486,7 @@ if(CONFIG_NXP_RF_IMU)
   endif()
 endif()
 
-if(${MCUX_DEVICE} MATCHES "MCXW")
+if(${MCUX_DEVICE} MATCHES "MCXW" OR ${MCUX_DEVICE} MATCHES "KW45")
   list(APPEND CMAKE_MODULE_PATH
       ${CMAKE_CURRENT_LIST_DIR}/mcux-sdk/drivers/ccm32k
   )
