@@ -10,6 +10,11 @@ list(APPEND CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_LIST_DIR}/mcux-sdk/components/lists
 )
 
+if("${CONFIG_SOC_SERIES}" STREQUAL "kw45")
+list(APPEND CMAKE_MODULE_PATH
+	${CMAKE_CURRENT_LIST_DIR}/mcux-sdk/devices/MCXW716C/drivers)
+endif()
+
 if(CONFIG_CPU_CORTEX_A)
     list(APPEND CMAKE_MODULE_PATH
         ${CMAKE_CURRENT_LIST_DIR}/mcux-sdk/CMSIS/Core_AArch64/Include
