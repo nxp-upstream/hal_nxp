@@ -5,7 +5,6 @@ build:
   settings:
     dts_root: .
 blobs:
-#IW612
   - path: iw612/uart_nw61x_se.h
     sha256: 7655e871c377a21b1bf03defb13edb04e844e84508f04ffa90052f3163d430d0
     type: img
