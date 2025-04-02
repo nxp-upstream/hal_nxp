@@ -68,7 +68,7 @@ extern "C"{
 #define HSE_IP_DEV_ERROR_DETECT                  (STD_OFF)
 
 /* OsIf counter type used in timeout detection for HSE IP service request */
-#define HSE_IP_TIMEOUT_OSIF_COUNTER_TYPE         (OSIF_COUNTER_DUMMY)
+#define HSE_IP_TIMEOUT_OSIF_COUNTER_TYPE         (OSIF_COUNTER_SYSTEM)
 
 /* Support for Hse operations using TCM addresses */
 #define HSE_IP_ENABLE_TCM_SUPPORT                       (STD_OFF)
