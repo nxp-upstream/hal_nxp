@@ -10,7 +10,9 @@
 #include <stdint.h>
 
 const uint8_t fw_cpu1[] = {
+#ifndef CONFIG_BUILD_ONLY_NO_BLOBS
     #include <iw416_wifi_fw.bin.inc>
+#endif /*CONFIG_BUILD_ONLY_NO_BLOBS*/
 };
 
 const unsigned char *wlan_fw_bin = (const unsigned char *)(void *)&fw_cpu1[0];
