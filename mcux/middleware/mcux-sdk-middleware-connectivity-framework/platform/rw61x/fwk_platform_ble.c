@@ -686,20 +686,15 @@ int PLATFORM_RequestBleWakeUp(void)
 int PLATFORM_ReleaseBleWakeUp(void)
 {
     int ret = 0;
-    /* Nothing to do, the BLE controller awakes with a one shot interrupt from PMU
-     * For now, there's no mechanism to force it active for a defined period of time
-     * The only concern is if the CPU2 has time to re-enter sleep while CPU3 still
-     * needs CPU2 power domain ressources such as IMU/SMU
-     * TODO: Use GPIO output from CPU2 to track sleep/active periods and measure
-     * the minimal time before CPU2 re-enters sleep after a wake up */
+    /* Clear BLE wake up interrupt */
+    PMU_DisableBleWakeup(0x1U);
+    NVIC_DisableIRQ(BLE_MCI_WAKEUP_DONE0_IRQn);
     return ret;
 }
 
 void BLE_MCI_WAKEUP_DONE0_DriverIRQHandler(void)
 {
-    /* The Controller is awake, we can clear BLE wake up interrupt */
-    PMU_DisableBleWakeup(0x1U);
-    NVIC_DisableIRQ(BLE_MCI_WAKEUP_DONE0_IRQn);
+    /* Nothing to do */
 }
 
 int PLATFORM_HandleControllerPowerState(void)
