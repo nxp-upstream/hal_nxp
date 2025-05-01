@@ -655,12 +655,6 @@ int PLATFORM_RequestBleWakeUp(void)
          * completely awake and ready to receive a message */
         NVIC_EnableIRQ(BLE_MCI_WAKEUP_DONE0_IRQn);
 
-        /* Make sure to clear wake up event */
-        if (OSA_EventClear((osa_event_handle_t)wakeUpEventGroup, (uint32_t)ble_awake_event) != KOSA_StatusSuccess)
-        {
-            ret = -1;
-        }
-
         /* Wake up BLE core with PMU BLE_WAKEUP bit
          * This bit is maintained until we receive a BLE_MCI_WAKEUP_DONE0
          * interrupt */
@@ -686,15 +680,20 @@ int PLATFORM_RequestBleWakeUp(void)
 int PLATFORM_ReleaseBleWakeUp(void)
 {
     int ret = 0;
-    /* Clear BLE wake up interrupt */
-    PMU_DisableBleWakeup(0x1U);
-    NVIC_DisableIRQ(BLE_MCI_WAKEUP_DONE0_IRQn);
+    /* Nothing to do, the BLE controller awakes with a one shot interrupt from PMU
+     * For now, there's no mechanism to force it active for a defined period of time
+     * The only concern is if the CPU2 has time to re-enter sleep while CPU3 still
+     * needs CPU2 power domain ressources such as IMU/SMU
+     * TODO: Use GPIO output from CPU2 to track sleep/active periods and measure
+     * the minimal time before CPU2 re-enters sleep after a wake up */
     return ret;
 }
 
 void BLE_MCI_WAKEUP_DONE0_DriverIRQHandler(void)
 {
-    /* Nothing to do */
+    /* The Controller is awake, we can clear BLE wake up interrupt */
+    PMU_DisableBleWakeup(0x1U);
+    NVIC_DisableIRQ(BLE_MCI_WAKEUP_DONE0_IRQn);
 }
 
 int PLATFORM_HandleControllerPowerState(void)
@@ -769,14 +768,6 @@ static bool PLATFORM_IsHciLinkReady(void)
 
 static bool PLATFORM_IsBleAwake(void)
 {
-    /* The power state information of CPU2 is managed by a software state machine.
-     * This is an additional hardware check to make sure of the CPU2 power state
-     * Sending a HCI message while CPU2 is in low power causes message loss
-     */
-    if (BLE_POWER_STATUS() != BLE_POWER_ON)
-    {
-        blePowerState = ble_asleep_state;
-    }
     return (blePowerState != ble_asleep_state);
 }
 
@@ -895,6 +886,12 @@ static int PLATFORM_HandleBlePowerStateEvent(ble_ps_event_t psEvent)
             {
                 case ble_asleep_event:
                     blePowerState = ble_asleep_state;
+                    /* Make sure to clear wake up event */
+                    if (OSA_EventClear((osa_event_handle_t)wakeUpEventGroup, (uint32_t)ble_awake_event) !=
+                        KOSA_StatusSuccess)
+                    {
+                        ret = -1;
+                    }
                     break;
 
                 default:
