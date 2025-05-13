@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,7 +34,7 @@ extern "C"{
 #define QSPI_IP_HYPERFLASHTYPES_AR_RELEASE_REVISION_VERSION  0
 #define QSPI_IP_HYPERFLASHTYPES_SW_MAJOR_VERSION             2
 #define QSPI_IP_HYPERFLASHTYPES_SW_MINOR_VERSION             0
-#define QSPI_IP_HYPERFLASHTYPES_SW_PATCH_VERSION             0
+#define QSPI_IP_HYPERFLASHTYPES_SW_PATCH_VERSION             1
 
 
 /*==================================================================================================
@@ -94,7 +94,6 @@ extern "C"{
 #define QSPI_IP_HF_LUT_CMD_98           165U
 
 #define QSPI_IP_HF_LUT_SIZE             171U
-#define QSPI_IP_HF_LUT_NAME             Qspi_Ip_HyperflashLutTable
 
 /* Number of commands in the software reset sequence */
 #define QSPI_IP_HF_RST_CNT              1U
