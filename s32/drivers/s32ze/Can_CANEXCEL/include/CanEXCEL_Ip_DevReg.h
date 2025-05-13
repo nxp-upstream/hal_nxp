@@ -1,7 +1,13 @@
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
+ */
+/*
+ * CanEXCEL_Ip_DevReg.h
+ *
+ *  Created on: May 4, 2022
+ *      Author: nxf31634
  */
 
 #ifndef CANEXCEL_IP_DEVREG_H_
