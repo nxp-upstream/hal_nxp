@@ -94,6 +94,7 @@ extern "C"{
 #define QSPI_IP_HF_LUT_CMD_98           165U
 
 #define QSPI_IP_HF_LUT_SIZE             171U
+#define QSPI_IP_HF_LUT_NAME             Qspi_Ip_HyperflashLutTable
 
 /* Number of commands in the software reset sequence */
 #define QSPI_IP_HF_RST_CNT              1U

@@ -1,9 +1,25 @@
-/*
- * Copyright 2022-2024 NXP
+/*==================================================================================================
+*   Project              : RTD AUTOSAR 4.7
+*   Platform             : CORTEXM
+*   Peripheral           : NETC
+*   Dependencies         : none
 *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
+*   Autosar Version      : 4.7.0
+*   Autosar Revision     : ASR_REL_4_7_REV_0000
+*   Autosar Conf.Variant :
+*   SW Version           : 2.0.1
+*   Build Version        : S32ZE_RTD_2_0_1_D2505_ASR_REL_4_7_REV_0000_20250508
+*
+*   Copyright 2021-2025 NXP
+*
+*   NXP Confidential and Proprietary. This software is owned or controlled by NXP and may only be
+*   used strictly in accordance with the applicable license terms. By expressly
+*   accepting such terms or by downloading, installing, activating and/or otherwise
+*   using the software, you are agreeing that you have read, and that you agree to
+*   comply with and are bound by, such license terms. If you do not agree to be
+*   bound by the applicable license terms, then you may not retain, install,
+*   activate or otherwise use the software.
+==================================================================================================*/
 /**
 *   @file Netc_Eth_Ip_Cfg.c
 *
@@ -33,7 +49,7 @@ extern "C"{
 #define NETC_IP_CFG_AR_RELEASE_REVISION_VERSION_C   0
 #define NETC_IP_CFG_SW_MAJOR_VERSION_C              2
 #define NETC_IP_CFG_SW_MINOR_VERSION_C              0
-#define NETC_IP_CFG_SW_PATCH_VERSION_C              0
+#define NETC_IP_CFG_SW_PATCH_VERSION_C              1
 
 /*==================================================================================================
 *                                     FILE VERSION CHECKS
@@ -108,7 +124,7 @@ Netc_Eth_Ip_VfBaseType *netcVFBase[] = { (Netc_Eth_Ip_VfBaseType *)NULL_PTR, \
                                          (Netc_Eth_Ip_VfBaseType *)IP_NETC__NETC_VF3_PCI_HDR_TYPE0, (Netc_Eth_Ip_VfBaseType *)IP_NETC__NETC_VF4_PCI_HDR_TYPE0, \
                                          (Netc_Eth_Ip_VfBaseType *)IP_NETC__NETC_VF5_PCI_HDR_TYPE0, (Netc_Eth_Ip_VfBaseType *)IP_NETC__NETC_VF6_PCI_HDR_TYPE0, \
                                          (Netc_Eth_Ip_VfBaseType *)IP_NETC__NETC_VF7_PCI_HDR_TYPE0};
-
+                                         
 /** @brief Base address for all VFs. NULL_PTR is added as the hardware has only 7 VF starting from 1. */
 Netc_Eth_Ip_PCIeBaseType *netcPCIePFBase[] = { (Netc_Eth_Ip_PCIeBaseType *)IP_NETC__NETC_F0_PCI_HDR_TYPE0, (Netc_Eth_Ip_PCIeBaseType *)IP_NETC__NETC_F1_PCI_HDR_TYPE0, \
                                                (Netc_Eth_Ip_PCIeBaseType *)IP_NETC__NETC_F2_PCI_HDR_TYPE0, (Netc_Eth_Ip_PCIeBaseType *)IP_NETC__NETC_F3_PCI_HDR_TYPE0};

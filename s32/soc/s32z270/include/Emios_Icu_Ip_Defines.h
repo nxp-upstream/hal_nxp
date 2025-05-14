@@ -1,9 +1,25 @@
-/*
- * Copyright 2021-2024 NXP
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
+/*==================================================================================================
+*   Project              : RTD AUTOSAR 4.7
+*   Platform             : CORTEXM
+*   Peripheral           : Emios Siul2 Etimer Gtm
+*   Dependencies         : none
+*
+*   Autosar Version      : 4.7.0
+*   Autosar Revision     : ASR_REL_4_7_REV_0000
+*   Autosar Conf.Variant :
+*   SW Version           : 2.0.1
+*   Build Version        : S32ZE_RTD_2_0_1_D2505_ASR_REL_4_7_REV_0000_20250508
+*
+*   Copyright 2021-2025 NXP
+*
+*   NXP Confidential and Proprietary. This software is owned or controlled by NXP and may only be
+*   used strictly in accordance with the applicable license terms. By expressly
+*   accepting such terms or by downloading, installing, activating and/or otherwise
+*   using the software, you are agreeing that you have read, and that you agree to
+*   comply with and are bound by, such license terms. If you do not agree to be
+*   bound by the applicable license terms, then you may not retain, install,
+*   activate or otherwise use the software.
+==================================================================================================*/
 #ifndef EMIOS_ICU_IP_DEFINES_H
 #define EMIOS_ICU_IP_DEFINES_H
 
@@ -37,7 +53,7 @@ extern "C"{
 #define EMIOS_ICU_IP_DEFINES_AR_RELEASE_REVISION_VERSION     0
 #define EMIOS_ICU_IP_DEFINES_SW_MAJOR_VERSION                2
 #define EMIOS_ICU_IP_DEFINES_SW_MINOR_VERSION                0
-#define EMIOS_ICU_IP_DEFINES_SW_PATCH_VERSION                0
+#define EMIOS_ICU_IP_DEFINES_SW_PATCH_VERSION                1
 
 /*==================================================================================================
 *                                       FILE VERSION CHECKS
@@ -61,8 +77,6 @@ extern "C"{
 #define EMIOS_ICU_IP_USED                        (STD_ON)
 
 #if (STD_ON == EMIOS_ICU_IP_USED)
-
-#define EMIOS_ICU_IP_CHANNEL_24_USED              (STD_ON)
 
 /** @brief The number of EMIOS instances available on platform */
 #define EMIOS_ICU_IP_INSTANCE_COUNT               (2U)
@@ -112,9 +126,6 @@ extern "C"{
 /** @brief Adds or removes the service set Initial Counter for eMios. */
 #define EMIOS_ICU_IP_SET_INITIAL_COUNTER          (STD_ON)
 
-/** @brief Adds or removes all services related to mode set functionality. */
-#define EMIOS_ICU_IP_SET_MODE_API                 (STD_OFF)
-
 /** @brief Adds or removes all services related to input state functionality. */
 #define EMIOS_ICU_IP_GET_INPUT_STATE_API          (STD_ON)
 
@@ -131,6 +142,11 @@ extern "C"{
 #define EMIOS_ICU_IP_TIMESTAMP_USES_DMA_IPL           (STD_OFF)
 
 #define EMIOS_ICU_IP_GET_PULSE_WIDTH_API          (STD_ON)
+
+#if (STD_ON == EMIOS_ICU_IP_SIGNALMEASUREMENT_USES_DMA_IPL)
+/** @brief Maximum value of A shadow register in Emios IPL */
+#define EMIOS_ICU_IP_SHADOW_REGISTER_MAX_MASK     (0xFFFFFFU)
+#endif
     #define EMIOS_ICU_IP_WSC_SUPPORT                  (STD_ON)
 
 #if (STD_ON == EMIOS_ICU_IP_WSC_SUPPORT)
@@ -156,6 +172,9 @@ extern "C"{
 #if ((EMIOS_ICU_IP_EDGE_COUNT_API == STD_ON) || (EMIOS_ICU_IP_SIGNAL_MEASUREMENT_API == STD_ON) || (EMIOS_ICU_IP_TIMESTAMP_API == STD_ON))
 #define EMIOS_ICU_IP_COUNTER_MASK              ((uint32)16777215)
 #endif
+
+/** @brief Adds or removes SAIC with edge capturing support. */
+#define EMIOS_ICU_IP_SAIC_EDGE_CAPTURING_SUPPORT                  (STD_OFF)
 
 #define EMIOS_ICU_IP_INITIAL_INDEX_OF_CHANNELS \
     { \

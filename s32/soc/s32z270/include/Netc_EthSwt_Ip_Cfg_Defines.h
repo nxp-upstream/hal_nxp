@@ -1,8 +1,25 @@
-/*
- * Copyright 2022-2024 NXP
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*==================================================================================================
+*   Project              : RTD AUTOSAR 4.7
+*   Platform             : CORTEXM
+*   Peripheral           : NETC
+*   Dependencies         : none
+*
+*   Autosar Version      : 4.7.0
+*   Autosar Revision     : ASR_REL_4_7_REV_0000
+*   Autosar Conf.Variant :
+*   SW Version           : 2.0.1
+*   Build Version        : S32ZE_RTD_2_0_1_D2505_ASR_REL_4_7_REV_0000_20250508
+*
+*   Copyright 2021-2025 NXP
+*
+*   NXP Confidential and Proprietary. This software is owned or controlled by NXP and may only be
+*   used strictly in accordance with the applicable license terms. By expressly
+*   accepting such terms or by downloading, installing, activating and/or otherwise
+*   using the software, you are agreeing that you have read, and that you agree to
+*   comply with and are bound by, such license terms. If you do not agree to be
+*   bound by the applicable license terms, then you may not retain, install,
+*   activate or otherwise use the software.
+==================================================================================================*/
 
 #ifndef NETC_ETHSWT_IP_CFG_DEFINES_H
 #define NETC_ETHSWT_IP_CFG_DEFINES_H
@@ -32,7 +49,6 @@ extern "C"{
 #include "S32Z2_NETC_F1_PCI_HDR_TYPE0.h"
 #include "S32Z2_NETC_F2_PCI_HDR_TYPE0.h"
 #include "S32Z2_NETC_F3_PCI_HDR_TYPE0.h"
-#include "S32Z2_ENETC_PORT.h"
 #include "S32Z2_SW_PORT0.h"
 #include "S32Z2_SW_PORT1.h"
 #include "S32Z2_SW_PORT2.h"
@@ -58,7 +74,7 @@ extern "C"{
 #define NETC_ETHSWT_IP_CFG_DEFINES_AR_RELEASE_REVISION_VERSION  0
 #define NETC_ETHSWT_IP_CFG_DEFINES_SW_MAJOR_VERSION             2
 #define NETC_ETHSWT_IP_CFG_DEFINES_SW_MINOR_VERSION             0
-#define NETC_ETHSWT_IP_CFG_DEFINES_SW_PATCH_VERSION             0
+#define NETC_ETHSWT_IP_CFG_DEFINES_SW_PATCH_VERSION             1
 
 /*==================================================================================================
 *                                       FILE VERSION CHECKS
@@ -142,7 +158,7 @@ extern "C"{
 #define NETC_ETHSWT_IP_ISCTABLE_RSPBUFFER_LEN                   (36U)     /*!< the lenght of response data buffer in bytes for query cmd for ingress stream count table */
 
 /* The maximum number of Weighted Fair Share Queues */
-#define NETC_ETHSWT_WBFS_QUEUES_NB (8U)
+#define NETC_ETHSWT_WBFS_QUEUES_NB                              (8U)
 
 #define NETC_ETHSWT_IP_HOSTREASON_REGULAR_FRAME (0x00000000UL)
 #define NETC_ETHSWT_IP_HOSTREASON_INGR_MIRROR   (0x00000001UL)
@@ -238,7 +254,7 @@ typedef enum {
     NETC_ETHSWT_IP_TX_SINGLE_COLLISION_COUNT                = 0x2E0U,  /*!< Port MAC 0 Transmit Single Collision Counter(aSingleCollisionFrames) Register (PM0_TSCOLn)  */
     NETC_ETHSWT_IP_TX_LATE_COLLISION_COUNT                  = 0x2E8U,  /*!< Port MAC 0 Transmit Late Collision Counter(aLateCollisions) Register (PM0_TLCOLn)  */
     NETC_ETHSWT_IP_TX_EXCESSIVE_COLLISIONS_COUNT            = 0x2F0U,  /*!< Port MAC 0 Transmit Excessive Collisions Counter Register (PM0_TECOLn)  */
-    
+
     /* MAC1(PMAC) extension*/
     NETC_ETHSWT_IP_RX_ETH_OCTETS_COUNT_MAC1                 = 0x500U,  /*!< Port MAC 1 Receive Ethernet Octets Counter(etherStatsOctetsn) (PM1_REOCTn) */
     NETC_ETHSWT_IP_RX_OCTETS_COUNT_MAC1                     = 0x508U,  /*!< Supported by pseudo port. Port MAC 0 Receive Octets Counter(iflnOctetsn) (PM1_ROCTn) */
@@ -341,3 +357,4 @@ typedef enum {
 /** @} */
 
 #endif /* NETC_ETHSWT_IP_CFG_DEFINES_H */
+

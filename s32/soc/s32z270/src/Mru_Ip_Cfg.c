@@ -1,12 +1,28 @@
-/*
- * Copyright 2022-2024 NXP
+/*==================================================================================================
+*   Project              : RTD AUTOSAR 4.7
+*   Platform             : CORTEXM
+*   Peripheral           : 
+*   Dependencies         : none
 *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
+*   Autosar Version      : 4.7.0
+*   Autosar Revision     : ASR_REL_4_7_REV_0000
+*   Autosar Conf.Variant :
+*   SW Version           : 2.0.1
+*   Build Version        : S32ZE_RTD_2_0_1_D2505_ASR_REL_4_7_REV_0000_20250508
+*
+*   Copyright 2021-2025 NXP
+*
+*   NXP Confidential and Proprietary. This software is owned or controlled by NXP and may only be 
+*   used strictly in accordance with the applicable license terms.  By expressly 
+*   accepting such terms or by downloading, installing, activating and/or otherwise 
+*   using the software, you are agreeing that you have read, and that you agree to 
+*   comply with and are bound by, such license terms.  If you do not agree to be 
+*   bound by the applicable license terms, then you may not retain, install,
+*   activate or otherwise use the software.
+==================================================================================================*/
 /**   
 *   @file    Mru_Ip_Cfg.c
-*   @version 2.0.0
+*   @version 2.0.1
 *
 *   @brief   AUTOSAR Platform - Pre-Compile configuration file code template.
 *   @details Code template for Pre-Compile configuration file generation.
@@ -20,17 +36,16 @@ extern "C"
 {
 #endif
 
-
 /*==================================================================================================
-                                         INCLUDE FILES
- 1) system and project includes
- 2) needed interfaces from external units
- 3) internal and external interfaces from this unit
+*                                        INCLUDE FILES
+* 1) system and project includes
+* 2) needed interfaces from external units
+* 3) internal and external interfaces from this unit
 ==================================================================================================*/
 #include "Mru_Ip.h"
 
 /*==================================================================================================
-*                              SOURCE FILE VERSION INFORMATION
+*                        SOURCE FILE VERSION INFORMATION
 ==================================================================================================*/
 
 #define CDD_PLATFORM_MRU_IP_VENDOR_ID_CFG_C                        43
@@ -39,7 +54,7 @@ extern "C"
 #define CDD_PLATFORM_MRU_IP_AR_RELEASE_REVISION_VERSION_CFG_C      0
 #define CDD_PLATFORM_MRU_IP_SW_MAJOR_VERSION_CFG_C                 2
 #define CDD_PLATFORM_MRU_IP_SW_MINOR_VERSION_CFG_C                 0
-#define CDD_PLATFORM_MRU_IP_SW_PATCH_VERSION_CFG_C                 0
+#define CDD_PLATFORM_MRU_IP_SW_PATCH_VERSION_CFG_C                 1
 
 /*==================================================================================================
 *                                     FILE VERSION CHECKS
@@ -82,12 +97,12 @@ extern "C"
                                        GLOBAL CONSTANTS
 ==================================================================================================*/
 
-
 /*==================================================================================================
                                        GLOBAL VARIABLES
 ==================================================================================================*/
 #define PLATFORM_START_SEC_CONST_UNSPECIFIED
 #include "Platform_MemMap.h"
+
 RTU_MRU_Type* const Mru_Ip_apxRTU_Bases[RTU_MRU_INSTANCE_COUNT] = IP_RTU_MRU_BASE_PTRS;
 #define PLATFORM_STOP_SEC_CONST_UNSPECIFIED
 #include "Platform_MemMap.h"
@@ -110,3 +125,4 @@ RTU_MRU_Type* const Mru_Ip_apxRTU_Bases[RTU_MRU_INSTANCE_COUNT] = IP_RTU_MRU_BAS
 #endif
 
 /** @} */
+

@@ -1,12 +1,29 @@
-/*
- * Copyright 2022-2024 NXP
+/*==================================================================================================
+*   Project              : RTD AUTOSAR 4.7
+*   Platform             : CORTEXM
+*   Peripheral           : 
+*   Dependencies         : none
 *
- * SPDX-License-Identifier: BSD-3-Clause
- */
+*   Autosar Version      : 4.7.0
+*   Autosar Revision     : ASR_REL_4_7_REV_0000
+*   Autosar Conf.Variant :
+*   SW Version           : 2.0.1
+*   Build Version        : S32ZE_RTD_2_0_1_D2505_ASR_REL_4_7_REV_0000_20250508
+*
+*   Copyright 2021-2025 NXP
+*
+*   NXP Confidential. This software is owned or controlled by NXP and may only be
+*   used strictly in accordance with the applicable license terms. By expressly
+*   accepting such terms or by downloading, installing, activating and/or otherwise
+*   using the software, you are agreeing that you have read, and that you agree to
+*   comply with and are bound by, such license terms. If you do not agree to be
+*   bound by the applicable license terms, then you may not retain, install,
+*   activate or otherwise use the software.
+==================================================================================================*/
 
 /**
 *   @file       Clock_Ip_Cfg.c
-*   @version    2.0.0
+*   @version    2.0.1
 *
 *   @brief   AUTOSAR Mcu - Post-Build(PB) configuration file code template.
 *   @details Code template for Post-Build(PB) configuration file generation.
@@ -39,7 +56,7 @@ extern "C"{
 #define CLOCK_IP_CFG_AR_RELEASE_REVISION_VERSION_C    0
 #define CLOCK_IP_CFG_SW_MAJOR_VERSION_C               2
 #define CLOCK_IP_CFG_SW_MINOR_VERSION_C               0
-#define CLOCK_IP_CFG_SW_PATCH_VERSION_C               0
+#define CLOCK_IP_CFG_SW_PATCH_VERSION_C               1
 
 /*==================================================================================================
 *                                     FILE VERSION CHECKS
@@ -940,9 +957,9 @@ static const Clock_Ip_DividerConfigType Clock_Ip_DividerConfigurations_0[CLOCK_I
     #if CLOCK_IP_CONFIGURED_DIVIDERS_0_NO > 23U
     {
         P0_PSI5_189K_CLK,                    /* name */
-        3306U,                              /* value */
+        8U,                              /* value */
         {
-            2U,
+            0U,
         }
     },
     #endif
@@ -1210,9 +1227,9 @@ static const Clock_Ip_DividerConfigType Clock_Ip_DividerConfigurations_0[CLOCK_I
     #if CLOCK_IP_CONFIGURED_DIVIDERS_0_NO > 50U
     {
         P4_PSI5_189K_CLK,                    /* name */
-        3306U,                              /* value */
+        8U,                              /* value */
         {
-            2U,
+            0U,
         }
     },
     #endif
@@ -2926,4 +2943,5 @@ const Clock_Ip_ClockConfigType Clock_Ip_aClockConfig[1U] = {
 #endif
 
 /** @} */
+
 

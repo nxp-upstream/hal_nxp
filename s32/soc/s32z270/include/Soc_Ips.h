@@ -1,8 +1,25 @@
-/*
- * Copyright 2022-2024 NXP
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*==================================================================================================
+*   Project              : RTD AUTOSAR 4.7
+*   Platform             : CORTEXM
+*   Peripheral           : 
+*   Dependencies         : none
+*
+*   Autosar Version      : 4.7.0
+*   Autosar Revision     : ASR_REL_4_7_REV_0000
+*   Autosar Conf.Variant :
+*   SW Version           : 2.0.1
+*   Build Version        : S32ZE_RTD_2_0_1_D2505_ASR_REL_4_7_REV_0000_20250508
+*
+*   Copyright 2021-2025 NXP
+*
+*   NXP Confidential and Proprietary. This software is owned or controlled by NXP and may only be 
+*   used strictly in accordance with the applicable license terms.  By expressly 
+*   accepting such terms or by downloading, installing, activating and/or otherwise 
+*   using the software, you are agreeing that you have read, and that you agree to 
+*   comply with and are bound by, such license terms.  If you do not agree to be 
+*   bound by the applicable license terms, then you may not retain, install,
+*   activate or otherwise use the software.
+==================================================================================================*/
 
 #ifndef SOC_IPS_H
 #define SOC_IPS_H
@@ -38,7 +55,7 @@ extern "C"{
 #define SOC_IPS_AR_RELEASE_REVISION_VERSION  0
 #define SOC_IPS_SW_MAJOR_VERSION             2
 #define SOC_IPS_SW_MINOR_VERSION             0
-#define SOC_IPS_SW_PATCH_VERSION             0
+#define SOC_IPS_SW_PATCH_VERSION             1
 
 /*==================================================================================================
 *                                      FILE VERSION CHECKS
@@ -253,6 +270,13 @@ must be enabled for NETC to accept table management commands for any function
 #define ERR_IPV_NETC_051260        (STD_ON)
 
 /**
+* @brief Hardware errata for NETC: (ERR051649)
+* @details ERR051649 NETC: Switch ports support only one 802.1p and DEI to internal QoS
+mapping profile.
+*/
+#define ERR_IPV_NETC_051649        (STD_ON)
+
+/**
 * @brief Hardware errata for NETC: (ERR051261)
 * @details ERR051261 NETC: Egress ports can violate 802.3 half-duplex jam protocol after collision
 event
@@ -335,6 +359,11 @@ MCB mode transition
 circumstances
 */
 #define ERR_IPV_NETC_051300        (STD_ON)
+
+/** @brief Hardware errata for ICU GTM: (ERR051781)
+* @details ERR051781 GTM: (TIM) Potentially wrong capture values
+*/
+#define ERR_IPV_GTM_051781        (STD_ON)
 /*==================================================================================================
 *                                       DEFINES AND MACROS
 ==================================================================================================*/
@@ -383,3 +412,4 @@ circumstances
 /** @} */
 
 #endif /* SOC_IPS_H */
+

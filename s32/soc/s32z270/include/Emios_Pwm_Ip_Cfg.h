@@ -1,8 +1,25 @@
-/*
- * Copyright 2021-2024 NXP
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*==================================================================================================
+*   Project              : RTD AUTOSAR 4.7
+*   Platform             : CORTEXM
+*   Peripheral           : Gtm Emios Etimer FlexPwm
+*   Dependencies         : none
+*
+*   Autosar Version      : 4.7.0
+*   Autosar Revision     : ASR_REL_4_7_REV_0000
+*   Autosar Conf.Variant :
+*   SW Version           : 2.0.1
+*   Build Version        : S32ZE_RTD_2_0_1_D2505_ASR_REL_4_7_REV_0000_20250508
+*
+*   Copyright 2021-2025 NXP
+*
+*   NXP Confidential and Proprietary. This software is owned or controlled by NXP and may only be
+*   used strictly in accordance with the applicable license terms. By expressly
+*   accepting such terms or by downloading, installing, activating and/or otherwise
+*   using the software, you are agreeing that you have read, and that you agree to
+*   comply with and are bound by, such license terms. If you do not agree to be
+*   bound by the applicable license terms, then you may not retain, install,
+*   activate or otherwise use the software.
+==================================================================================================*/
 
 #ifndef EMIOS_PWM_IP_CFG_H
 #define EMIOS_PWM_IP_CFG_H
@@ -17,7 +34,6 @@
 #ifdef __cplusplus
 extern "C"{
 #endif
-
 
 /*==================================================================================================
 *                                          INCLUDE FILES
@@ -49,7 +65,7 @@ extern "C"{
 #define EMIOS_PWM_IP_CFG_AR_RELEASE_REVISION_VERSION  0
 #define EMIOS_PWM_IP_CFG_SW_MAJOR_VERSION             2
 #define EMIOS_PWM_IP_CFG_SW_MINOR_VERSION             0
-#define EMIOS_PWM_IP_CFG_SW_PATCH_VERSION             0
+#define EMIOS_PWM_IP_CFG_SW_PATCH_VERSION             1
 
 /*==================================================================================================
 *                                       FILE VERSION CHECKS
@@ -104,10 +120,10 @@ extern "C"{
 #define EMIOS_PWM_IP_SET_INITIAL_MODE(n)    DT_INST_FOREACH_CHILD_STATUS_OKAY(n, SET_INITIAL_MODE)
 
 /** @brief      Enable the Emios Ip */
-#define EMIOS_PWM_IP_USED                       (STD_ON)
+#define EMIOS_PWM_IP_USED                          (STD_ON)
 
 /** @brief      Switch to enable the development error detection. */
-#define EMIOS_PWM_IP_DEV_ERROR_DETECT           (STD_OFF)
+#define EMIOS_PWM_IP_DEV_ERROR_DETECT              (STD_OFF)
 
 /** @brief      The number of Emios instances available on platform */
 #define EMIOS_PWM_IP_INSTANCE_COUNT                (eMIOS_INSTANCE_COUNT)
@@ -137,17 +153,27 @@ extern "C"{
 /** @brief Arrays to store the channel logic Index State */
 #define EMIOS_PWM_IP_USED_CHANNELS \
 { \
-    {0U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U},  \
-    {255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U}  \
+    {0U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U}, \
+    {255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U, 255U} \
 }
 
 /** @brief    Calculate the supported eMios channels */
-#define EMIOS_PWM_IP_NUM_OF_CHANNELS_USED_U8   0 DT_INST_FOREACH_STATUS_OKAY(EMIOS_NUM_CHANNELS_USED)
+#define EMIOS_PWM_IP_NUM_OF_CHANNELS_USED_U8       0 DT_INST_FOREACH_STATUS_OKAY(EMIOS_NUM_CHANNELS_USED)
 
 #define EMIOS_PWM_IP_INITIAL_MODES                                                \
 {                                                                                 \
     DT_INST_FOREACH_STATUS_OKAY(EMIOS_PWM_IP_SET_INITIAL_MODE)                    \
 }
+
+/** @brief    Support for User mode */
+#define EMIOS_PWM_IP_ENABLE_USER_MODE_SUPPORT      (STD_OFF)
+
+#ifndef MCAL_ENABLE_USER_MODE_SUPPORT
+    #if (STD_ON == EMIOS_PWM_IP_ENABLE_USER_MODE_SUPPORT)
+        #error MCAL_ENABLE_USER_MODE_SUPPORT is not enabled. For running EMIOS in user mode the MCAL_ENABLE_USER_MODE_SUPPORT needs to be defined
+    #endif /* (STD_ON == EMIOS_PWM_IP_ENABLE_USER_MODE_SUPPORT) */
+#endif /* ifndef MCAL_ENABLE_USER_MODE_SUPPORT */
+
 
 /*==================================================================================================
 *                                              ENUMS
@@ -158,6 +184,7 @@ extern "C"{
 ==================================================================================================*/
 /* Redefine eMIOS_Type from header file to comply with coding guidelines */
 typedef eMIOS_Type Emios_Pwm_Ip_HwAddrType;
+
 /**
 * @brief        PWM Period type (the value of the period is platform dependent and thus configurable)
 */
