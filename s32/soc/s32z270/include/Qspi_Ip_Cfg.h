@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,6 +30,7 @@ extern "C"{
 #include "Qspi_Ip_Types.h"
 #include <zephyr/devicetree.h>
 
+
 /*==================================================================================================
 *                              SOURCE FILE VERSION INFORMATION
 ==================================================================================================*/
@@ -39,7 +40,7 @@ extern "C"{
 #define QSPI_IP_AR_RELEASE_REVISION_VERSION_CFG  0
 #define QSPI_IP_SW_MAJOR_VERSION_CFG             2
 #define QSPI_IP_SW_MINOR_VERSION_CFG             0
-#define QSPI_IP_SW_PATCH_VERSION_CFG             0
+#define QSPI_IP_SW_PATCH_VERSION_CFG             1
 
 /*==================================================================================================
 *                                     FILE VERSION CHECKS
@@ -96,7 +97,7 @@ extern "C"{
     #endif
 #endif
 
-#define QSPI_PERFORM_DEVICE_CONFIG                      (STD_ON)
+#define QSPI_IP_PERFORM_DEVICE_CONFIG                      (STD_ON)
 
 
 /*==================================================================================================
@@ -106,6 +107,28 @@ extern "C"{
 *                                GLOBAL VARIABLE DECLARATIONS
 ==================================================================================================*/
 
+#define MEM_43_EXFLS_START_SEC_CONFIG_DATA_UNSPECIFIED
+#include "Mem_43_EXFLS_MemMap.h"
+
+/* Controller connections */
+extern const Qspi_Ip_ControllerConfigType Qspi_Ip_paQspiUnitCfg[1U];
+/* Memory configurations */
+extern const Qspi_Ip_MemoryConfigType Qspi_Ip_paFlashCfg[1U];
+/* Memory-controller connections */
+extern const Qspi_Ip_MemoryConnectionType Qspi_Ip_paFlashConnectionCfg[1U];
+
+#define MEM_43_EXFLS_STOP_SEC_CONFIG_DATA_UNSPECIFIED
+#include "Mem_43_EXFLS_MemMap.h"
+
+#define MEM_43_EXFLS_START_SEC_VAR_INIT_UNSPECIFIED
+#include "Mem_43_EXFLS_MemMap.h"
+
+/* Using the fixed command sets from Qspi_Ip_Hyperflash.c */
+extern Qspi_Ip_InstrOpType Qspi_Ip_HyperflashLutTable[];
+
+#define MEM_43_EXFLS_STOP_SEC_VAR_INIT_UNSPECIFIED
+#include "Mem_43_EXFLS_MemMap.h"
+
 #ifdef __cplusplus
 }
 #endif
@@ -113,3 +136,5 @@ extern "C"{
 /** @} */
 
 #endif /* QSPI_IP_CFG_H */
+
+

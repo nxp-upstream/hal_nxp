@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,7 +8,7 @@
 #define LINFLEXD_UART_IP_CFG_H
 
 /**
-*   @file Linflexd_Uart_Ip_Cfg.h
+*   @file
 *   @defgroup linflexd_uart_ip Linflexd UART IPL
 *   @addtogroup  linflexd_uart_ip Linflexd UART IPL
 *   @{
@@ -21,11 +21,11 @@ extern "C"{
 
 
 /*==================================================================================================
- *                                        INCLUDE FILES
- * 1) system and project includes
- * 2) needed interfaces from external units
- * 3) internal and external interfaces from this unit
- * 4) user callback header files
+                                        INCLUDE FILES
+ 1) system and project includes
+ 2) needed interfaces from external units
+ 3) internal and external interfaces from this unit
+ 4) user callback header files
 ==================================================================================================*/
 
 #include "Linflexd_Uart_Ip_Sa_Init_PBcfg.h"
@@ -41,7 +41,7 @@ extern "C"{
 #define LINFLEXD_UART_IP_CFG_AR_RELEASE_REVISION_VERSION   0
 #define LINFLEXD_UART_IP_CFG_SW_MAJOR_VERSION              2
 #define LINFLEXD_UART_IP_CFG_SW_MINOR_VERSION              0
-#define LINFLEXD_UART_IP_CFG_SW_PATCH_VERSION              0
+#define LINFLEXD_UART_IP_CFG_SW_PATCH_VERSION              1
 
 /*==================================================================================================
                                       FILE VERSION CHECKS
@@ -72,10 +72,6 @@ extern "C"{
 #endif
 
 /*==================================================================================================
-*                                       FILE VERSION CHECKS
-==================================================================================================*/
-
-/*==================================================================================================
 *                                            CONSTANTS
 ==================================================================================================*/
 
@@ -84,14 +80,38 @@ extern "C"{
 ==================================================================================================*/
 
 #define LINFLEXD_UART_IP_CONFIG_EXT \
-     LINFLEXD_UART_IP_SA_CONFIG_INIT_PB
+     LINFLEXD_UART_IP_SA_CONFIG_INIT_PB \
 /*==================================================================================================
-*                                  GLOBAL VARIABLE DECLARATIONS
+*                                            ENUMS
 ==================================================================================================*/
 
 /*==================================================================================================
-*                                       FUNCTION PROTOTYPES
+*                               STRUCTURES AND OTHER TYPEDEFS
 ==================================================================================================*/
+
+/*==================================================================================================
+*                                GLOBAL VARIABLE DECLARATIONS
+==================================================================================================*/
+
+/*==================================================================================================
+*                                    FUNCTION PROTOTYPES
+==================================================================================================*/
+#define UART_START_SEC_VAR_CLEARED_UNSPECIFIED_NO_CACHEABLE
+#include "Uart_MemMap.h"
+
+extern Linflexd_Uart_Ip_StateStructureType Linflexd_Uart_Ip_apStateStructure[LINFLEXD_UART_IP_NUMBER_OF_INSTANCES];
+
+/** @brief Array of pointers to UART driver runtime state structures */
+extern Linflexd_Uart_Ip_StateStructureType* Linflexd_Uart_Ip_apStateStructuresArray[LINFLEXD_IP_INSTANCE_COUNT];
+
+#define UART_STOP_SEC_VAR_CLEARED_UNSPECIFIED_NO_CACHEABLE
+#include "Uart_MemMap.h"
+
+#define UART_START_SEC_CODE
+#include "Uart_MemMap.h"
+extern void nxp_s32_uart_callback(uint8 HwInstance, Linflexd_Uart_Ip_EventType Event, const void *UserData);
+#define UART_STOP_SEC_CODE
+#include "Uart_MemMap.h"
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 NXP
+ * Copyright 2022-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,26 @@
 #ifndef NETC_ETHSWT_IP_SA_INIT_PBCFG_H
 #define NETC_ETHSWT_IP_SA_INIT_PBCFG_H
 
+/**
+ *   @file Netc_EthSwt_IpINIT__PBcfg.h
+ *   @addtogroup NETC_ETHSWT_IP NETC_ETHSWT Driver
+ *   @{
+ */
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+/*==================================================================================================
+*                                          INCLUDE FILES
+* 1) system and project includes
+* 2) needed interfaces from external units
+* 3) internal and external interfaces from this unit
+==================================================================================================*/
+
+/*==================================================================================================
+                                SOURCE FILE VERSION INFORMATION
+==================================================================================================*/
 #define NETC_ETHSWT_IP_SA_INIT_PBCFG_VENDOR_ID                    43
 #define NETC_ETHSWT_IP_SA_INIT_PBCFG_MODULE_ID                    89
 #define NETC_ETHSWT_IP_SA_INIT_PBCFG_AR_RELEASE_MAJOR_VERSION     4
@@ -14,9 +34,44 @@
 #define NETC_ETHSWT_IP_SA_INIT_PBCFG_AR_RELEASE_REVISION_VERSION  0
 #define NETC_ETHSWT_IP_SA_INIT_PBCFG_SW_MAJOR_VERSION             2
 #define NETC_ETHSWT_IP_SA_INIT_PBCFG_SW_MINOR_VERSION             0
-#define NETC_ETHSWT_IP_SA_INIT_PBCFG_SW_PATCH_VERSION             0
+#define NETC_ETHSWT_IP_SA_INIT_PBCFG_SW_PATCH_VERSION             1
 
-/* Not used but required to build the baremetal drivers */
-#define NETC_ETHSWT_CONFIG_SA_INIT_PB
+/*==================================================================================================
+*                                       FILE VERSION CHECKS
+==================================================================================================*/
+
+/*==================================================================================================
+*                                            CONSTANTS
+==================================================================================================*/
+
+/*==================================================================================================
+*                                       DEFINES AND MACROS
+==================================================================================================*/
+/* Create define to export variant specific configuration. */
+#define NETC_ETHSWT_CONFIG_SA_INIT_PB \
+    extern const Netc_EthSwt_Ip_ConfigType Netc_EthSwt_0_ConfigPB_INIT; 
+
+/*==================================================================================================
+*                                              ENUMS
+==================================================================================================*/
+
+/*==================================================================================================
+*                                  STRUCTURES AND OTHER TYPEDEFS
+==================================================================================================*/
+
+/*==================================================================================================
+*                                  GLOBAL VARIABLE DECLARATIONS
+==================================================================================================*/
+
+/*==================================================================================================
+*                                       FUNCTION PROTOTYPES
+==================================================================================================*/
+
+#ifdef __cplusplus
+}
+#endif
+
+/** @} */
 
 #endif /* NETC_ETHSWT_IP_SA_INIT_PBCFG_H */
+
