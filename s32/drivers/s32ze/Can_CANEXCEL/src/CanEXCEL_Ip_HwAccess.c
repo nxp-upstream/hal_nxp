@@ -275,7 +275,7 @@ void CanXL_ClearRAM(const CANEXCEL_StructType * CANXL, uint8 instance)
        }
    }
    /* Clear the filter bank check the size in device reg as CANXL_IP_FILTER_BANK_SIZE */
-   volatile uint32 * ptr = &CANXL->EXL_FILTER[instance]->AFCFG0;
+   volatile uint32 * ptr = (volatile uint32 *)&CANXL->EXL_FILTER[instance]->AFCFG0;
    for (idx = 0u; idx <= (uint16)(CANXL_IP_FILTER_BANK_SIZE/4U); idx++)
    {
        ptr[idx] = 0U;
