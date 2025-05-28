@@ -1,12 +1,12 @@
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /**
 *   @file    SchM_Mcl.c
-*   @version 2.0.0
+*   @version 2.0.1
 *
 *   @brief   AUTOSAR Rte - module implementation
 *   @details This module implements stubs for the AUTOSAR Rte
@@ -42,7 +42,7 @@ extern "C"{
 #define SCHM_MCL_AR_RELEASE_REVISION_VERSION_C  0
 #define SCHM_MCL_SW_MAJOR_VERSION_C             2
 #define SCHM_MCL_SW_MINOR_VERSION_C             0
-#define SCHM_MCL_SW_PATCH_VERSION_C             0
+#define SCHM_MCL_SW_PATCH_VERSION_C             1
 
 /*==================================================================================================
 *                                       LOCAL CONSTANTS
@@ -193,6 +193,8 @@ VAR_SEC_NOCACHE(msr_MCL_EXCLUSIVE_AREA_45) static volatile uint32 msr_MCL_EXCLUS
 VAR_SEC_NOCACHE(reentry_guard_MCL_EXCLUSIVE_AREA_45) static volatile uint32 reentry_guard_MCL_EXCLUSIVE_AREA_45[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_MCL_EXCLUSIVE_AREA_46) static volatile uint32 msr_MCL_EXCLUSIVE_AREA_46[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(reentry_guard_MCL_EXCLUSIVE_AREA_46) static volatile uint32 reentry_guard_MCL_EXCLUSIVE_AREA_46[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_MCL_EXCLUSIVE_AREA_47) static volatile uint32 msr_MCL_EXCLUSIVE_AREA_47[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_MCL_EXCLUSIVE_AREA_47) static volatile uint32 reentry_guard_MCL_EXCLUSIVE_AREA_47[NUMBER_OF_CORES];
 
 #define RTE_STOP_SEC_VAR_CLEARED_32_NO_CACHEABLE
 #include "Rte_MemMap.h"
@@ -2241,6 +2243,44 @@ void SchM_Exit_Mcl_MCL_EXCLUSIVE_AREA_46(void)
     }
 }
 
+void SchM_Enter_Mcl_MCL_EXCLUSIVE_AREA_47(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_MCL_EXCLUSIVE_AREA_47[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Mcl_schm_read_msr);
+#else
+        msr = Mcl_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32K3XX_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_MCL_EXCLUSIVE_AREA_47[u32CoreId] = msr;
+    }
+    reentry_guard_MCL_EXCLUSIVE_AREA_47[u32CoreId]++;
+}
+
+void SchM_Exit_Mcl_MCL_EXCLUSIVE_AREA_47(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_MCL_EXCLUSIVE_AREA_47[u32CoreId]--;
+    if ((ISR_ON(msr_MCL_EXCLUSIVE_AREA_47[u32CoreId]))&&(0UL == reentry_guard_MCL_EXCLUSIVE_AREA_47[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32K3XX_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
 
 #ifdef MCAL_TESTING_ENVIRONMENT
 /** 
@@ -2402,6 +2442,9 @@ void SchM_Check_mcl(void)
 
     EU_ASSERT(0UL == reentry_guard_MCL_EXCLUSIVE_AREA_46[u32CoreId]);
     reentry_guard_MCL_EXCLUSIVE_AREA_46[u32CoreId] = 0UL; /*reset reentry_guard_MCL_EXCLUSIVE_AREA_46 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_MCL_EXCLUSIVE_AREA_47[u32CoreId]);
+    reentry_guard_MCL_EXCLUSIVE_AREA_47[u32CoreId] = 0UL; /*reset reentry_guard_MCL_EXCLUSIVE_AREA_47 for the next test in the suite*/
 
 
 }

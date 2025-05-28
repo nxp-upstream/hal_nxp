@@ -1,12 +1,12 @@
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /**
 *   @file    SchM_Spi.c
-*   @version 2.0.0
+*   @version 2.0.1
 *
 *   @brief   AUTOSAR Rte - module implementation
 *   @details This module implements stubs for the AUTOSAR Rte
@@ -42,7 +42,7 @@ extern "C"{
 #define SCHM_SPI_AR_RELEASE_REVISION_VERSION_C  0
 #define SCHM_SPI_SW_MAJOR_VERSION_C             2
 #define SCHM_SPI_SW_MINOR_VERSION_C             0
-#define SCHM_SPI_SW_PATCH_VERSION_C             0
+#define SCHM_SPI_SW_PATCH_VERSION_C             1
 
 /*==================================================================================================
 *                                       LOCAL CONSTANTS
@@ -106,7 +106,7 @@ VAR_SEC_NOCACHE(reentry_guard_SPI_EXCLUSIVE_AREA_01) static volatile uint32 reen
 VAR_SEC_NOCACHE(msr_SPI_EXCLUSIVE_AREA_02) static volatile uint32 msr_SPI_EXCLUSIVE_AREA_02[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(reentry_guard_SPI_EXCLUSIVE_AREA_02) static volatile uint32 reentry_guard_SPI_EXCLUSIVE_AREA_02[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_SPI_EXCLUSIVE_AREA_03) static volatile uint32 msr_SPI_EXCLUSIVE_AREA_03[NUMBER_OF_CORES];
-VAR_SEC_NOCACHE(reentry_guard_SPI_EXCLUSIVE_AREA_03) static volatile uint32 reentry_guard_SPI_EXCLUSIVE_AREA_03[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_SPI_EXCLUSIVE_AREA_03)static volatile uint32 reentry_guard_SPI_EXCLUSIVE_AREA_03[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_SPI_EXCLUSIVE_AREA_04) static volatile uint32 msr_SPI_EXCLUSIVE_AREA_04[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(reentry_guard_SPI_EXCLUSIVE_AREA_04) static volatile uint32 reentry_guard_SPI_EXCLUSIVE_AREA_04[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_SPI_EXCLUSIVE_AREA_05) static volatile uint32 msr_SPI_EXCLUSIVE_AREA_05[NUMBER_OF_CORES];

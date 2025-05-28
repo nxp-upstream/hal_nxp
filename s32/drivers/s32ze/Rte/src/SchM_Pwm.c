@@ -1,12 +1,12 @@
 /*
- * Copyright 2021-2024 NXP
+ * Copyright 2021-2025 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /**
 *   @file    SchM_Pwm.c
-*   @version 2.0.0
+*   @version 2.0.1
 *
 *   @brief   AUTOSAR Rte - module implementation
 *   @details This module implements stubs for the AUTOSAR Rte
@@ -42,7 +42,7 @@ extern "C"{
 #define SCHM_PWM_AR_RELEASE_REVISION_VERSION_C  0
 #define SCHM_PWM_SW_MAJOR_VERSION_C             2
 #define SCHM_PWM_SW_MINOR_VERSION_C             0
-#define SCHM_PWM_SW_PATCH_VERSION_C             0
+#define SCHM_PWM_SW_PATCH_VERSION_C             1
 
 /*==================================================================================================
 *                                       LOCAL CONSTANTS
@@ -161,6 +161,16 @@ VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_33) static volatile uint32 msr_PWM_EXCLUS
 VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_33) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_33[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_34) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_34[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_34) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_34[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_35)static volatile uint32 msr_PWM_EXCLUSIVE_AREA_35[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_35)static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_35[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_36)static volatile uint32 msr_PWM_EXCLUSIVE_AREA_36[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_36)static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_36[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_37)static volatile uint32 msr_PWM_EXCLUSIVE_AREA_37[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_37)static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_37[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_38)static volatile uint32 msr_PWM_EXCLUSIVE_AREA_38[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_38)static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_38[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_39)static volatile uint32 msr_PWM_EXCLUSIVE_AREA_39[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_39)static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_39[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_40) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_40[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_40) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_40[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_41) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_41[NUMBER_OF_CORES];
@@ -171,6 +181,8 @@ VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_43) static volatile uint32 msr_PWM_EXCLUS
 VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_43) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_43[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_44) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_44[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_44) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_44[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_45) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_45[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_45) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_45[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_50) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_50[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_50) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_50[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_51) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_51[NUMBER_OF_CORES];
@@ -203,6 +215,20 @@ VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_64) static volatile uint32 msr_PWM_EXCLUS
 VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_64) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_64[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_65) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_65[NUMBER_OF_CORES];
 VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_65) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_65[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_66) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_66[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_66) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_66[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_70) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_70[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_70) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_70[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_71) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_71[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_71) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_71[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_72) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_72[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_72) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_72[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_73) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_73[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_73) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_73[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_74) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_74[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_74) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_74[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(msr_PWM_EXCLUSIVE_AREA_75) static volatile uint32 msr_PWM_EXCLUSIVE_AREA_75[NUMBER_OF_CORES];
+VAR_SEC_NOCACHE(reentry_guard_PWM_EXCLUSIVE_AREA_75) static volatile uint32 reentry_guard_PWM_EXCLUSIVE_AREA_75[NUMBER_OF_CORES];
 
 #define RTE_STOP_SEC_VAR_CLEARED_32_NO_CACHEABLE
 #include "Rte_MemMap.h"
@@ -1643,6 +1669,196 @@ void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_34(void)
     }
 }
 
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_35(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_35[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_35[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_35[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_35(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_35[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_35[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_35[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_36(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_36[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_36[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_36[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_36(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_36[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_36[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_36[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_37(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_37[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_37[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_37[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_37(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_37[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_37[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_37[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_38(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_38[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_38[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_38[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_38(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_38[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_38[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_38[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_39(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_39[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_39[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_39[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_39(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_39[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_39[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_39[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
 void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_40(void)
 {
     uint32 msr;
@@ -1825,6 +2041,44 @@ void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_44(void)
 
     reentry_guard_PWM_EXCLUSIVE_AREA_44[u32CoreId]--;
     if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_44[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_44[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_45(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_45[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_45[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_45[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_45(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_45[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_45[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_45[u32CoreId]))         /*if interrupts were enabled*/
     {
         OsIf_ResumeAllInterrupts();
 #ifdef _ARM_DS5_C_S32ZE_
@@ -2441,6 +2695,272 @@ void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_65(void)
     }
 }
 
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_66(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_66[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_66[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_66[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_66(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_66[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_66[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_66[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_70(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_70[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_70[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_70[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_70(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_70[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_70[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_70[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_71(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_71[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_71[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_71[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_71(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_71[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_71[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_71[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_72(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_72[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_72[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_72[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_72(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_72[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_72[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_72[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_73(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_73[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_73[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_73[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_73(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_73[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_73[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_73[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_74(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_74[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_74[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_74[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_74(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_74[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_74[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_74[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
+void SchM_Enter_Pwm_PWM_EXCLUSIVE_AREA_75(void)
+{
+    uint32 msr;
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    if(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_75[u32CoreId])
+    {
+#if (defined MCAL_ENABLE_USER_MODE_SUPPORT)
+        msr = OsIf_Trusted_Call_Return(Pwm_schm_read_msr);
+#else
+        msr = Pwm_schm_read_msr();  /*read MSR (to store interrupts state)*/
+#endif /* MCAL_ENABLE_USER_MODE_SUPPORT */
+        if (ISR_ON(msr)) /*if MSR[EE] = 0, skip calling Suspend/Resume AllInterrupts*/
+        {
+            OsIf_SuspendAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+            ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+        }
+        msr_PWM_EXCLUSIVE_AREA_75[u32CoreId] = msr;
+    }
+    reentry_guard_PWM_EXCLUSIVE_AREA_75[u32CoreId]++;
+}
+
+void SchM_Exit_Pwm_PWM_EXCLUSIVE_AREA_75(void)
+{
+    uint32 u32CoreId = (uint32)OsIf_GetCoreID();
+
+    reentry_guard_PWM_EXCLUSIVE_AREA_75[u32CoreId]--;
+    if ((ISR_ON(msr_PWM_EXCLUSIVE_AREA_75[u32CoreId]))&&(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_75[u32CoreId]))         /*if interrupts were enabled*/
+    {
+        OsIf_ResumeAllInterrupts();
+#ifdef _ARM_DS5_C_S32ZE_
+        ASM_KEYWORD(" nop ");/* Compiler fix - forces the CSPID instruction to be generated with -02, -Ospace are selected*/
+#endif
+    }
+}
+
 
 #ifdef MCAL_TESTING_ENVIRONMENT
 /** 
@@ -2555,6 +3075,21 @@ void SchM_Check_pwm(void)
     EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_34[u32CoreId]);
     reentry_guard_PWM_EXCLUSIVE_AREA_34[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_34 for the next test in the suite*/
 
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_35[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_35[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_35 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_36[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_36[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_36 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_37[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_37[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_37 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_38[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_38[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_38 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_39[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_39[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_39 for the next test in the suite*/
+
     EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_40[u32CoreId]);
     reentry_guard_PWM_EXCLUSIVE_AREA_40[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_40 for the next test in the suite*/
 
@@ -2569,6 +3104,9 @@ void SchM_Check_pwm(void)
 
     EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_44[u32CoreId]);
     reentry_guard_PWM_EXCLUSIVE_AREA_44[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_44 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_45[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_45[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_45 for the next test in the suite*/
 
     EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_50[u32CoreId]);
     reentry_guard_PWM_EXCLUSIVE_AREA_50[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_50 for the next test in the suite*/
@@ -2617,6 +3155,27 @@ void SchM_Check_pwm(void)
 
     EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_65[u32CoreId]);
     reentry_guard_PWM_EXCLUSIVE_AREA_65[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_65 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_66[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_66[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_66 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_70[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_70[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_70 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_71[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_71[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_71 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_72[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_72[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_72 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_73[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_73[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_73 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_74[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_74[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_74 for the next test in the suite*/
+
+    EU_ASSERT(0UL == reentry_guard_PWM_EXCLUSIVE_AREA_75[u32CoreId]);
+    reentry_guard_PWM_EXCLUSIVE_AREA_75[u32CoreId] = 0UL; /*reset reentry_guard_PWM_EXCLUSIVE_AREA_75 for the next test in the suite*/
 
 
     (void)u32CoreId;
