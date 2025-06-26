@@ -1,8 +1,8 @@
-/** @file wlan_txpwrlimit_cfg_murata_NH_FCC.h
+/** @file wlan_txpwrlimit_cfg_murata_2LL.h
  *
- *  @brief  This file provides Murata NH WLAN FCC Mode Tx Power Limits.
+ *  @brief  This file provides Murata 2LL WLAN Mode Tx Power Limits.
  *
- *  Copyright 2024 NXP
+ *  Copyright 2024-2025 NXP
  *
  *  Permission is hereby granted, free of charge, to any person obtaining
  *  a copy of this software and associated documentation files (the
