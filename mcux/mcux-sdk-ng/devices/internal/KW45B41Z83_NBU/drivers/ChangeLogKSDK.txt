@@ -1,0 +1,16 @@
+/*!
+@page driver_log Driver Change Log
+@section clock CLOCK
+  The current CLOCK driver version is 2.1.0.
+
+  - 2.1.0
+    - Improvements
+      - Provide the FSL_SDK_FORCE_CLK_DRIVER_NS_ACCESS macro to force use the none secure address even the trustzone secure mode is enabled.
+  - 2.0.0
+    - Fixed the MISRA issues.
+  - 1.1.0
+    - Some minor fixes.
+  - 1.0.0
+    - Initial version.
+
+*/
