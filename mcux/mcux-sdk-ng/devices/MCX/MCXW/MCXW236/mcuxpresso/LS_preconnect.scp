@@ -1,0 +1,21 @@
+  5  REM Copyright 2020-2021 NXP
+110  REM a% = 1
+120  ProbeOpenByIndex a%
+130  WireTimedReset a% 50
+140  WireSWDConnect a%
+150  APList a%
+160  REM -----------------------------------
+170  REM Debug Mailbox AP Index is 2
+180  REM -----------------------------------
+190  SelectProbeCore a% 2
+200  REM -----------------------------------
+210  REM DEBUG_SESSION_REQ: 7
+220  REM -----------------------------------
+230  r% = 7
+240  REM -----------------------------------
+250  PRINT "Issuing Debug Session Request... ";r%
+260  PRINT "";
+270  DebugMailboxReq this r%
+280  CoreList a%
+290  REM ProbeCloseByIndex a%
+300  SelectProbeCore a% 0
