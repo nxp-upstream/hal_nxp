@@ -1,0 +1,11 @@
+Name: fw_bin
+Outgoing License: LA_OPT_NXP_Software_License v57 July 2024 - Additional distribution License - Section 2.3 applies
+License File: LICENSE
+Version: 18.99.6.p22-18.25.6.p22
+Format: Binary
+Description: CPU1 and CPU2 firmware binaries for RW61x
+Location: https://github.com/nxp/fw_bin
+Origin: NXP (proprietary)
+        hostapd (BSD 3-Clause) - http://hostap.epitest.fi/hostapd/
+        easy-ecc (BSD 2-Clause) - https://github.com/esxgx/easy-ecc
+        openthread (BSD 3-clause) - https://github.com/openthread/openthread
