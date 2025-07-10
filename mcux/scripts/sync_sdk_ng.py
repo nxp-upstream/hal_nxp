@@ -21,6 +21,7 @@ like:
 
 # Content to copy, use wildcard
 COPY_CONTENT = [
+    'arch/**/*.cmake',
     'devices/**/*',
     'drivers/**/*',
     'components/conn_fwloader/**/*',
@@ -40,6 +41,7 @@ COPY_CONTENT = [
 
 # Content to remove, use wildcard
 REMOVE_CONTENT = [
+    'arch/arm/CMSIS',
     '**/Kconfig*',
     'devices/**/RTE_Device.h',
     'devices/**/*.yml',
@@ -115,7 +117,7 @@ def patch_content():
     Patch the copied files from MCUX SDK, this is only for the changes which
     are not suitable to apply in MCUX SDK.
     '''
-    patch_clean_device_shared_cmake()
+    # patch_clean_device_shared_cmake()
 
 def remove_empty_folders():
     '''
