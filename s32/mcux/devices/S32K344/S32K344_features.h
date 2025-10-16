@@ -236,4 +236,25 @@
 /* @brief Memory map has offset between subsystems. */
 #define FSL_FEATURE_MEMORY_HAS_ADDRESS_OFFSET (1)
 
+/* C40 flash features (S32K344)
+ *
+ * These describe the on-chip C40 flash array geometry for the S32K344.
+ * Values are expressed in bytes and use unsigned constants to avoid
+ * toolchain sign/overflow surprises across GCC/ARMCLANG/IAR.
+ *
+ * Code flash (PFLASH): 4 MiB total implemented as 4 × 1 MiB blocks.
+ * Data flash (DFLASH) window: 256 KiB.
+ *
+ * Note: Min erase/program granularities are controller-level properties
+ * (8 KiB erase, 8 bytes program) and are handled by the driver; they are
+ * not expressed as SoC features here.
+ */
+#define FSL_FEATURE_FLASH_C40_BLOCK_SIZE_CODE     (1024u * 1024u)
+#define FSL_FEATURE_FLASH_C40_BLOCK_COUNT_CODE    (4u)
+#define FSL_FEATURE_FLASH_C40_BLOCK_SIZE_DATA     (256u * 1024u)
+
+/* (Optional) aggregate for convenience: total code flash size */
+#define FSL_FEATURE_FLASH_C40_CODE_TOTAL_SIZE \
+	(FSL_FEATURE_FLASH_C40_BLOCK_SIZE_CODE * FSL_FEATURE_FLASH_C40_BLOCK_COUNT_CODE)
+
 #endif /* _S32K344_FEATURES_H_ */
