@@ -775,7 +775,7 @@ status_t FLASH_Init(flash_config_t *config)
     return ret;
 }
 
-status_t FLASH_Erase(flash_config_t *config, uint32_t start, uint32_t lengthInBytes, uint32_t key)
+RAMFUNC status_t FLASH_Erase(flash_config_t *config, uint32_t start, uint32_t lengthInBytes, uint32_t key)
 {
     status_t ret;
     uint32_t sectorNumStart;
@@ -824,7 +824,7 @@ status_t FLASH_Erase(flash_config_t *config, uint32_t start, uint32_t lengthInBy
     return ret;
 }
 
-status_t FLASH_Program(flash_config_t *config, uint32_t start, uint32_t *src, uint32_t lengthInBytes)
+RAMFUNC status_t FLASH_Program(flash_config_t *config, uint32_t start, uint32_t *src, uint32_t lengthInBytes)
 {
     status_t ret = kStatus_FLASH_Success;
     size_t chunkSize;
@@ -877,7 +877,7 @@ status_t FLASH_Program(flash_config_t *config, uint32_t start, uint32_t *src, ui
     return ret;
 }
 
-status_t FLASH_SetSectorProtection(flash_config_t *config, uint32_t address, bool locked)
+RAMFUNC status_t FLASH_SetSectorProtection(flash_config_t *config, uint32_t address, bool locked)
 {
     status_t ret;
     uint32_t sectorNum;
