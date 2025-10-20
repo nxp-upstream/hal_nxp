@@ -208,4 +208,14 @@
 #define FLEXIO_BASE_PTRS                        IP_FLEXIO_BASE_PTRS
 /** Interrupt vectors for the FLEXIO peripheral type */
 #define FLEXIO_IRQS                              { FLEXIO_IRQn }
+
+/* FLASH, PFLASH IP base addresses */
+#if !defined(FLASH)  && defined(IP_FLASH)
+/* C40 Flash Memory Base Address */
+#define FLASH  IP_FLASH
+#endif
+#if !defined(PFLASH) && defined(IP_PFLASH)
+/* Flash Memory Controller Base Address */
+#define PFLASH IP_PFLASH
+#endif
 #endif  /* _S32K344_GLUE_MCUX_H_ */
