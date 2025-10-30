@@ -839,7 +839,7 @@ status_t FLASH_Program(flash_config_t *config, uint32_t start, uint32_t *src, ui
 
         chunkSize = (sizeLeft > bytesToAlignedPage) ? bytesToAlignedPage : sizeLeft;
 
-        ret = C40_Write(start, lengthInBytes, src8, C40_DEFAULT_CORE_DOMAIN_ID);
+        ret = C40_Write(addr, chunkSize, src8, C40_DEFAULT_CORE_DOMAIN_ID);
         if (ret != kStatus_FLASH_Success)
         {
             return ret;
@@ -847,6 +847,7 @@ status_t FLASH_Program(flash_config_t *config, uint32_t start, uint32_t *src, ui
 
         sizeLeft -= chunkSize;
         src8     += chunkSize;
+        addr     += chunkSize;
     }
 
     /* continue with aligned writes */
@@ -856,7 +857,7 @@ status_t FLASH_Program(flash_config_t *config, uint32_t start, uint32_t *src, ui
 
         chunkSize = (sizeLeft > C40_WRITE_SIZE_MAX) ? C40_WRITE_SIZE_MAX : sizeLeft;
 
-        ret = C40_Write(start, lengthInBytes, src8, C40_DEFAULT_CORE_DOMAIN_ID);
+        ret = C40_Write(addr, chunkSize, src8, C40_DEFAULT_CORE_DOMAIN_ID);
         if (ret != kStatus_FLASH_Success)
         {
             return ret;
@@ -864,6 +865,7 @@ status_t FLASH_Program(flash_config_t *config, uint32_t start, uint32_t *src, ui
 
         sizeLeft -= chunkSize;
         src8     += chunkSize;
+        addr     += chunkSize;
     }
 
     return ret;
