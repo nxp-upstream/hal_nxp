@@ -104,6 +104,8 @@ eMIOS_Type *const Emios_Ip_paxBase[eMIOS_INSTANCE_COUNT] = IP_eMIOS_BASE_PTRS;
     #define MCL_STOP_SEC_VAR_CLEARED_UNSPECIFIED_NO_CACHEABLE
     #include "Mcl_MemMap.h"
 
+    static boolean Emios_Ip_GlobalStateInitialized = FALSE;
+
 #endif
 
 
@@ -173,6 +175,17 @@ Emios_Ip_CommonStatusType Emios_Mcl_Ip_Init(uint8 Instance, const Emios_Mcl_Ip_C
     uint8 coreID = (uint8)OsIf_GetCoreID();
     if ( MULTICORE_INIT_CORE == coreID )
     {
+#else
+    /* Initialize Emios_Ip_axIpIsInitialized on first call (NO_CACHEABLE sections don't support static init) */
+    if (Emios_Ip_GlobalStateInitialized == FALSE)
+    {
+        for (uint8 idx = 0; idx < eMIOS_INSTANCE_COUNT; idx++)
+        {
+            Emios_Ip_axIpIsInitialized[idx].instanceInitState = FALSE;
+            /* Emios_Ip_axIpIsInitialized[idx].runCore not initialized as it is only used when STD_ON == EMIOS_IP_MULTICORE_IS_AVAILABLE. */
+        }
+        Emios_Ip_GlobalStateInitialized = TRUE;
+    }
 #endif /* STD_ON == EMIOS_IP_MULTICORE_IS_AVAILABLE */
 
         if (Emios_Ip_axIpIsInitialized[Instance].instanceInitState == TRUE)
