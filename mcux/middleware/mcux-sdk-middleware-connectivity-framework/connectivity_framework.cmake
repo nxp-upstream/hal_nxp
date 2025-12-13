@@ -43,7 +43,7 @@ if(CONFIG_SOC_SERIES_MCXW7XX)
         ${CMAKE_CURRENT_LIST_DIR}/platform/wireless_mcu/fwk_platform_ble.c
     )
 
-    if(CONFIG_SOC_MCXW716C)
+    if(CONFIG_SOC_MCXW716C OR CONFIG_SOC_KW45B41Z)
         set(platform "kw45_k32w1_mcxw71")
     elseif(CONFIG_SOC_MCXW727C_CPU0)
         set(platform "kw47_mcxw72")
