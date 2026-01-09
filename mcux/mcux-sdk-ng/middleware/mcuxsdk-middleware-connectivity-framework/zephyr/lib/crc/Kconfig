@@ -1,0 +1,11 @@
+# Copyright (c) 2016,2023 Intel Corporation
+# Copyright 2024 NXP
+# SPDX-License-Identifier: Apache-2.0
+
+config CRC
+	bool
+	help
+	  Enable use of CRC.
+
+if CRC
+endif

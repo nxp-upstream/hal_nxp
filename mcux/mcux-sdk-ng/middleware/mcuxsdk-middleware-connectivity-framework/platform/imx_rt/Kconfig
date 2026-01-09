@@ -1,0 +1,45 @@
+# Copyright 2024-2025 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+if MCUX_COMPONENT_middleware.wireless.framework.platform.imx_rt
+
+if MCUX_COMPONENT_middleware.wireless.framework.platform.coex
+
+choice MCUX_COMPONENT_middleware.wireless.framework.platform.coex.transceiver
+    prompt "Coex implementation selection for supported transceivers"
+    config MCUX_COMPONENT_middleware.wireless.framework.platform.coex.k32w0
+        bool "Coex platform support for k32w0 transceiver"
+        select MCUX_COMPONENT_component.osa
+        select MCUX_COMPONENT_middleware.wireless.framework.otw
+        help
+            Use coex platform implementation to manage k32w0 controller.
+    config MCUX_COMPONENT_middleware.wireless.framework.platform.coex.iw612
+        bool "Coex platform support for iw612 transceiver"
+        select MCUX_COMPONENT_component.igpio_adapter
+        select MCUX_COMPONENT_component.osa
+        select MCUX_COMPONENT_middleware.freertos-kernel
+        select MCUX_COMPONENT_middleware.wifi.osa_free_rtos
+        depends on MCUX_COMPONENT_middleware.wifi.fwdnld
+        help
+            Use coex platform implementation to manage iw612 controller.
+    config MCUX_COMPONENT_middleware.wireless.framework.platform.coex.iw610
+        bool "Coex platform support for iw610 transceiver"
+        select MCUX_COMPONENT_component.igpio_adapter
+        select MCUX_COMPONENT_component.osa
+        select MCUX_COMPONENT_middleware.freertos-kernel
+        select MCUX_COMPONENT_middleware.wifi.osa_free_rtos
+        depends on MCUX_COMPONENT_middleware.wifi.fwdnld
+        help
+            Use coex platform implementation to manage iw610 controller.
+endchoice
+
+endif # MCUX_COMPONENT_middleware.wireless.framework.platform.coex
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.hdlc
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.coex
+    select MCUX_COMPONENT_component.serial_manager
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ot
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.coex
+
+endif # MCUX_COMPONENT_middleware.wireless.framework.platform.imx_rt

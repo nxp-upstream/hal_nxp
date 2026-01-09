@@ -1,0 +1,35 @@
+# NVS port configuration options
+
+# Copyright 2024 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+config MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.nvs
+    bool
+    select MCUX_COMPONENT_component.osa
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform
+    help
+      This Component provides a port of Zephyr NVS file system for connectivity Applications.
+
+if MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.nvs
+    choice MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.nvs.flash_selection
+	prompt "Select flash type for NVS file system"
+	default MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.nvs.external_flash
+	config MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.nvs.external_flash
+		bool "External flash"
+		select MCUX_COMPONENT_middleware.wireless.framework.platform.external_flash
+		help
+			Use external flash for NVS file system.
+	config MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.nvs.internal_flash
+		bool "Internal flash"
+		select MCUX_COMPONENT_component.flash_adapter
+		select MCUX_COMPONENT_middleware.wireless.framework.platform.internal_flash
+		help
+			Use internal flash for NVS file system.
+endchoice
+
+config MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.nvs.stats
+    bool "NVS Statistics"
+    help 
+		Enable Non-volatile storage statistics.
+endif

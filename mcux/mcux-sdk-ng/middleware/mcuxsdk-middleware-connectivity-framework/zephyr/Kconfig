@@ -1,0 +1,14 @@
+# Copyright 2024 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+menu "Zephyr Services"
+
+config MCUX_COMPONENT_middleware.wireless.framework.zephyr_common
+    bool
+    default y
+    depends on NVS || SETTINGS
+
+rsource "lib/Kconfig"
+rsource "subsys/Kconfig"
+rsource "port/Kconfig"
+endmenu

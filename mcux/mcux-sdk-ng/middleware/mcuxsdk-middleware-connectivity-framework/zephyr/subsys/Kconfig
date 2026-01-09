@@ -1,0 +1,13 @@
+# Subsystem configuration options
+
+# Copyright (c) 2016-2017 Intel Corporation
+# Copyright (c) 2021 Nordic Semiconductor
+# Copyright 2024 NXP
+# SPDX-License-Identifier: Apache-2.0
+menu "File Systems"
+rsource "fs/Kconfig"
+endmenu
+
+menu "Settings"
+rsource "settings/Kconfig"
+endmenu

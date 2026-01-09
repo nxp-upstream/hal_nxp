@@ -1,0 +1,17 @@
+# Copyright 2024 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+menuconfig MCUX_COMPONENT_middleware.wireless.framework.fsci
+    bool "BLE Flexible Serial Communication Interface (FSCI)"
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_component.mem_manager
+    select MCUX_COMPONENT_component.reset
+    select MCUX_COMPONENT_middleware.wireless.framework.module_info
+    select MCUX_COMPONENT_component.osa
+    select MCUX_COMPONENT_component.timer_manager
+    select MCUX_COMPONENT_component.messaging
+    select MCUX_COMPONENT_component.serial_manager
+    imply MCUX_COMPONENT_middleware.wireless.framework.platform.ics
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform
+    help
+      Flexible Serial Communication interface for BLE applications to communicate with NXP BLE host stack.

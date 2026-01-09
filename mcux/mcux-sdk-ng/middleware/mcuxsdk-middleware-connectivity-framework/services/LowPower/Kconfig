@@ -1,0 +1,25 @@
+# Copyright 2024-2025 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+# PWM configuration options
+
+menuconfig MCUX_COMPONENT_middleware.wireless.framework.lowpower
+    bool "Low Power Module (PWR)"
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.lowpower_timer
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.lowpower
+    depends on !MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform
+    help
+      Low-power wrapper APIs to SDK power manager component for connectivity platforms.
+
+if MCUX_COMPONENT_middleware.wireless.framework.lowpower
+
+config MCUX_COMPONENT_middleware.wireless.framework.lowpower.cli
+    bool "Low Power CLI"
+    select MCUX_COMPONENT_middleware.freertos-kernel
+    select MCUX_COMPONENT_utility.debug_console
+    depends on !MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+    help
+        Low Power CLI APIs in order to configure low power through a serial interface using the SDK debug console.
+
+endif

@@ -1,0 +1,9 @@
+# Copyright 2024 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+# PDM Support configuration
+
+config MCUX_COMPONENT_middleware.wireless.framework.pdm
+    bool "Persistent Data Manager (PDM) for Zigbee"
+    help
+        Persistent Data Manager APIs.

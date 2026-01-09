@@ -1,0 +1,18 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+if MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.external_flash
+    select MCUX_COMPONENT_component.flash_nor_spifi
+    select MCUX_PRJSEG_module.board.wireless.board.extflash
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ota
+    select MCUX_COMPONENT_driver.romapi
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ble
+    select MCUX_COMPONENT_driver.romapi
+    select MCUX_COMPONENT_middleware.wireless.snps_ll
+
+endif

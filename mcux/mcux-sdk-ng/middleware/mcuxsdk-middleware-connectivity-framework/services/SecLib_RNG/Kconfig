@@ -1,0 +1,43 @@
+# Copyright 2024-2025 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+menuconfig MCUX_COMPONENT_middleware.wireless.framework.seclib_rng
+    bool "Security librairies - Random Number Generator (SecLib_RNG)"
+    #select MCUX_COMPONENT_component.osa
+    select MCUX_COMPONENT_component.mem_manager
+    #select MCUX_COMPONENT_component.messaging
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.rng
+    imply MCUX_COMPONENT_middleware.wireless.framework.platform.ics
+    imply MCUX_COMPONENT_middleware.wireless.framework.workq
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform
+    help
+      Crypto algorithms API and Random number generator APIs to connectivity applications.
+
+if MCUX_COMPONENT_middleware.wireless.framework.seclib_rng
+
+    choice MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port
+        prompt "SecLib port selection"
+        default MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.sw
+        config MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.sw
+            bool "Use Software Algorithm"
+            select MCUX_COMPONENT_component.rng_adapter_interface if MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70
+        config MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.secure_subsystem
+            bool "Use Secure Subsystem"
+            select MCUX_COMPONENT_middleware.wireless.framework.platform.crypto
+            select MCUX_COMPONENT_middleware.secure-subsystem
+        config MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.mbedtls
+            bool "Use MbedTLS"
+            select MCUX_COMPONENT_middleware.wireless.framework.platform.crypto
+            select MCUX_COMPONENT_middleware.mbedtls
+        config MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.psa
+            bool "Use experimental PSA"
+            select MCUX_COMPONENT_middleware.mbedtls3x.port.psa_crypto_config
+            select MCUX_COMPONENT_middleware.mbedtls3x.crypto
+            select MCUX_COMPONENT_middleware.mbedtls3x.p256m
+            select MCUX_COMPONENT_middleware.wireless.framework.platform.crypto
+        config  MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.custom
+            bool "Use custom Seclib_RNG"
+    endchoice
+
+endif

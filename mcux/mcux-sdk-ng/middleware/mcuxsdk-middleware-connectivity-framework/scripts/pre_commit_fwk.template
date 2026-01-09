@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+
+# run clang formatting
+./style-format.sh pre-commit-check
+

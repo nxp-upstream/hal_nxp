@@ -1,0 +1,18 @@
+# FunctionLib configuration options
+
+# Copyright 2024 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+menuconfig MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    bool "Memory FunctionLib"
+    help
+      Memory manipulation wrapper APIs to either toolchain functions or nxp redefined functions.
+
+if MCUX_COMPONENT_middleware.wireless.framework.function_lib
+
+config MCUX_COMPONENT_middleware.wireless.framework.function_lib.use_toolchain_mem_function
+    bool "Use toolchain memory functions"
+    help
+      Use toolchain mem functions like memcpy or memcmp.
+
+endif

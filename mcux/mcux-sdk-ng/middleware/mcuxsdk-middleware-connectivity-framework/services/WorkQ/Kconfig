@@ -1,0 +1,30 @@
+# Copyright 2025 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+menuconfig MCUX_COMPONENT_middleware.wireless.framework.workq
+    bool "Simple workqueue threads"
+    select MCUX_COMPONENT_component.osa
+    select MCUX_COMPONENT_component.lists
+    help
+      Use workqueues to defer processing to shared threads.
+
+if MCUX_COMPONENT_middleware.wireless.framework.workq
+  menu "Work queue config"
+      config FWK_SYSWORKQ_STACK_SIZE
+          int "WorkQueue stack size"
+          default 2200 if MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.mbedtls \
+                          && MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x
+          default 1700 if MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.mbedtls \
+                          && MCUX_COMPONENT_utilities.gcov
+          default 1500 if MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.mbedtls
+          default 750  if MCUX_COMPONENT_utilities.gcov
+          default 608
+          help
+              Macro to set work queue task stack size.
+      config FWK_SYSWORKQ_PRIO
+          int "WorkQueue task priority"
+          default 4
+          help
+              Macro to set work queue task priority.
+  endmenu
+endif

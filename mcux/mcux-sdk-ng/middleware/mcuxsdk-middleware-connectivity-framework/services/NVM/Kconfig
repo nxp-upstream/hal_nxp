@@ -1,0 +1,93 @@
+# Copyright 2024-2025 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+# NVM configuration options
+menuconfig MCUX_COMPONENT_middleware.wireless.framework.nvm
+    bool "Non-Volatile-Memory File System (NVM)"
+    select MCUX_COMPONENT_component.osa
+    select MCUX_COMPONENT_component.mem_manager
+    select MCUX_COMPONENT_component.messaging
+    select MCUX_COMPONENT_component.flash_adapter
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    help
+      NXP proprietary file system in internal flash for connectivity Applications.
+
+
+if MCUX_COMPONENT_middleware.wireless.framework.nvm
+    choice MCUX_COMPONENT_middleware.wireless.framework.nvm.interval_policy
+        prompt "NVM Posted writes policy selection"
+        default MCUX_COMPONENT_middleware.wireless.framework.nvm.interval_policy.none
+        config MCUX_COMPONENT_middleware.wireless.framework.nvm.interval_policy.none
+            bool "No use save operations in Idle task on timer"
+        config MCUX_COMPONENT_middleware.wireless.framework.nvm.interval_policy.wo_jitter
+            bool "Save on timer interval policy"
+            select MCUX_COMPONENT_component.timer_manager
+        config MCUX_COMPONENT_middleware.wireless.framework.nvm.interval_policy.w_jitter
+            bool "Save on timer interval policy with jitter"
+            select MCUX_COMPONENT_component.timer_manager
+            select MCUX_COMPONENT_middleware.wireless.framework.seclib_rng # required for RNG
+
+    endchoice
+
+config MCUX_COMPONENT_middleware.wireless.framework.nvm.fsci
+    bool "NVM FSCI wrapper"
+    select MCUX_COMPONENT_middleware.wireless.framework.fsci
+    help
+      This Component provides an FSCI wrapper to NVM
+
+if MCUX_COMPONENT_middleware.wireless.framework.nvm.fsci
+    config gNvmEnableFSCIMonitoring_c
+    bool "Enable NVM operation monitoring via FSCI"
+    help
+        (y/n - enable/disable FSCI monitoring)
+        No prefix in generated macro
+endif
+
+config gNvDebugEnabled_d
+    bool "Enable NVM debug functions"
+    imply CONFIG_MCUX_COMPONENT_utility.debug_console
+    help
+        (y - Compile in debug functions n - Compile out)
+        No prefix in generated macro
+
+config gNvTableKeptInRam_d
+    bool "NVM keep copy of table in RAM"
+    help
+        (y/n - Keep NVM Data Set table in RAM or not)
+        No prefix in generated macro
+
+config gNvUseExtendedFeatureSet_d
+    bool "NVM Extended feature Set"
+    help
+        (y/n - Allow or not NVM extended feature set)
+        No prefix in generated macro
+
+config gNvDualImageSupport_d
+    bool "NVM works with datasets from 2 different applications"
+    depends on gNvUseExtendedFeatureSet_d
+    help
+        (y/n - Dual datasets are used or not)
+        No prefix in generated macro
+
+config gNvSalvageFromEccFault_d
+    bool "NVM Robustness against flash ECC errors"
+    help
+        (y/n - Perform NVM operations with ECC fault interception)
+        No prefix in generated macro
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71
+
+config gNvFragmentation_Enabled_d
+    bool "Enable NVM defragmentation"
+    help
+        (y/n Enable NVM defragmentation)
+        No prefix in generated macro
+
+config gNvRecordsCopiedBufferSize_c
+    int "NVM Number of records copied in defragmentation process"
+    depends on gNvFragmentation_Enabled_d
+    help
+        (NVM Number of records copied in defragmentation process)
+        No prefix in generated macro
+
+endif

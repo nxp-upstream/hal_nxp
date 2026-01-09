@@ -1,0 +1,28 @@
+# Copyright 2024-2025 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+# SFC configuration options
+
+config MCUX_COMPONENT_middleware.wireless.framework.sfc
+    bool "Smart Frequency Calibration for FRO32K (SFC)"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70_nbu
+    help
+      Collection of APIs for FRO32K calibration when XTAL32K is not present on the board.
+
+if MCUX_COMPONENT_middleware.wireless.framework.sfc
+
+# Use a non-visible symbol to resolve driver dependencies on NBU side without bloating the main symbol with multiple if
+config MCUX_COMPONENT_middleware.wireless.framework.sfc.deps
+    bool
+    default y
+    select MCUX_COMPONENT_driver.sfa
+    select MCUX_COMPONENT_driver.ccm32k
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu
+
+endif

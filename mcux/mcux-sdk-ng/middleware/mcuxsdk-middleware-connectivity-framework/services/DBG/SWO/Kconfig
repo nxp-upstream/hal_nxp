@@ -1,0 +1,13 @@
+# Copyright 2025 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+menuconfig MCUX_COMPONENT_middleware.wireless.framework.dbg.swo
+    bool "Single Wire Output debug"
+    help
+      This ARM feature is supported by NXP platforms based on ARM cores.
+      It allows to export debug information via a single wire (usually UART encoding),
+      with very limited impact on real-time execution..
+
+if MCUX_COMPONENT_middleware.wireless.framework.dbg.swo
+
+endif

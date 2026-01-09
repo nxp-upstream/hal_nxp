@@ -1,0 +1,15 @@
+# Copyright 2024 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+# FModuleInfo configuration options
+
+
+menuconfig MCUX_COMPONENT_middleware.wireless.framework.module_info
+    bool "ModuleInfo"
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    help
+      Version module register APIs in order for connectivity component to register Module version, extracted by FSCI.
+
+if MCUX_COMPONENT_middleware.wireless.framework.module_info
+
+endif

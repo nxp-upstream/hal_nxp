@@ -1,0 +1,44 @@
+# Copyright 2024-2025 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+menuconfig MCUX_COMPONENT_middleware.wireless.framework
+    bool "Connectivity Framework"
+    help
+      Enable the Connectivity Framework for wireless applications
+
+if MCUX_COMPONENT_middleware.wireless.framework
+
+rsource "platform/Kconfig"
+
+menu "Service Modules"
+
+rsource "services/FactoryDataProvider/Kconfig"
+rsource "services/FunctionLib/Kconfig"
+rsource "services/PDM/Kconfig"
+rsource "services/PDUM/Kconfig"
+rsource "services/ModuleInfo/Kconfig"
+rsource "services/MWSCoexistence/Kconfig"
+rsource "services/NVM/Kconfig"
+rsource "services/SecLib_RNG/Kconfig"
+rsource "services/HWParameter/Kconfig"
+rsource "services/Sensors/Kconfig"
+rsource "services/OtaSupport/Kconfig"
+rsource "services/LowPower/Kconfig"
+rsource "services/FSCI/Kconfig"
+rsource "services/SFC/Kconfig"
+rsource "services/FileSystem/Kconfig"
+rsource "services/OTW/Kconfig"
+rsource "services/WorkQ/Kconfig"
+
+rsource "zephyr/Kconfig"
+
+endmenu
+
+menu "Extra Modules"
+
+rsource "Common/Kconfig"
+rsource "services/DBG/Kconfig"
+
+endmenu
+
+endif

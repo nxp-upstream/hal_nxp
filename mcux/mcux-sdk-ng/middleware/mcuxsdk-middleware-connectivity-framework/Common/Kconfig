@@ -1,0 +1,16 @@
+# Copyright 2024 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+# Common configuration options
+
+config MCUX_COMPONENT_middleware.wireless.framework.systicks
+    bool "FreeRTOS IDLE hooks for Time Compensation"
+    depends on MCUX_COMPONENT_middleware.freertos-kernel
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform
+    help
+      Those RTOS hooks provides a Pre Idle and Post Idle hooks to ensure timing compensation after low power exit.
+
+config MCUX_COMPONENT_middleware.wireless.framework.heap_mem_manager
+    bool "FreeRTOS Heap API wrapper to MCUX SDK memory manager"
+    select MCUX_COMPONENT_component.mem_manager
+    depends on MCUX_COMPONENT_middleware.freertos-kernel

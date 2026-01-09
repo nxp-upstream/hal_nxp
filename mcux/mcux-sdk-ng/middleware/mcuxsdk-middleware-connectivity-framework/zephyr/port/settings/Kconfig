@@ -1,0 +1,22 @@
+# Settings configuration options
+
+# Copyright 2024 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+config MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.settings
+    bool
+    select MCUX_COMPONENT_component.osa
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform
+    help
+      This Component is a port of Zephyr Settings for connectivity Applications.
+
+if MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.settings
+
+config MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.settings.redefine_api
+    bool "Re-define API name"
+    default n
+    help
+      Re-define settings API name to avoid Multiple Definition errors
+      when build with other components
+
+endif

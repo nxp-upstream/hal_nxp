@@ -1,0 +1,72 @@
+# Copyright 2024-2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+# KW45/MCXW71
+if MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ics
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_middleware.wireless.framework.sfc
+    select MCUX_COMPONENT_component.rpmsg_adapter
+    imply MCUX_COMPONENT_middleware.wireless.framework.workq
+    imply MCUX_COMPONENT_component.mem_manager
+    imply MCUX_COMPONENT_component.lists
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ble
+    select MCUX_COMPONENT_component.rpmsg_adapter
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.lowpower
+    select MCUX_COMPONENT_middleware.wireless.framework.sfc
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.ics
+    select MCUX_COMPONENT_middleware.wireless.framework.workq
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.rng
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.ics
+
+endif
+
+# KW47/MCXW72
+if MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ics
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_middleware.wireless.framework.sfc
+    select MCUX_COMPONENT_component.rpmsg_adapter
+    imply MCUX_COMPONENT_middleware.wireless.framework.workq
+    imply MCUX_COMPONENT_component.mem_manager
+    imply MCUX_COMPONENT_component.lists
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ble
+    select MCUX_COMPONENT_component.rpmsg_adapter
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.lowpower
+    select MCUX_COMPONENT_middleware.wireless.framework.sfc
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.dcdc
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.rng
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.ics
+
+endif
+
+# KW43/MCXW70
+if MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70_nbu
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ics
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_middleware.wireless.framework.sfc
+    select MCUX_COMPONENT_component.rpmsg_adapter
+    imply MCUX_COMPONENT_middleware.wireless.framework.workq
+    imply MCUX_COMPONENT_component.mem_manager
+    imply MCUX_COMPONENT_component.lists
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ble
+    select MCUX_COMPONENT_component.rpmsg_adapter
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.lowpower
+    select MCUX_COMPONENT_middleware.wireless.framework.sfc
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.rng
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.ics
+
+endif

@@ -1,0 +1,377 @@
+# Copyright 2024-2025 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+rsource "*/Kconfig.defconfig"
+
+menuconfig MCUX_COMPONENT_middleware.wireless.framework.platform
+    bool "Platform"
+    default y
+    depends on MCUX_HW_DEVICE_MCXW716C || MCUX_HW_DEVICE_MCXW716A \
+        || MCUX_HW_DEVICE_MCXW236 || MCUX_HW_DEVICE_MCXW235 \
+        || MCUX_HW_DEVICE_KW45B41Z52 || MCUX_HW_DEVICE_KW45B41Z53 \
+        || MCUX_HW_DEVICE_KW45B41Z82 || MCUX_HW_DEVICE_KW45B41Z83 \
+        || MCUX_HW_DEVICE_K32W1480 \
+        || MCUX_HW_DEVICE_RW612 || MCUX_HW_DEVICE_RW610 \
+        || MCUX_HW_DEVICE_MIMXRT595S \
+        || MCUX_HW_DEVICE_KW47B42ZB7 || MCUX_HW_DEVICE_MCXW727C \
+        || MCUX_HW_DEVICE_KW45B41Z83_NBU \
+        || MCUX_HW_DEVICE_MIMXRT1171 || MCUX_HW_DEVICE_MIMXRT1172 \
+        || MCUX_HW_DEVICE_MIMXRT1173 || MCUX_HW_DEVICE_MIMXRT1175 \
+        || MCUX_HW_DEVICE_MIMXRT1176 \
+        || MCUX_HW_DEVICE_MIMXRT1061 || MCUX_HW_DEVICE_MIMXRT1062 \
+        || MCUX_HW_DEVICE_KW43B43ZC7 || MCUX_HW_DEVICE_KW43B43ZC7_NBU
+
+if MCUX_COMPONENT_middleware.wireless.framework.platform
+
+choice
+    prompt "Selected:"
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71
+    bool "KW45x, K32W1x, MCXW71x families"
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_component.osa
+    select MCUX_COMPONENT_driver.ccm32k
+    select MCUX_COMPONENT_driver.spc
+    select MCUX_COMPONENT_driver.trdc
+    select MCUX_COMPONENT_middleware.wireless.framework.hw_parameter
+    select MCUX_COMPONENT_component.flash_adapter
+    select MCUX_COMPONENT_middleware.multicore.rpmsg-lite
+    select MCUX_COMPONENT_component.rpmsg_adapter
+    select MCUX_COMPONENT_middleware.multicore.mcmgr
+    select MCUX_COMPONENT_component.timer_manager
+    depends on  MCUX_HW_DEVICE_MCXW716C || MCUX_HW_DEVICE_MCXW716A ||       \
+                MCUX_HW_DEVICE_KW45B41Z52 || MCUX_HW_DEVICE_KW45B41Z53 ||   \
+                MCUX_HW_DEVICE_KW45B41Z82 || MCUX_HW_DEVICE_KW45B41Z83  ||  \
+                MCUX_HW_DEVICE_K32W1480
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu
+    bool "KW45x, MCXW71x NBU families"
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_middleware.wireless.xcvr
+    select MCUX_COMPONENT_middleware.wireless.ble_controller_nbu_interface
+    depends on MCUX_HW_DEVICE_KW45B41Z83_NBU
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72
+    bool "KW47x, MCXW72x families"
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_component.osa
+    select MCUX_COMPONENT_driver.ccm32k
+    select MCUX_COMPONENT_driver.spc
+    select MCUX_COMPONENT_driver.trdc
+    select MCUX_COMPONENT_middleware.wireless.framework.hw_parameter
+    select MCUX_COMPONENT_component.flash_adapter
+    select MCUX_COMPONENT_middleware.multicore.rpmsg-lite
+    select MCUX_COMPONENT_component.rpmsg_adapter
+    select MCUX_COMPONENT_middleware.multicore.mcmgr
+    select MCUX_COMPONENT_component.timer_manager
+    depends on MCUX_HW_DEVICE_KW47B42ZB7 || MCUX_HW_DEVICE_MCXW727C || MCUX_HW_DEVICE_KW47B42Z97 || MCUX_HW_DEVICE_KW47B42Z83
+    depends on MCUX_HW_DEVICE_KW47B42ZB7_CORE_ID_cm33_core0 || MCUX_HW_DEVICE_MCXW727C_CORE_ID_cm33_core0 || \
+               MCUX_HW_DEVICE_KW47B42Z97_CORE_ID_cm33_core0 || MCUX_HW_DEVICE_KW47B42Z83_CORE_ID_cm33_core0
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu
+    bool "KW47x, MCXW72x NBU families"
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_middleware.wireless.xcvr
+    select MCUX_COMPONENT_middleware.wireless.ble_controller_nbu_interface
+    imply MCUX_COMPONENT_component.timer_manager
+    depends on MCUX_HW_DEVICE_KW47B42ZB7 || MCUX_HW_DEVICE_MCXW727C
+    depends on MCUX_HW_DEVICE_KW47B42ZB7_CORE_ID_cm33_core1 || MCUX_HW_DEVICE_MCXW727C_CORE_ID_cm33_core1
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+    bool "MCXW23x family"
+    select MCUX_COMPONENT_driver.trng
+    select MCUX_COMPONENT_component.timer_manager
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_component.osa
+    select MCUX_COMPONENT_component.flash_adapter
+    depends on MCUX_HW_DEVICE_MCXW236 || MCUX_HW_DEVICE_MCXW235
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70
+    bool "KW43x family"
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_component.osa
+    #select MCUX_COMPONENT_driver.ccm32k
+    #select MCUX_COMPONENT_driver.spc
+    #select MCUX_COMPONENT_driver.trdc
+    #select MCUX_COMPONENT_middleware.wireless.framework.hw_parameter
+    #select MCUX_COMPONENT_component.flash_adapter
+    select  MCUX_COMPONENT_middleware.multicore.rpmsg-lite
+    select MCUX_COMPONENT_component.rpmsg_adapter
+    select MCUX_COMPONENT_middleware.multicore.mcmgr
+    select MCUX_COMPONENT_component.timer_manager
+    depends on MCUX_HW_DEVICE_KW43B43ZC7
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70_nbu
+    bool "KW43x NBU family"
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_middleware.wireless.xcvr
+    select MCUX_COMPONENT_middleware.wireless.ble_controller_nbu_interface
+    imply MCUX_COMPONENT_component.timer_manager
+    depends on MCUX_HW_DEVICE_KW43B43ZC7_NBU
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x
+    bool "RW61x family"
+    select MCUX_COMPONENT_component.timer_manager
+    select MCUX_COMPONENT_component.ostimer_time_stamp_adapter
+    imply MCUX_COMPONENT_component.mflash_offchip
+    depends on MCUX_HW_DEVICE_RW612 || MCUX_HW_DEVICE_RW610
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.MIMXRT595S
+    bool "MIMXRT595 family"
+    select MCUX_COMPONENT_component.timer_manager
+    select MCUX_COMPONENT_component.ostimer_time_stamp_adapter
+    depends on MCUX_HW_DEVICE_MIMXRT595S
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.rt1170
+    bool "RT1170 family"
+    select MCUX_COMPONENT_driver.lpi2c
+    select MCUX_COMPONENT_component.timer_manager
+    select MCUX_COMPONENT_component.pit_time_stamp_adapter
+    imply MCUX_COMPONENT_component.mflash_offchip
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.imx_rt
+    depends on MCUX_HW_DEVICE_MIMXRT1171 || MCUX_HW_DEVICE_MIMXRT1172 || \
+               MCUX_HW_DEVICE_MIMXRT1173 || MCUX_HW_DEVICE_MIMXRT1175 || \
+               MCUX_HW_DEVICE_MIMXRT1176
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.rt1060
+    bool "RT1060 family"
+    select MCUX_COMPONENT_driver.lpi2c
+    select MCUX_COMPONENT_component.timer_manager
+    select MCUX_COMPONENT_component.pit_time_stamp_adapter
+    imply MCUX_COMPONENT_component.mflash_offchip
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.imx_rt
+    depends on MCUX_HW_DEVICE_MIMXRT1061 || MCUX_HW_DEVICE_MIMXRT1062
+
+endchoice
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.imx_rt
+  bool "i.MX RT platforms"
+  depends on MCUX_COMPONENT_middleware.wireless.framework.platform.rt1170 || \
+             MCUX_COMPONENT_middleware.wireless.framework.platform.rt1060
+  help
+    Common platform implementations for i.MX RT platforms.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.lfs_config
+    bool "LittleFS config"
+    select MCUX_COMPONENT_middleware.littlefs
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.rt1170 || \
+              MCUX_COMPONENT_middleware.wireless.framework.platform.rt1060
+    help
+      Littlefs config for given platform.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.mbedtls_config
+    bool "mbedtls config"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x
+    help
+      Use the mbedtls config provided by the Connectivity Framework for the current platform.
+      This should be left disabled if the user wants to use a custom configuration.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ble
+    bool "BLE"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70_nbu || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+    help
+      BLE platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.sensors
+    bool "Sensors"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70_nbu || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+    help
+      Sensor platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ics
+    bool "Inter Core (ICS)"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70_nbu
+    help
+      Inter core service (ICS) platform APIs min order to manage communication between the 2 cores.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.external_flash
+    bool "External Flash"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.rt1170 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.rt1060 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+    help
+      External Flash platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.internal_flash
+    bool "Internal flash"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+    help
+      Internal Flash platform APIs.
+
+config gInterceptEccBusFaults_d
+    bool "Intercept Bus Faults caused by ECC errors"
+    help
+        (y/n - Perform ECC fault recovery on bus fault in internal flash)
+        No prefix in generated macro
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.internal_flash && \
+               (MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71)
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.rng
+    bool "Random Number Generator (RNG)"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70_nbu
+    help
+      Random Number Generator platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.lowpower
+    bool "Low Power"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.MIMXRT595S || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72|| \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu
+    help
+      Low power platform APIs (exclude Timers).
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.lowpower_timer
+    bool "Low Power Timer"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72
+    help
+      Low Power Timer platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.genfsk
+    bool "GenFSK"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70_nbu
+    help
+      GenFSK platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ot
+    bool "OpenThread"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.rt1170 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.rt1060
+    help
+      OpenThread platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.reset
+    bool "Deep Power Down Reset"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+    help
+       Device Reset APIs via Deep Power Down transition in order to turn power domains OFF.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ota
+    bool "OTA firmware update (OTA)"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.rt1170 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.rt1060 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+    help
+      Over-The-Air firmware update platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.lcl
+    bool "Localization (LCL)"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70
+    help
+      Localization platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.zb
+    bool "Zigbee"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72
+    help
+      Zigbee platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.crypto
+    bool "Crypto"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_k32w1_mcxw71 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.mcxw23
+    help
+      SecLib SSS crypto APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.coex
+    bool "External Coexistence"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.rt1170 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.rt1060
+    help
+      External Coexistence platform API in order to manage external controllers.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.hdlc
+    bool "HDLC"
+    depends on  MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.rt1170 || \
+                MCUX_COMPONENT_middleware.wireless.framework.platform.rt1060
+    help
+      Implements platform API to manage HDLC interface.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.dcdc
+    bool "DCDC"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu
+    help
+      DCDC platform APIs.
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.dbg
+    bool "DBG"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw45_mcxw71_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw43_mcxw70_nbu || \
+               MCUX_COMPONENT_middleware.wireless.framework.platform.kw47_mcxw72
+    help
+      DBG platform APIs.
+
+###  Compile Flags KConfig definitions  ###
+
+config gPlatformMonolithicApp_d
+    bool "Monolithic Application"
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x
+    help
+      Enables the monolithic feature which will allow the cpu1/cpu2 firmwares to be embedded within the main application.
+      No prefix in generated macro
+
+rsource "*/Kconfig"
+
+endif

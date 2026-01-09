@@ -1,0 +1,62 @@
+# Copyright 2024-2025 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+if MCUX_COMPONENT_middleware.wireless.framework.platform.rw61x
+
+choice MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port
+    default MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.mbedtls
+endchoice
+
+choice MCUX_COMPONENT_middleware.mbedtls.port.selection
+    default MCUX_COMPONENT_middleware.mbedtls.port.els_pkc
+endchoice
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.external_flash
+    select MCUX_COMPONENT_component.osa
+
+config MCUX_COMPONENT_middleware.wireless.framework.seclib_rng_port.psa
+    select MCUX_COMPONENT_component.psa_crypto_driver.els_pkc
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ble
+    select MCUX_COMPONENT_driver.conn_fwloader_ns
+    select MCUX_COMPONENT_component.wireless_imu_adapter
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.coex
+    select MCUX_COMPONENT_component.osa
+    depends on MCUX_COMPONENT_middleware.wireless.framework.platform.ot
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.coex
+    select MCUX_COMPONENT_driver.conn_fwloader_ns
+    select MCUX_COMPONENT_driver.conn_fwloader
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ot
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.coex
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.hdlc
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.ble
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.hdlc
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.coex
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.ble
+    select MCUX_COMPONENT_component.wireless_imu_adapter
+    select MCUX_COMPONENT_component.osa
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.ota
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.lowpower
+    select MCUX_COMPONENT_middleware.wireless.framework.platform.ble
+    select MCUX_COMPONENT_component.wireless_imu_adapter
+    select MCUX_COMPONENT_component.osa
+    select MCUX_COMPONENT_component.power_manager_framework
+    select MCUX_COMPONENT_driver.conn_fwloader_ns
+    select MCUX_COMPONENT_driver.flexcomm_usart
+    select MCUX_COMPONENT_driver.lpc_rtc
+    select MCUX_COMPONENT_utility.debug_console
+    select MCUX_COMPONENT_driver.power
+
+config MCUX_COMPONENT_middleware.wireless.framework.platform.zb
+    select MCUX_COMPONENT_middleware.wireless.framework.seclib_rng
+    select MCUX_COMPONENT_middleware.wireless.framework.pdm
+    select MCUX_COMPONENT_middleware.wireless.framework.function_lib
+    select MCUX_COMPONENT_component.wireless_imu_adapter
+    select MCUX_COMPONENT_component.osa
+endif

@@ -1,0 +1,83 @@
+# Copyright (c) 2018 Nordic Semiconductor ASA
+# Copyright 2024 NXP
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig SETTINGS
+	bool "Settings"
+	select MCUX_COMPONENT_middleware.wireless.framework.zephyr_port.settings
+	help
+	  The settings subsystem allows its users to serialize and
+	  deserialize state in memory into and from non-volatile memory.
+	  It supports several back-ends to store and load serialized data from
+	  and it can do so atomically for all involved modules.
+
+if SETTINGS
+
+config SETTINGS_RUNTIME
+	bool "runtime storage back-end"
+	help
+	  Enables runtime storage back-end.
+
+config SETTINGS_DYNAMIC_HANDLERS
+	bool "dynamic settings handlers"
+	default y
+	help
+	  Enables the use of dynamic settings handlers
+
+# Hidden option to enable encoding length into settings entry
+config SETTINGS_ENCODE_LEN
+	bool
+
+choice SETTINGS_BACKEND
+	prompt "Storage back-end"
+	default SETTINGS_NVS
+	help
+	  Storage back-end to be used by the settings subsystem.
+
+config SETTINGS_NVS
+	bool "NVS non-volatile storage support"
+	select NVS
+	help
+	  Enables NVS storage support
+
+if SETTINGS_NVS
+
+config SETTINGS_NVS_NAME_CACHE
+	bool "NVS name lookup cache"
+	help
+	  Enable NVS name lookup cache, used to reduce the Settings name
+	  lookup time.
+
+config SETTINGS_NVS_NAME_CACHE_SIZE
+	int "NVS name lookup cache size"
+	default 128
+	range 1 65535
+	depends on SETTINGS_NVS_NAME_CACHE
+	help
+	  Number of entries in Settings NVS name cache.
+
+endif # SETTINGS_NVS
+
+config SETTINGS_CUSTOM
+	bool "CUSTOM"
+	help
+	  Use a custom settings storage back-end.
+
+endchoice
+
+config SETTINGS_NVS_SECTOR_SIZE_MULT
+	int "Sector size of the NVS settings area"
+	default 1
+	depends on SETTINGS_NVS
+	help
+	  The sector size to use for the NVS settings area as a multiple of
+	  FLASH_ERASE_BLOCK_SIZE.
+
+config SETTINGS_NVS_SECTOR_COUNT
+	int "Sector count of the NVS settings area"
+	default 8
+	depends on SETTINGS_NVS
+	help
+	  Number of sectors used for the NVS settings area
+
+endif # SETTINGS

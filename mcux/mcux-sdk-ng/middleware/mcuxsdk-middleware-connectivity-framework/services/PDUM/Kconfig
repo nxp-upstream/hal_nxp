@@ -1,0 +1,9 @@
+# Copyright 2024 NXP
+# SPDX-License-Identifier: BSD-3-Clause
+
+# PDUM Support configuration
+
+config MCUX_COMPONENT_middleware.wireless.framework.pdum
+    bool "Protocol Data Unit Manager (PDUM) for Zigbee"
+    help
+        Protocol Data Unit Manager APIs for Zigbee.
