@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-
 #ifndef RPMSG_PLATFORM_H_
 #define RPMSG_PLATFORM_H_
 
@@ -12,7 +11,7 @@
 #include "rpmsg_default_config.h"
 
 /*
- * No need to align the VRING as defined in Linux because mcxw72x is not intended
+ * No need to align the VRING as defined in Linux because kw43b43 is not intended
  * to run the Linux
  */
 #ifndef VRING_ALIGN
@@ -45,7 +44,7 @@
 #define RL_GET_LINK_ID(id)              (((id)&0xFFFFFFFEU) >> 1U)
 #define RL_GET_Q_ID(id)                 ((id)&0x1U)
 
-#define RL_PLATFORM_MCXW72X_LINK_ID (0U)
+#define RL_PLATFORM_KW43B43_LINK_ID (0U)
 #define RL_PLATFORM_HIGHEST_LINK_ID (0U)
 
 typedef struct rpmsg_platform_shmem_config
@@ -87,14 +86,14 @@ int32_t platform_deinit(void);
 #if defined(RL_ALLOW_CUSTOM_SHMEM_CONFIG) && (RL_ALLOW_CUSTOM_SHMEM_CONFIG == 1)
 
 /*!
- * \brief Set static shared memory configuration from application core in SMU2 to be accessible from cm33_core1 later.
+ * \brief Set static shared memory configuration from application core in SMU2 to be accessible from nbu later.
  *
  */
 void platform_set_static_shmem_config(void);
 
 /*!
  * \brief API used when RL_ALLOW_CUSTOM_SHMEM_CONFIG is set to 1 in rpmsg_lite.c.
- * \details On this platform we set the macro on cm33_core1 side to take the same config of application core previously
+ * \details On this platform we set the macro on nbu side to take the same config of application core previously
  *          set in platform_set_static_shmem_config().
  *
  * \param[in] link_id NOT USED on this platform

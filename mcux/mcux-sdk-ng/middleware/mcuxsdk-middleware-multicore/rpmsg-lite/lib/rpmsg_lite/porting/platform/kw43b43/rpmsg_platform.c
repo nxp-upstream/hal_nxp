@@ -12,7 +12,7 @@
 #include "rpmsg_env.h"
 
 #include "fsl_device_registers.h"
-#include "fsl_imu.h"
+#include "fsl_mu.h"
 
 #if defined(RL_USE_MCMGR_IPC_ISR_HANDLER) && (RL_USE_MCMGR_IPC_ISR_HANDLER == 1)
 #include "mcmgr.h"
@@ -22,19 +22,7 @@
 #error "This RPMsg-Lite port requires RL_USE_ENVIRONMENT_CONTEXT set to 0"
 #endif
 
-#define APP_MU_IRQ_PRIORITY (3U)
-
 #define RL_PLATFORM_SHMEM_CFG_IDENTIFIER_LENGTH (12U)
-
-#if defined(IMU_CPU_INDEX) && (IMU_CPU_INDEX == 1U)
-#define APP_MU_IRQn  RF_IMU0_IRQn
-#define APP_IMU_LINK kIMU_LinkCpu1Cpu2
-#define RPMSG_BUILD_FOR_CORE_0
-#elif defined(IMU_CPU_INDEX) && (IMU_CPU_INDEX == 2U)
-#define APP_MU_IRQn  CPU2_MSG_RDY_INT_IRQn
-#define APP_IMU_LINK kIMU_LinkCpu2Cpu1
-#define RPMSG_BUILD_FOR_CORE_1
-#endif
 
 /* Generator for CRC calculations. */
 #define POLGEN 0x1021U
@@ -75,31 +63,31 @@ static void mcmgr_event_handler(mcmgr_core_t coreNum, uint16_t vring_idx, void *
     env_isr((uint32_t)vring_idx);
 }
 #else
-
-/* MU ISR router */
-static void imu_rx_isr()
+static void mu_isr(MU_Type *base)
 {
-    env_isr(0);
-    IMU_ClearPendingInterrupts(APP_IMU_LINK, IMU_MSG_FIFO_CNTL_MSG_RDY_INT_CLR_MASK);
+    uint32_t flags;
+    flags = MU_GetStatusFlags(base);
+    if (((uint32_t)kMU_GenInt0Flag & flags) != 0UL)
+    {
+        MU_ClearStatusFlags(base, (uint32_t)kMU_GenInt0Flag);
+        env_isr(0);
+    }
+    if (((uint32_t)kMU_GenInt1Flag & flags) != 0UL)
+    {
+        MU_ClearStatusFlags(base, (uint32_t)kMU_GenInt1Flag);
+        env_isr(1);
+    }
 }
 
-#if defined(IMU_CPU_INDEX) && (IMU_CPU_INDEX == 1U)
-int32_t RF_IMU0_IRQHandler(void)
+int32_t MU0_IRQHandler(void)
 {
-    imu_rx_isr();
-    SDK_ISR_EXIT_BARRIER;
-    return 0;
-}
+#if defined(FSL_FEATURE_MU_SIDE_A)
+    mu_isr(MU0_MUA);
+#elif defined(FSL_FEATURE_MU_SIDE_B)
+    mu_isr(MU0_MUB);
 #endif
-
-#if defined(IMU_CPU_INDEX) && (IMU_CPU_INDEX == 2U)
-int32_t CPU2_MSG_RDY_INT_IRQHandler(void)
-{
-    imu_rx_isr();
-    SDK_ISR_EXIT_BARRIER;
     return 0;
 }
-#endif /* IMU_CPU_INDEX */
 #endif
 
 static void platform_global_isr_disable(void)
@@ -124,7 +112,11 @@ int32_t platform_init_interrupt(uint32_t vector_id, void *isr_data)
         RL_ASSERT(0 <= isr_counter);
         if (isr_counter < 2)
         {
-            (void)EnableIRQ(APP_MU_IRQn);
+#if defined(FSL_FEATURE_MU_SIDE_A)
+            MU_EnableInterrupts(MU0_MUA, MU_GI_INTR(1UL << vector_id));
+#elif defined(FSL_FEATURE_MU_SIDE_B)
+            MU_EnableInterrupts(MU0_MUB, MU_GI_INTR(1UL << vector_id));
+#endif
         }
         isr_counter++;
 
@@ -147,7 +139,11 @@ int32_t platform_deinit_interrupt(uint32_t vector_id)
         isr_counter--;
         if (isr_counter < 2)
         {
-            (void)DisableIRQ(APP_MU_IRQn);
+#if defined(FSL_FEATURE_MU_SIDE_A)
+            MU_DisableInterrupts(MU0_MUA, MU_GI_INTR(1UL << vector_id));
+#elif defined(FSL_FEATURE_MU_SIDE_B)
+            MU_DisableInterrupts(MU0_MUB, MU_GI_INTR(1UL << vector_id));
+#endif
         }
 
         /* Unregister ISR from environment layer */
@@ -167,13 +163,22 @@ void platform_notify(uint32_t vector_id)
 {
     env_lock_mutex(platform_lock);
 #if defined(RL_USE_MCMGR_IPC_ISR_HANDLER) && (RL_USE_MCMGR_IPC_ISR_HANDLER == 1)
-#if defined(RPMSG_BUILD_FOR_CORE_0)
-    (void)MCMGR_TriggerEvent(kMCMGR_Core1, kMCMGR_RemoteRPMsgEvent, (uint16_t)RL_GET_Q_ID(vector_id));
-#else
-    (void)MCMGR_TriggerEvent(kMCMGR_Core0, kMCMGR_RemoteRPMsgEvent, (uint16_t)RL_GET_Q_ID(vector_id));
+#if defined(FSL_FEATURE_MU_SIDE_A)
+    (void)MCMGR_TriggerEventForce(kMCMGR_Core1, kMCMGR_RemoteRPMsgEvent, (uint16_t)RL_GET_Q_ID(vector_id));
+#elif defined(FSL_FEATURE_MU_SIDE_B)
+    (void)MCMGR_TriggerEventForce(kMCMGR_Core0, kMCMGR_RemoteRPMsgEvent, (uint16_t)RL_GET_Q_ID(vector_id));
 #endif
 #else
-    /* TO Not support*/
+/* Write directly into the MU Control Register to trigger General Purpose Interrupt Request (GIR).
+   No need to wait until the previous interrupt is processed because the same value
+   of the virtqueue ID is used for GIR mask when triggering the ISR for the receiver side.
+   The whole queue of received buffers for associated virtqueue is then handled in the ISR
+   on the receiver side. */
+#if defined(FSL_FEATURE_MU_SIDE_A)
+    (void)MU_TriggerInterrupts(MU0_MUA, MU_GI_INTR(1UL << (RL_GET_Q_ID(vector_id))));
+#elif defined(FSL_FEATURE_MU_SIDE_B)
+    (void)MU_TriggerInterrupts(MU0_MUB, MU_GI_INTR(1UL << (RL_GET_Q_ID(vector_id))));
+#endif
 #endif
     env_unlock_mutex(platform_lock);
 }
@@ -235,7 +240,11 @@ int32_t platform_interrupt_enable(uint32_t vector_id)
 
     if (disable_counter == 0)
     {
-        NVIC_EnableIRQ(APP_MU_IRQn);
+#if defined(FSL_FEATURE_MU_SIDE_A)
+        NVIC_EnableIRQ(MU0_IRQn);
+#elif defined(FSL_FEATURE_MU_SIDE_B)
+        NVIC_EnableIRQ(MU0_IRQn);
+#endif
     }
     platform_global_isr_enable();
     return 0;
@@ -260,8 +269,14 @@ int32_t platform_interrupt_disable(uint32_t vector_id)
        if counter is set - the interrupts are disabled */
     if (disable_counter == 0)
     {
-        NVIC_DisableIRQ(APP_MU_IRQn);
+#if defined(FSL_FEATURE_MU_SIDE_A)
+        NVIC_DisableIRQ(MU0_IRQn);
+        NVIC_SetPriority(MU0_IRQn, 2);
+#elif defined(FSL_FEATURE_MU_SIDE_B)
+        NVIC_DisableIRQ(MU0_IRQn);
+#endif
     }
+
     disable_counter++;
     platform_global_isr_enable();
     return 0;
@@ -297,6 +312,50 @@ void platform_cache_disable(void)
 {
 }
 
+#if defined(RL_USE_DCACHE) && (RL_USE_DCACHE == 1)
+/**
+ * platform_cache_flush
+ *
+ * Empty implementation
+ *
+ */
+void platform_cache_flush(void *data, uint32_t len)
+{
+}
+
+/**
+ * platform_cache_invalidate
+ *
+ * Empty implementation
+ *
+ */
+void platform_cache_invalidate(void *data, uint32_t len)
+{
+}
+#endif /* defined(RL_USE_DCACHE) && (RL_USE_DCACHE == 1) */
+
+/**
+ * platform_vatopa
+ *
+ * Dummy implementation
+ *
+ */
+uintptr_t platform_vatopa(void *addr)
+{
+    return ((uintptr_t)(char *)addr);
+}
+
+/**
+ * platform_patova
+ *
+ * Dummy implementation
+ *
+ */
+void *platform_patova(uintptr_t addr)
+{
+    return ((void *)(char *)addr);
+}
+
 /**
  * platform_init
  *
@@ -304,46 +363,27 @@ void platform_cache_disable(void)
  */
 int32_t platform_init(void)
 {
+    /* The MU peripheral driver is not initialized here because it covers also
+    the secondary core booting controls and it needs to be initialized earlier
+    in the application code */
+
 #if defined(RL_USE_MCMGR_IPC_ISR_HANDLER) && (RL_USE_MCMGR_IPC_ISR_HANDLER == 1)
     mcmgr_status_t retval = kStatus_MCMGR_Error;
     retval                = MCMGR_RegisterEvent(kMCMGR_RemoteRPMsgEvent, mcmgr_event_handler, ((void *)0));
-    /*
-     * $Branch Coverage Justification$
-     * MCMGR_RegisterEvent() fails only when the type parameter is
-     * out of scope, here the correct kMCMGR_RemoteRPMsgEvent is passed.
-     */
-    if (kStatus_MCMGR_Success != retval) /* GCOVR_EXCL_BR_LINE */
+    if (kStatus_MCMGR_Success != retval)
     {
-        /*
-         * $Line Coverage Justification$
-         * Line never reached, MCMGR_RegisterEvent() fails only when the type parameter is
-         * out of scope, here the correct kMCMGR_RemoteRPMsgEvent is passed.
-         */
-        return -1; /* GCOVR_EXCL_LINE */
+        return -1;
     }
-#else
-    IMU_Init(APP_IMU_LINK);
-    NVIC_SetPriority(APP_MU_IRQn, APP_MU_IRQ_PRIORITY);
-    NVIC_EnableIRQ(APP_MU_IRQn);
 #endif
 
     /* Create lock used in multi-instanced RPMsg */
-
-    /*
-     * $Branch Coverage Justification$
-     * Not able to force the application to reach the branch with env_create_mutex() function call fail.
-     */
 #if defined(RL_USE_STATIC_API) && (RL_USE_STATIC_API == 1)
-    if (0 != env_create_mutex(&platform_lock, 1, &platform_lock_static_ctxt)) /* GCOVR_EXCL_BR_LINE */
+    if (0 != env_create_mutex(&platform_lock, 1, &platform_lock_static_ctxt))
 #else
-    if (0 != env_create_mutex(&platform_lock, 1)) /* GCOVR_EXCL_BR_LINE */
+    if (0 != env_create_mutex(&platform_lock, 1))
 #endif
     {
-        /*
-         * $Line Coverage Justification$
-         * Line never reached, not able to force the application to reach this line.
-         */
-        return -1; /* GCOVR_EXCL_LINE */
+        return -1;
     }
 
     return 0;
@@ -356,8 +396,6 @@ int32_t platform_init(void)
  */
 int32_t platform_deinit(void)
 {
-    IMU_Deinit(APP_IMU_LINK);
-
     /* Delete lock used in multi-instanced RPMsg */
     env_delete_mutex(platform_lock);
     platform_lock = ((void *)0);
