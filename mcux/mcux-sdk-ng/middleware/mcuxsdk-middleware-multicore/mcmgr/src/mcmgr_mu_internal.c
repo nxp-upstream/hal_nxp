@@ -12,6 +12,8 @@
 #define MU_ISR_FLAG_BASE (20U)
 #define MU_ISR_COUNT     (12U)
 
+#define KW43B43ZC7_SERIES
+
 /* Weak MU ISR stubs */
 /* implement these in your application to override */
 
