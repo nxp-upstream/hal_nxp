@@ -242,6 +242,16 @@ if(CONFIG_MCUX_COMPONENT_middleware.wireless.controller_api)
     )
 endif()
 
+if(CONFIG_MCUX_COMPONENT_middleware.wireless.controller_api_minimal)
+    mcux_add_source(
+        SOURCES src/controller_api.c
+                interface/controller_api.h
+    )
+    mcux_add_include(
+        INCLUDES interface
+    )
+endif()
+
 if(CONFIG_MCUX_COMPONENT_middleware.wireless.ble_controller_hadm)
     # common header files
     mcux_add_source(

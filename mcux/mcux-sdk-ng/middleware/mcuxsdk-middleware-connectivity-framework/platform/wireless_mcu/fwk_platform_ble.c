@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/*                        Copyright 2021-2023, 2025 NXP                       */
+/*                        Copyright 2021-2023, 2025-2026 NXP                  */
 /*                    SPDX-License-Identifier: BSD-3-Clause                   */
 /* -------------------------------------------------------------------------- */
 
@@ -14,9 +14,9 @@
 #include "board_platform.h"
 #include "fwk_debug.h"
 #include "RNG_Interface.h"
-#include "controller_api.h"
 #endif
 
+#include "controller_api.h"
 #include "fwk_hal_macros.h"
 #include "fsl_common.h"
 #include "fsl_adapter_rpmsg.h"
@@ -629,7 +629,7 @@ static void PLATFORM_HciRxWorkHandler(fwk_work_t *work)
 
 STATIC void PLATFORM_SetBleMaxTxPower(int8_t max_tx_power)
 {
-#if !defined(LATENCY_TESTS) && !defined(__ZEPHYR__)
+#if !defined(LATENCY_TESTS)
     uint8_t ldo_ana_trim;
 
     if (max_tx_power == 0)
