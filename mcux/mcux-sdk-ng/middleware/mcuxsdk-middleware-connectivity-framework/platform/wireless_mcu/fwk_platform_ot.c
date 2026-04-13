@@ -10,6 +10,12 @@
 #include "SecLib.h"
 #include "RNG_Interface.h"
 #include "HWParameter.h"
+#else
+#include <zephyr/drivers/flash.h>
+#include <zephyr/random/random.h>
+
+#define IFR0_FLASH_NODE      DT_CHOSEN(zephyr_flash_controller)
+#define IFR0_FLASH_BASE      DT_REG_ADDR(DT_NODELABEL(ifr0))
 #endif
 
 #include "fsl_common.h"
@@ -27,6 +33,8 @@
 
 #ifndef __ZEPHYR__
 static const uint8_t gIeee802_15_4_ADDR_OUI_c[MAC_ADDR_OUI_PART_SIZE] = {IEEE802_15_4_ADDR_OUI};
+#else
+static const struct device *get_ifr0_flash_device(void);
 #endif
 
 /* Check if __st is negative,  if true, apply 4 bits shit and add new __error_code,
@@ -142,7 +150,15 @@ static void PLATFORM_GenerateNewEui64Addr(uint8_t *eui64_address)
         FLib_MemCpy((void *)&eui64_address[EUI_64_SZ - MAC_ADDR_OUI_PART_SIZE], (const void *)gIeee802_15_4_ADDR_OUI_c,
                     MAC_ADDR_OUI_PART_SIZE);
     }
-#endif
+#else /* __ZEPHYR__ */
+    /* Use NXP OUI (00:60:37) */
+    eui64_address[0] = 0x00;
+    eui64_address[1] = 0x60;
+    eui64_address[2] = 0x37;
+
+    /* Generate random bytes for remaining 5 bytes */
+    sys_rand_get(&eui64_address[3], 5);
+#endif /* __ZEPHYR__ */
 }
 
 void PLATFORM_GetIeee802_15_4Addr(uint8_t *eui64_address)
@@ -178,6 +194,60 @@ void PLATFORM_GetIeee802_15_4Addr(uint8_t *eui64_address)
         EnableGlobalIRQ(regPrimask);
     }
 #else
-    PLATFORM_GenerateNewEui64Addr(eui64_address);
+    const struct device *flash_dev;
+    int rc;
+
+    flash_dev = get_ifr0_flash_device();
+    if (flash_dev == NULL) {
+        PLATFORM_GenerateNewEui64Addr(eui64_address);
+        return;
+    }
+
+    rc = flash_read(flash_dev, IFR0_FLASH_BASE + IFR_USER_ADDR + MAC_ADDRESS_OFFSET, eui64_address, MAC_ADDRESS_LEN);
+    if (rc != 0) {
+        PLATFORM_GenerateNewEui64Addr(eui64_address);
+        rc = flash_erase(flash_dev, IFR0_FLASH_BASE + IFR_USER_ADDR, IFR_SECTOR_SIZE);
+        flash_write(flash_dev, IFR0_FLASH_BASE + IFR_USER_ADDR + MAC_ADDRESS_OFFSET, eui64_address, MAC_ADDRESS_LEN);
+    }
+
+    
 #endif
 }
+
+#ifdef __ZEPHYR__
+int PLATFORM_GetZbossFactorySettings(PLATFORM_zboss_factory_settings_t *settings_buf)
+{
+    const struct device *flash_dev;
+    int rc;
+
+    flash_dev = get_ifr0_flash_device();
+    if (flash_dev == NULL) {
+        return -ENODEV;
+    }
+
+    rc = flash_read(flash_dev, IFR0_FLASH_BASE + IFR_USER_ADDR, settings_buf, sizeof(PLATFORM_zboss_factory_settings_t));
+    if (rc != 0) {
+        return -EIO;
+    }
+
+    return sizeof(PLATFORM_zboss_factory_settings_t);
+}
+
+
+/**
+ * @brief Get the IFR0 flash device
+ *
+ * @return Pointer to flash device, or NULL if not ready
+ */
+static const struct device *get_ifr0_flash_device(void)
+{
+    const struct device *flash_dev = DEVICE_DT_GET(IFR0_FLASH_NODE);
+
+    if (!device_is_ready(flash_dev)) {
+        return NULL;
+    }
+
+    return flash_dev;
+}
+
+#endif

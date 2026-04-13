@@ -10,6 +10,13 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#ifdef __ZEPHYR__
+#include <zephyr/drivers/flash.h>
+#include <zephyr/random/random.h>
+
+#define IFR0_FLASH_NODE      DT_CHOSEN(zephyr_flash_controller)
+#define IFR0_FLASH_BASE      DT_REG_ADDR(DT_NODELABEL(ifr0))
+#endif
 
 #include "fwk_platform_ot.h"
 #include "fwk_platform_coex.h"
@@ -33,6 +40,11 @@ static bool initialized = false;
 /* -------------------------------------------------------------------------- */
 /*                             Private prototypes                             */
 /* -------------------------------------------------------------------------- */
+
+#ifdef __ZEPHYR__
+static const struct device *get_ifr0_flash_device(void);
+#endif
+
 
 /* -------------------------------------------------------------------------- */
 /*                              Public functions                              */
@@ -131,6 +143,45 @@ int PLATFORM_ResetOt(void)
     return ret;
 }
 
+#ifdef __ZEPHYR__
+int PLATFORM_GetZbossFactorySettings(PLATFORM_zboss_factory_settings_t *settings_buf)
+{
+    const struct device *flash_dev;
+    int rc;
+
+    flash_dev = get_ifr0_flash_device();
+    if (flash_dev == NULL) {
+        return -ENODEV;
+    }
+
+    rc = flash_read(flash_dev, IFR0_FLASH_BASE + IFR_USER_ADDR, settings_buf, sizeof(PLATFORM_zboss_factory_settings_t));
+    if (rc != 0) {
+        return -EIO;
+    }
+
+    return sizeof(PLATFORM_zboss_factory_settings_t);
+}
+#endif
+
 /* -------------------------------------------------------------------------- */
 /*                              Private functions                             */
 /* -------------------------------------------------------------------------- */
+
+#ifdef __ZEPHYR__
+/**
+ * @brief Get the IFR0 flash device
+ *
+ * @return Pointer to flash device, or NULL if not ready
+ */
+static const struct device *get_ifr0_flash_device(void)
+{
+    const struct device *flash_dev = DEVICE_DT_GET(IFR0_FLASH_NODE);
+
+    if (!device_is_ready(flash_dev)) {
+        return NULL;
+    }
+
+    return flash_dev;
+}
+
+#endif

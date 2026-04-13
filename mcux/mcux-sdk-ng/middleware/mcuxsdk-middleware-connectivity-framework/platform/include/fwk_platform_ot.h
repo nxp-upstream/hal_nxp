@@ -53,6 +53,39 @@ int PLATFORM_ResetOt(void);
  */
 void PLATFORM_GetIeee802_15_4Addr(uint8_t *eui64_address);
 
+#ifdef __ZEPHYR__
+#define ZBOSS_HEADER_LEN       8
+#define MAC_ADDRESS_OFFSET     ZBOSS_HEADER_LEN
+#define MAC_ADDRESS_LEN        8
+#define ZBOSS_CHMASKS_LEN      40
+#define ZBOSS_TXPOWER_LEN      270
+#define ZBOSS_OPTIONS_LEN      1
+#define ZBOSS_INSTALLCODE_LEN  18
+#define ZBOSS_PASSCODE_LEN     4
+
+typedef struct __attribute__ ((packed)) PLATFORM_zboss_factory_settings_s {
+  /* Created for Zboss */
+  uint8_t zboss_header[ZBOSS_HEADER_LEN];
+  uint8_t mac_addr[MAC_ADDRESS_LEN];                /* Shared by ieee802154 driver & Zboss */
+  uint8_t zboss_ch_masks[ZBOSS_CHMASKS_LEN];
+  uint8_t zboss_tw_power[ZBOSS_TXPOWER_LEN];
+  uint8_t zboss_options[ZBOSS_OPTIONS_LEN];
+
+  /* Created for Zboss, to be stored in blobs */
+  uint8_t zboss_installcode[ZBOSS_INSTALLCODE_LEN];
+  uint8_t zboss_passcode[ZBOSS_PASSCODE_LEN];
+} PLATFORM_zboss_factory_settings_t;
+
+/*!
+ * \brief Return Zboss factory settings
+ *
+ * \param settings_buf pointer on buffer storage supplied by caller to receive Zboss
+ * factory settings.
+ *
+ */
+int PLATFORM_GetZbossFactorySettings(PLATFORM_zboss_factory_settings_t *settings_buf);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
