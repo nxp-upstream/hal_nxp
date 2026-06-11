@@ -116,7 +116,8 @@ def copy_components(src_sdk, dest_root):
         'wifi_bt_module',
         'flash/mflash',
         'flash/nand',
-        'flash/nor'
+        'flash/nor',
+        'sdio_dev'
     ]
     
     flash_header = {
