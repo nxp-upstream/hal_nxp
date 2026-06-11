@@ -117,6 +117,7 @@ def copy_components(src_sdk, dest_root):
         'flash/mflash',
         'flash/nand',
         'flash/nor'
+        'sdio_dev'
     ]
     
     flash_header = {
