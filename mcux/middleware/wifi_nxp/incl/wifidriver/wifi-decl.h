@@ -151,6 +151,10 @@ typedef struct
 #define BSS_TYPE_STA 0U
 /** BSS type : UAP */
 #define BSS_TYPE_UAP 1U
+#if CONFIG_WPA_SUPP_P2P
+/** BSS type : WFD */
+#define BSS_TYPE_WFD 2U
+#endif
 
 #define UAP_DEFAULT_CHANNEL       0
 #ifdef RW610
@@ -178,19 +182,11 @@ enum wifi_bss_features
 
 struct wifi_message
 {
+    enum wlan_bss_type bss_type;
     uint16_t event;
     enum wifi_event_reason reason;
     void *data;
 };
-
-#if CONFIG_P2P
-struct wifi_wfd_event
-{
-    bool peer_event;
-    bool action_frame;
-    void *data;
-};
-#endif
 
 /* Wlan Cipher structure */
 typedef struct
