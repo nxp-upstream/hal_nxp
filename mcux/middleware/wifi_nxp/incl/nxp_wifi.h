@@ -405,6 +405,8 @@ extern "C" {
 #define CONFIG_11R 1
 #endif
 
+#define CONFIG_WIFI_ROAMING_RETRY_CNT 1
+
 #if CONFIG_NXP_WIFI_EU_CRYPTO
 #define CONFIG_WIFI_EU_CRYPTO 1
 #endif

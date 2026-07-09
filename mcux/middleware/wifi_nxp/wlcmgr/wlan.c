@@ -602,6 +602,10 @@ static struct
     wlan_nlist_report_param nlist_rep_param;
     wlan_rrm_neighbor_report_t nbr_rpt;
 #endif
+#if CONFIG_ROAMING
+    int roaming_cnt_11k;
+    int roaming_cnt_11v;
+#endif
     bool internal : 1;
 #if CONFIG_WIFI_GET_LOG
     /* Wi-Fi diagnostic statistics */
@@ -4234,8 +4238,10 @@ static void wlcm_process_rssi_low_event(void)
 #endif
 
 #if CONFIG_11K
-    if (network->neighbor_report_supported == true)
+    if (network->neighbor_report_supported == true &&
+        wlan.roaming_cnt_11k < CONFIG_WIFI_ROAMING_RETRY_CNT)
     {
+        wlan.roaming_cnt_11k++;
         ret = wlan_host_11k_neighbor_req((const char *)network->ssid);
         if (ret == WM_SUCCESS)
         {
@@ -4246,8 +4252,10 @@ static void wlcm_process_rssi_low_event(void)
 #endif /* CONFIG_11K */
 
 #if CONFIG_11V
-    if (network->bss_transition_supported == true)
+    if (network->bss_transition_supported == true &&
+        wlan.roaming_cnt_11v < CONFIG_WIFI_ROAMING_RETRY_CNT)
     {
+        wlan.roaming_cnt_11v++;
         ret = wlan_host_11v_bss_trans_query(0x10);
         if (ret == WM_SUCCESS)
         {
@@ -7148,6 +7156,10 @@ static enum cm_sta_state handle_message(struct wifi_message *msg)
         case WIFI_EVENT_AUTHENTICATION:
             wlcm_d("got event: authentication result: %s",
                     msg->reason == WIFI_EVENT_REASON_SUCCESS ? "success" : "failure");
+#if CONFIG_ROAMING
+            wlan.roaming_cnt_11k = 0;
+            wlan.roaming_cnt_11v = 0;
+#endif
             if(msg->reason == WIFI_EVENT_REASON_FAILURE)
             {
 #if CONFIG_ECSA
