@@ -288,6 +288,10 @@ extern "C" {
 #define CONFIG_UART_WIFI_BRIDGE 1
 #endif
 
+#if CONFIG_NXP_WIFI_SLIM
+#define CONFIG_WIFI_SLIM 1
+#endif
+
 #if CONFIG_NXP_OVERRIDE_CALIBRATION_DATA
 #if defined(CONFIG_WLAN_CALDATA_2ANT_HI_ISO)
 #define OVERRIDE_CALIBRATION_DATA "wifi_cal_data_iw612_2ant_hi_iso.h"

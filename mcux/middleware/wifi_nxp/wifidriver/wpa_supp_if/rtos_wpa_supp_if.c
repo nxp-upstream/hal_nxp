@@ -3018,10 +3018,11 @@ void wifi_nxp_wpa_supp_event_proc_dfs_cac_finished(void *if_priv, nxp_wifi_dfs_c
     }
 }
 
-void wifi_nxp_wpa_supp_event_signal_change(void *if_priv, t_s16 curr_rssi)
+void wifi_nxp_wpa_supp_event_signal_change(void *if_priv)
 {
     struct wifi_nxp_ctx_rtos *wifi_if_ctx_rtos = NULL;
     union wpa_event_data event;
+    nxp_wifi_signal_info_t signal_params = {0};
 
     wifi_if_ctx_rtos = (struct wifi_nxp_ctx_rtos *)if_priv;
 
@@ -3030,9 +3031,17 @@ void wifi_nxp_wpa_supp_event_signal_change(void *if_priv, t_s16 curr_rssi)
         wifi_e("%s: wifi_if_ctx_rtos is NULL", __func__);
         return;
     }
+
+    if (wifi_nxp_get_signal(wifi_if_ctx_rtos->bss_type, &signal_params) != WM_SUCCESS)
+    {
+        supp_e("%s: wifi_nxp_get_signal failed", __func__);
+        return;
+    }
+
     memset(&event, 0, sizeof(event));
     event.signal_change.above_threshold = 0;
-    event.signal_change.data.signal = abs(curr_rssi);
+    event.signal_change.data.signal = signal_params.current_signal;
+    event.signal_change.current_noise = signal_params.current_noise;
 
     wifi_if_ctx_rtos->supp_callbk_fns.signal_change(wifi_if_ctx_rtos->supp_drv_if_ctx, &event);
 }
