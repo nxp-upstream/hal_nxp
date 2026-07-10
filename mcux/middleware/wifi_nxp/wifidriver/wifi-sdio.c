@@ -3332,7 +3332,7 @@ static void handle_sdio_packet_read(mlan_adapter *pmadapter)
         t_u8 *packet     = NULL;
 
         ret = _handle_sdio_packet_read(pmadapter, &packet, &datalen, &pkt_type);
-        if (ret != MLAN_STATUS_SUCCESS)
+        if (ret == MLAN_STATUS_FAILURE)
         {
             /* nothing to read. break out of while loop */
             break;

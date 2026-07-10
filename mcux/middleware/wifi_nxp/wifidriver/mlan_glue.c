@@ -5063,6 +5063,8 @@ int wifi_process_cmd_response(HostCmd_DS_COMMAND *resp)
                         *(tsp_get_cfg->dutycycmin)             = data->dutycycmin;
                         *(tsp_get_cfg->highthrtemp)            = data->highthrtemp;
                         *(tsp_get_cfg->lowthrtemp)             = data->lowthrtemp;
+                        *(tsp_get_cfg->throttledutycycle)      = data->throttledutycycle;
+                        *(tsp_get_cfg->rftemppollcnt)          = data->rftemppollcnt;
                         *(tsp_get_cfg->currCAUTemp)            = data->currCAUTemp;
                         *(tsp_get_cfg->currRFUTemp)            = data->currRFUTemp;
                     }
@@ -6054,7 +6056,6 @@ int wifi_handle_fw_event(struct bus_message *msg)
 #if CONFIG_EXT_SCAN_SUPPORT
     mlan_event_scan_result *pext_scan_result;
 #endif
-    int16_t *rssi_snr;
 
     if (evt == NULL)
     {
@@ -6307,55 +6308,17 @@ int wifi_handle_fw_event(struct bus_message *msg)
             break;
 #endif
         case EVENT_RSSI_LOW:
-        {
-#if !CONFIG_MEM_POOLS
-            rssi_snr = (t_s16 *)OSA_MemoryAllocate(sizeof(t_s16));
-#else
-            rssi_snr = (t_s16 *)OSA_MemoryPoolAllocate(buf_32_MemoryPool);
-#endif
-            if (rssi_snr == MNULL)
+            if (wifi_event_completion(WIFI_EVENT_RSSI_LOW, WIFI_EVENT_REASON_SUCCESS, NULL) != WM_SUCCESS)
             {
-                wifi_w("No mem. Failed to alloc for EVENT_RSSI_LOW");
-                break;
-            }
-            *rssi_snr = (t_s16)evt->reason_code;
-            if (wifi_event_completion(WIFI_EVENT_RSSI_LOW,
-                                     WIFI_EVENT_REASON_SUCCESS,
-                                     (void *)rssi_snr) != WM_SUCCESS)
-            {
-#if !CONFIG_MEM_POOLS
-                OSA_MemoryFree((void *)rssi_snr);
-#else
-                OSA_MemoryPoolFree(buf_32_MemoryPool, rssi_snr);
-#endif
+                wifi_w("Failed to post WIFI_EVENT_RSSI_LOW");
             }
             break;
-        }
         case EVENT_SNR_LOW:
-        {
-#if !CONFIG_MEM_POOLS
-            rssi_snr = (t_s16 *)OSA_MemoryAllocate(sizeof(t_s16));
-#else
-            rssi_snr = (t_s16 *)OSA_MemoryPoolAllocate(buf_32_MemoryPool);
-#endif
-            if (rssi_snr == MNULL)
+            if (wifi_event_completion(WIFI_EVENT_SNR_LOW, WIFI_EVENT_REASON_SUCCESS, NULL) != WM_SUCCESS)
             {
-                wifi_w("No mem. Failed to alloc for EVENT_SNR_LOW");
-                break;
-            }
-            *rssi_snr = (t_s16)evt->reason_code;
-            if (wifi_event_completion(WIFI_EVENT_SNR_LOW,
-                                     WIFI_EVENT_REASON_SUCCESS,
-                                     (void *)rssi_snr) != WM_SUCCESS)
-            {
-#if !CONFIG_MEM_POOLS
-                OSA_MemoryFree((void *)rssi_snr);
-#else
-                OSA_MemoryPoolFree(buf_32_MemoryPool, rssi_snr);
-#endif
+                wifi_w("Failed to post WIFI_EVENT_SNR_LOW");
             }
             break;
-        }
 #if CONFIG_SUBSCRIBE_EVENT_SUPPORT
         case EVENT_RSSI_HIGH:
             (void)wifi_event_completion(WIFI_EVENT_RSSI_HIGH, WIFI_EVENT_REASON_SUCCESS, NULL);

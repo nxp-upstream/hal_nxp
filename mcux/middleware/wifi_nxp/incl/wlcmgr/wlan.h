@@ -5336,7 +5336,7 @@ int wlan_get_rf_band(uint8_t *band);
  *
  * \note  call \ref wlan_set_rf_test_mode API before using this API.
  *
- * \param[in] xtal_cal: The crystal calibration offset to be set in Wi-Fi firmware.
+ * \param[in] xtal_cal: The crystal calibration offset to be set in Wi-Fi firmware, range [0,255].
  *
  * \return WM_SUCCESS if successful otherwise return -WM_FAIL.
  *
@@ -6694,6 +6694,8 @@ int wlan_set_threshold_link_quality(unsigned int evend_id,
  * \param[out] dutycycmin:        Duty cycle min(percentage)
  * \param[out] highthrtemp:       High throttle threshold temperature(celsius)
  * \param[out] lowthrtemp:        Low throttle threshold temperature(celsius)
+ * \param[out] throttledutycycle: Throttled duty cycle [3...100] (percentage)
+ * \param[out] rftemppollcnt:     RFU temperature poll/averaging count [1...100] (number of samples per average)
  * \param[out] currCAUTemp:       CAU TSEN temperature
  * \param[out] currRFUTemp:       RFU temperature
  * \return WM_SUCCESS if successful otherwise return -WM_FAIL.
@@ -6706,6 +6708,8 @@ int wlan_get_tsp_cfg(t_u16 *enable,
                      t_u32 *dutycycmin,
                      int *highthrtemp,
                      int *lowthrtemp,
+                     t_u32 *throttledutycycle,
+                     t_u32 *rftemppollcnt,
                      int *currCAUTemp,
                      int *currRFUTemp);
 
@@ -6721,6 +6725,7 @@ int wlan_get_tsp_cfg(t_u16 *enable,
  * \param[in] dutycycmin:        Duty cycle min(percentage)
  * \param[out] highthrtemp:      High throttle threshold temperature (celsius)
  * \param[out] lowthrtemp:       Low throttle threshold temperature (celsius)
+ * \param[in] rftemppollcnt:      RFU temperature poll/averaging count [1...100] (number of samples per average)
  * \return WM_SUCCESS if successful otherwise return -WM_FAIL.
  */
 int wlan_set_tsp_cfg(t_u16 enable,
@@ -6730,7 +6735,8 @@ int wlan_set_tsp_cfg(t_u16 enable,
                      t_u32 dutycycstep,
                      t_u32 dutycycmin,
                      int highthrtemp,
-                     int lowthrtemp);
+                     int lowthrtemp,
+                     t_u32 rftemppollcnt);
 #endif
 
 #if CONFIG_WIFI_REG_ACCESS

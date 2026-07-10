@@ -94,7 +94,6 @@
 
 #if CONFIG_ROAMING
 #define WLAN_ROAMING_COOLDOWN 2000
-#define WLAN_ROAMING_RSSI_DEFAULT_THRESHOLD -70
 #endif
 
 #define WL_ID_CONNECT      "wifi_connect"
@@ -278,7 +277,7 @@ static t_u16 scan_channel_gap = (t_u16)SCAN_CHANNEL_GAP_VALUE;
 #endif
 
 #if (CONFIG_11K) || (CONFIG_11V)
-#define NEIGHBOR_REQ_TIMEOUT (60 * 1000)
+#define NEIGHBOR_REQ_TIMEOUT (10 * 1000)
 #endif
 
 #if CONFIG_11R
@@ -1351,7 +1350,8 @@ static int security_profile_matches(const struct wlan_network *network, const st
         }
 #endif
 
-        if (res->WPA_WPA2_WEP.wepStatic || res->WPA_WPA2_WEP.wpa2 || res->WPA_WPA2_WEP.wpa)
+        if (res->WPA_WPA2_WEP.wepStatic || res->WPA_WPA2_WEP.wpa2 ||
+            res->WPA_WPA2_WEP.wpa       || res->WPA_WPA2_WEP.wpa3_sae)
         {
             return WM_SUCCESS;
         }
@@ -4388,7 +4388,19 @@ static void wlcm_process_neighbor_list_report_event(struct wifi_message *msg,
     t_u8 *bssid                               = NULL;
     wlan_nlist_report_param *pnlist_rep_param = (wlan_nlist_report_param *)msg->data;
 
-    wlan.roam_reassoc = false;
+    if (msg->reason == WIFI_EVENT_REASON_FAILURE)
+    {
+        wlcm_d("11K/11V neighbor report failed, clearing roam state");
+#if CONFIG_ROAMING
+        if (wlan.roam_reassoc == true)
+        {
+            wlan.roam_reassoc = false;
+        }
+#endif
+        wlan.neighbor_req = false;
+        (void)OSA_TimerDeactivate((osa_timer_handle_t)wlan.neighbor_req_timer);
+        return;
+    }
 
     if (is_state(CM_STA_IDLE) || (pnlist_rep_param == NULL))
     {
@@ -6937,12 +6949,12 @@ static void roaming_subscribe_process(void)
     }
 }
 
-static void roaming_report_process(struct wifi_message *msg, enum wifi_event event)
+static void roaming_report_process(void)
 {
     if (!wlan.roaming_report.subscribed)
     {
         wlcm_d("roaming_report: stale event, drop");
-        goto free_data;
+        return;
     }
 
     /* De-subscribe both from FW */
@@ -6952,26 +6964,17 @@ static void roaming_report_process(struct wifi_message *msg, enum wifi_event eve
     {
         wlcm_d("roaming_report: de-subscribe cmd failed, disabling");
         wlan.roaming_report.bitmap = 0;
-        goto free_data;
+        return;
     }
     wlan.roaming_report.subscribed = false;
     wlcm_d("roaming_report: de-subscribed");
 
-    /* Deliver signal change */
-    t_s16 rssi;
-    if (event == WIFI_EVENT_RSSI_LOW)
-    {
-        rssi = *(t_s16 *)msg->data;
-    }
-    else
-    {
-        rssi = WLAN_ROAMING_RSSI_DEFAULT_THRESHOLD;
-    }
-    wlcm_d("roaming_report: signal_change rssi=%d", rssi);
-
 #if CONFIG_WIFI_NM_WPA_SUPPLICANT
-    wm_wifi.supp_if_callbk_fns->signal_change_callbk_fn(
-        wm_wifi.if_priv, rssi);
+    if (wm_wifi.supp_if_callbk_fns != NULL &&
+        wm_wifi.supp_if_callbk_fns->signal_change_callbk_fn != NULL)
+    {
+        wm_wifi.supp_if_callbk_fns->signal_change_callbk_fn(wm_wifi.if_priv);
+    }
 #else
     wlcm_process_rssi_low_event();
 #endif
@@ -6980,16 +6983,6 @@ static void roaming_report_process(struct wifi_message *msg, enum wifi_event eve
     if (!OSA_TimerIsRunning((osa_timer_handle_t)wlan.roaming_report.roaming_timer))
     {
         (void)OSA_TimerActivate((osa_timer_handle_t)wlan.roaming_report.roaming_timer);
-    }
-
-free_data:
-    if (msg->data != NULL)
-    {
-#if !CONFIG_MEM_POOLS
-        OSA_MemoryFree(msg->data);
-#else
-        OSA_MemoryPoolFree(buf_32_MemoryPool, msg->data);
-#endif
     }
 }
 #endif
@@ -7181,7 +7174,7 @@ static enum cm_sta_state handle_message(struct wifi_message *msg)
         case WIFI_EVENT_RSSI_LOW:
             wlcm_d("got event: rssi low");
 #if CONFIG_ROAMING
-            roaming_report_process(msg, WIFI_EVENT_RSSI_LOW);
+            roaming_report_process();
 #else
             CONNECTION_EVENT(WLAN_REASON_RSSI_LOW, NULL);
 #endif
@@ -7189,7 +7182,7 @@ static enum cm_sta_state handle_message(struct wifi_message *msg)
         case WIFI_EVENT_SNR_LOW:
             wlcm_d("got event: SNR low");
 #if CONFIG_ROAMING
-            roaming_report_process(msg, WIFI_EVENT_SNR_LOW);
+            roaming_report_process();
 #else
             CONNECTION_EVENT(WLAN_REASON_RSSI_LOW, NULL);
 #endif
@@ -8067,6 +8060,13 @@ static void neighbor_req_timer_cb(osa_timer_arg_t arg)
     {
         wlan.neighbor_req = false;
     }
+#if CONFIG_ROAMING
+    if (wlan.roam_reassoc == true)
+    {
+        wlan.roam_reassoc = false;
+        wlcm_d("neighbor req timeout, clearing roam state");
+    }
+#endif
 }
 #endif
 
@@ -9049,7 +9049,7 @@ int wlan_add_network(struct wlan_network *network)
 
     /* make sure that the network name length is acceptable */
     len = strlen(network->name);
-    if (len < WLAN_NETWORK_NAME_MIN_LENGTH || len >= WLAN_NETWORK_NAME_MAX_LENGTH)
+    if (len < WLAN_NETWORK_NAME_MIN_LENGTH || len > WLAN_NETWORK_NAME_MAX_LENGTH)
     {
         wlcm_e("name length is out of bounds");
         return -WM_E_INVAL;
@@ -15823,12 +15823,14 @@ int wlan_get_tsp_cfg(t_u16 *enable,
                      t_u32 *dutycycmin,
                      int *highthrtemp,
                      int *lowthrtemp,
+                     t_u32 *throttledutycycle,
+                     t_u32 *rftemppollcnt,
                      int *currCAUTemp,
                      int *currRFUTemp)
 {
     t_u16 action = 0;
 
-    return wifi_tsp_cfg(action, enable, back_off, highThreshold, lowThreshold, dutycycstep, dutycycmin, highthrtemp, lowthrtemp, currCAUTemp, currRFUTemp);
+    return wifi_tsp_cfg(action, enable, back_off, highThreshold, lowThreshold, dutycycstep, dutycycmin, highthrtemp, lowthrtemp, throttledutycycle, rftemppollcnt, currCAUTemp, currRFUTemp);
 }
 int wlan_set_tsp_cfg(t_u16 enable,
                      t_u32 back_off,
@@ -15837,11 +15839,12 @@ int wlan_set_tsp_cfg(t_u16 enable,
                      t_u32 dutycycstep,
                      t_u32 dutycycmin,
                      int highthrtemp,
-                     int lowthrtemp)
+                     int lowthrtemp,
+                     t_u32 rftemppollcnt)
 {
     t_u16 action = 1;
 
-    return wifi_tsp_cfg(action, &enable, &back_off, &highThreshold, &lowThreshold, &dutycycstep, &dutycycmin, &highthrtemp, &lowthrtemp, NULL, NULL);
+    return wifi_tsp_cfg(action, &enable, &back_off, &highThreshold, &lowThreshold, &dutycycstep, &dutycycmin, &highthrtemp, &lowthrtemp, NULL, &rftemppollcnt, NULL, NULL);
 }
 #endif
 
