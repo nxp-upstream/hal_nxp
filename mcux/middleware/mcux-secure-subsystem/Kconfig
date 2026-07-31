@@ -1,0 +1,116 @@
+
+menu "secure-subsystem"
+
+    config MCUX_COMPONENT_middleware.secure-subsystem
+        bool "Secure Subsystem"
+        select MCUX_COMPONENT_middleware.secure-subsystem.mu
+        select MCUX_COMPONENT_middleware.secure-subsystem.elemu
+
+    config MCUX_COMPONENT_middleware.secure-subsystem.mu
+        bool "Secure Subsystem MU"
+        select MCUX_COMPONENT_middleware.secure-subsystem.elemu
+
+    config MCUX_COMPONENT_middleware.secure-subsystem.elemu
+        bool "Secure Subsystem ELE MU"
+        select MCUX_COMPONENT_driver.elemu
+
+    config MCUX_COMPONENT_middleware.secure-subsystem.elemu.port_kw45_k4w1
+        bool "ELE MU Port KW45/K4W1"
+        select MCUX_COMPONENT_middleware.secure-subsystem
+
+    config MCUX_COMPONENT_middleware.secure-subsystem.elemu.crypto_sss_interface
+        bool "ELE MU Crypto SSS Interface"
+        select MCUX_COMPONENT_middleware.secure-subsystem
+
+    if MCUX_COMPONENT_middleware.secure-subsystem.elemu
+        config SSS_CONFIG_FILE
+            string "SSS Configuration File"
+            default "fsl_sss_config_elemu.h"
+            help
+                No prefix in generated macro
+                Macro value is in quotes
+
+        config SSCP_CONFIG_FILE
+            string "SSSCP Configuration File"
+            default "fsl_sscp_config_elemu.h"
+            help
+                No prefix in generated macro
+                Macro value is in quotes
+    endif
+
+    config ELE_TRACK_SESSION_STATE
+        bool "Track Session State in Software"
+        default y if is_device.KW45 || is_device.MCXW71
+        default n
+        help
+            For KW45/MCXW71 devices, provides a way to retrieve
+            an already-opened session by repeatedly calling
+            the OPEN SESSION API. This is handled by keeping track
+            of the session state in-software.
+            On other devices has no effect.
+
+
+    #############################
+    # Firmware dependency logic #
+    #############################
+
+    # These are helper configs to check if the device being built is in one of the supported device sets.
+    # The period (.) in the config name is there to exclude these symbols from being placed into the
+    # preinclude config header.
+    config is_device.KW45
+        bool
+        default y if MCUX_HW_DEVICE_KW45B41Z52 || MCUX_HW_DEVICE_KW45B41Z53 || MCUX_HW_DEVICE_KW45B41Z82 || MCUX_HW_DEVICE_KW45B41Z83 || MCUX_HW_DEVICE_KW45Z41052 || MCUX_HW_DEVICE_KW45Z41053 || MCUX_HW_DEVICE_KW45Z41082 || MCUX_HW_DEVICE_KW45Z41083
+
+    config is_device.MCXW71
+        bool
+        default y if MCUX_HW_DEVICE_MCXW716A || MCUX_HW_DEVICE_MCXW716C
+
+    config is_device.KW47
+        bool
+        default y if MCUX_HW_DEVICE_KW47B42Z83 || MCUX_HW_DEVICE_KW47B42Z96 || MCUX_HW_DEVICE_KW47B42Z97 || MCUX_HW_DEVICE_KW47B42ZB2 || MCUX_HW_DEVICE_KW47B42ZB3 || MCUX_HW_DEVICE_KW47B42ZB6 || MCUX_HW_DEVICE_KW47B42ZB7 || MCUX_HW_DEVICE_KW47Z42082 || MCUX_HW_DEVICE_KW47Z42092 || MCUX_HW_DEVICE_KW47Z420B2 || MCUX_HW_DEVICE_KW47Z420B3
+
+    config is_device.MCXW72
+        bool
+        default y if MCUX_HW_DEVICE_MCXW727A || MCUX_HW_DEVICE_MCXW727C || MCUX_HW_DEVICE_MCXW727D
+
+    menuconfig MCUX_COMPONENT_middleware.secure-subsystem.firmware
+        bool "Secure Subsystem Firmware"
+        select MCUX_COMPONENT_middleware.secure-subsystem
+        select MCUX_COMPONENT_driver.elemu
+        if MCUX_COMPONENT_middleware.secure-subsystem.firmware
+            config ELEMU_HAS_LOADABLE_FW
+                bool
+                default y
+                help
+                    No prefix in generated macro
+
+            config MCUX_COMPONENT_middleware.secure-subsystem.firmware.KW45
+                bool "KW45/MCXW71"
+                depends on is_device.KW45 || is_device.MCXW71
+                default y if is_device.KW45 || is_device.MCXW71
+                if MCUX_COMPONENT_middleware.secure-subsystem.firmware.KW45
+                    choice
+                        prompt "Firmware Selection"
+                        default FIRMWARE_S200_EL2GO_KW45
+                        config FIRMWARE_S200_EL2GO_KW45
+                            bool "EdgeLock2Go Firmware"
+                        # Other Firmware to be added here
+                    endchoice
+                endif
+
+            config MCUX_COMPONENT_middleware.secure-subsystem.firmware.KW47
+                bool "KW47/MCXW72"
+                depends on is_device.KW47 || is_device.MCXW72
+                default y if is_device.KW47 || is_device.MCXW72
+                if MCUX_COMPONENT_middleware.secure-subsystem.firmware.KW47
+                    choice
+                        prompt "Firmware Selection"
+                        default FIRMWARE_S200_EL2GO_KW47
+                        config FIRMWARE_S200_EL2GO_KW47
+                            bool "EdgeLock2Go Firmware"
+                        # Other Firmware to be added here
+                    endchoice
+                endif
+        endif
+
+endmenu
