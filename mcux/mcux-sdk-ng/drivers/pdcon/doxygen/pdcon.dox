@@ -1,0 +1,120 @@
+/*!
+ * @defgroup pdcon PDCON: Power Domain Controller Driver
+ * @details The MCUXpresso SDK provides a peripheral driver for the Power Domain Controller (PDCON)
+ *          module of MCUXpresso SDK devices.
+ * @{
+ */
+
+/*!
+ * @brief Overview
+ *
+ * The Power Domain Controller (PDCON) module provides centralized control and management of 
+ * multiple power domains within the system. It supports both hardware and software triggered
+ * power state transitions, with configurable handshaking mechanisms for safe power sequencing.
+ *
+ * # Features
+ *
+ * The PDCON module supports:
+ * - Up to 6 independent power domains (Domain 0-5)
+ * - Three power states per domain: Active, Retention, and Power-off
+ * - Software and hardware triggered power transitions
+ * - Configurable handshaking with peripheral units
+ * - Separate power configurations for Active/Run and Low Power/Sleep modes
+ * - Access control with security and privilege level settings
+ * - Warm reset postponement capability
+ * - Lock mechanisms for configuration protection
+ *
+ * # Power Domain States
+ *
+ * Each power domain can be in one of three states:
+ * - **Active** (kPDCON_EventNoneOrActive): Domain is fully powered and operational
+ * - **Retention** (kPDCON_EventRetention): Domain maintains state but with reduced power
+ * - **Power-off** (kPDCON_EventPowerOff): Domain is completely powered down
+ *
+ * # Configuration Structures
+ *
+ * The PDCON driver uses several configuration structures. For detailed field descriptions, see:
+ * - @ref pdcon_config_t - Main configuration structure
+ * - @ref pdcon_access_ctrl_t - Access control configuration
+ * - @ref pdcon_trigger_config_t - Trigger capability configuration  
+ * - @ref pdcon_domain_cfg_t - Domain power event configuration
+ *
+ * # Enumerations
+ *
+ * The following enumerations define the available options:
+ * - @ref pdcon_domain_t - Power domain identifiers.
+ * - @ref pdcon_event_t - Power domain events/states
+ * - @ref pdcon_handshake_mask_t - Handshake unit selection masks
+ *
+ * # Important Notes
+ *
+ * ## Domain Support Limitations
+ * - **Active Mode Configuration**: Only domains 3-5 support configuration (see PDCON_SetEventInActiveMode())
+ * - **Low Power Mode Configuration**: Only domains 1-5 support configuration (see PDCON_SetEventInLowPowerModes())
+ * - **Domain 0**: Has limited configurability compared to other domains
+ *
+ * ## Locking Mechanism
+ * Once locked, configurations cannot be modified until the next system reset:
+ * - Access control lock: Prevents modification of security settings
+ * - Trigger configuration lock: Prevents modification of trigger enable masks
+ * - Use PDCON_UnlockAccessControl() and PDCON_UnlockTriggerConfig() to unlock
+ *
+ * ## Timeout Configuration
+ * The driver supports optional timeout for busy-wait operations:
+ * - Define PDCON_BUSY_TIMEOUT or CONFIG_PDCON_BUSY_TIMEOUT to enable timeout checking
+ * - Set to 0 to wait indefinitely (default)
+ * - Non-zero value specifies maximum loop iterations
+ *
+ * ## Handshaking
+ * - Handshaking ensures peripherals complete their operations before power transitions
+ * - By default, all handshake selections are enabled after POR
+ * - Configure handshaking using PDCON_SetHandshake() before triggering power transitions
+ * - Handshake mask options: kPDCON_HandshakeUnit0, kPDCON_HandshakeUnit1, kPDCON_HandshakeUnit2, kPDCON_HandshakeAll
+ * - Handshake mask must be non-zero (kPDCON_HandshakeNone is invalid)
+ *
+ * # API Groups
+ *
+ * The PDCON driver APIs are organized into the following functional groups:
+ * - **Initialization**: Module initialization (PDCON_Init()) and version query (PDCON_GetVersionID())
+ * - **Access Control and Trigger Configuration**: Security and trigger settings (PDCON_SetAccessControl(), PDCON_SetTriggerConfig())
+ * - **Handshake and Warm Reset Configuration**: Peripheral synchronization (PDCON_SetHandshake(), PDCON_SetWarmResetPostpone())
+ * - **Power Mode Configuration**: Active and low power mode settings (PDCON_SetEventInActiveMode(), PDCON_SetEventInLowPowerModes(), PDCON_SetPowerDomainEventCfg())
+ * - **Trigger and Status**: Power transition control and monitoring (PDCON_SoftwareTrigger(), PDCON_IsDomainBusy(), PDCON_GetDomainState(), PDCON_GetAndClearEvent())
+ *
+ * # Typical Usage Flow
+ *
+ * @dot
+ * digraph usage_flow {
+ *     node [shape=box, style=rounded];
+ *     edge [fontsize=10];
+ *     
+ *     start [label="System Init", shape=ellipse];
+ *     init [label="PDCON_Init()\n• Access Control\n• Trigger Config"];
+ *     handshake [label="Configure Handshaking\nPDCON_SetHandshake()"];
+ *     power_mode [label="Set Power Mode Events\n• PDCON_SetEventInActiveMode()\n• PDCON_SetEventInLowPowerModes()"];
+ *     lock [label="Optional: Lock\nConfigurations", style="rounded,dashed"];
+ *     runtime [label="Runtime Loop", shape=ellipse];
+ *     trigger_check [label="Trigger\nTransition?", shape=diamond];
+ *     sw_trigger [label="Software Trigger\nPDCON_SoftwareTrigger()"];
+ *     hw_trigger [label="Hardware\nTrigger"];
+ *     status [label="Check Domain Status\n• PDCON_IsDomainBusy()\n• PDCON_GetDomainState()\n• PDCON_GetAndClearEvent()"];
+ *     
+ *     start -> init;
+ *     init -> handshake;
+ *     handshake -> power_mode;
+ *     power_mode -> lock;
+ *     lock -> runtime;
+ *     runtime -> trigger_check;
+ *     trigger_check -> sw_trigger [label="SW"];
+ *     trigger_check -> hw_trigger [label="HW"];
+ *     trigger_check -> runtime [label="No"];
+ *     sw_trigger -> status;
+ *     hw_trigger -> status;
+ *     status -> runtime;
+ * }
+ * @enddot
+ */
+
+/*!
+ * @}
+ */
