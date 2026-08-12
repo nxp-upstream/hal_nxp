@@ -5,20 +5,20 @@
 # fsl_clock.c calls MODCON_GetCFG() (and the SoC reset path uses
 # RESET_PeripheralReset()), both defined in fsl_modcon.c. The mcux component
 # auto-selection does not pull driver.modcon for this lean tree, so force it on
-# for the Zephyr RT2260-EVK baseline to satisfy the clock driver's dependency.
+# for the Zephyr MIMXRT2660-EVK baseline to satisfy the clock driver's dependency.
 set(CONFIG_MCUX_COMPONENT_driver.modcon ON)
+
+# fsl_power.c drives the memory controller directly (MEMCON_*), so driver.memcon
+# has to be built alongside driver.power rather than only when something else
+# selects it.
+set(CONFIG_MCUX_COMPONENT_driver.memcon ON)
 
 include(./CMakeLists_clock.txt)
 include(./CMakeLists_edma_soc.txt)
 include(./CMakeLists_iomuxc.txt)
 include(./CMakeLists_memory.txt)
 include(./CMakeLists_modcon.txt)
-# NOTE (Zephyr RT2260-EVK baseline): driver.power (fsl_power.c) is intentionally
-# NOT pulled in. fsl_power.h depends on fsl_pmu.h plus the powercon / pdcon /
-# rt2k_pmu components, which are not present in this lean hal_nxp tree, so
-# force-building it breaks the build. The RAM-execution baseline does not need
-# the power driver. Re-enable this include once those components are synced.
-# include(./CMakeLists_power.txt)
+include(./CMakeLists_power.txt)
 include(./CMakeLists_trdc_soc.txt)
 include(./CMakeLists_mipi_dsi_soc.txt)
 include(./CMakeLists_inputmux_connections.txt)
