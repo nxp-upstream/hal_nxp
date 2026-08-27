@@ -648,6 +648,8 @@ size_t caam_common_size_function(psa_key_type_t key_type, size_t key_bits)
 #endif /* PSA_WANT_KEY_TYPE_RSA_KEY_PAIR_GENERATE */
         {
         }
+        (void)public_size;
+        (void)private_size;
     } else if (PSA_KEY_TYPE_IS_UNSTRUCTURED(key_type)) {
 #if defined(PSA_WANT_KEY_TYPE_AES) || defined(PSA_WANT_KEY_TYPE_HMAC)
         ret = CAAM_ENCAP_DATA_SIZE(CAAM_OPAQUE_ALIGN(key_bytes));
