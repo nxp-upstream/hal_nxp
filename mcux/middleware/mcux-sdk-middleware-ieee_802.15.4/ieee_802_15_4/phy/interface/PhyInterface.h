@@ -426,12 +426,9 @@ typedef struct phyRxParams_tag
 /*! PHY Channel parameters */
 typedef struct phyChannelParams_tag
 {
-    union
-    {
-        phyStatus_t channelStatus;    /*!< Channel busy or idle */
-        uint8_t     energyLeveldB;    /*!< Channel energy level in dBm */
-        int8_t      maxEnergyLeveldB; /*!< MAX Channel energy level in dBm */
-    };
+    phyStatus_t channelStatus;    /*!< Channel busy or idle */
+    int8_t      energyLeveldB;    /*!< Channel energy level in dBm */
+    int8_t      maxEnergyLeveldB; /*!< MAX Channel energy level in dBm */
 } phyChannelParams_t;
 
 /*! Passed by the MAC layer to specify that a standalone CCA must be used, or that the ACK is required for the sequence. */
@@ -447,6 +444,7 @@ typedef struct phyCcaParams_tag
     phyContCCAMode_t cccaMode;
     uint32_t edScanCnt;
     uint32_t edScanMaxCnt;
+    bool_t edSampleMissed;  /*!< An ED window produced no hardware measurement */
 } phyCcaParams_t;
 
 /* this message is for both requests and responses */
