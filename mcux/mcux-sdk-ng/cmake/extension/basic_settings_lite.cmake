@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 #
-# Copyright 2025 NXP
+# Copyright 2025-2026 NXP
 
 include_guard(GLOBAL)
 
 # Source-less library that encapsulates all the global compiler options needed
 # by all source files.
 add_library(mcux_build_properties INTERFACE)
+include(${SdkRootDirPath}/cmake/extension/target_flags.cmake)
 
 list(
   APPEND

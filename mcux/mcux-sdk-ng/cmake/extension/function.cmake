@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 function(mcux_add_source)
+  _mcux_register_current_sdk_compile_target()
+
   set(single_value BASE_PATH CONFIG PREINCLUDE EXCLUDE SCOPE)
   set(multi_value SOURCES PREINCLUDE_TYPE ${MCUX_SOURCE_CONDITION})
   cmake_parse_arguments(_ "${options}" "${single_value}" "${multi_value}"
@@ -416,6 +418,8 @@ macro(_mcux_add_specific_include type)
 endmacro()
 
 function(mcux_add_include)
+  _mcux_register_current_sdk_compile_target()
+
   set(single_value BASE_PATH CONFIG)
   set(multi_value INCLUDES TARGET_FILES ${MCUX_SOURCE_CONDITION} SYS_SEARCH_PATH SYS_PATH_RECURSIVELY)
   cmake_parse_arguments(_ "${options}" "${single_value}" "${multi_value}"
@@ -760,6 +764,8 @@ function(_mcux_add_ld_library __LIB)
 endfunction()
 
 function(_mcux_add_configuration TYPE CONFIGS)
+  _mcux_register_current_sdk_compile_target()
+
   _mcux_pre_process_configuration(CONFIGS ${CONFIGS})
   set(FILTERED_CONFIGS ${CONFIGS})
 
@@ -859,8 +865,15 @@ endfunction()
 # convert string to list, for specific flag, such as -Xlinker --defsym=__heap_size__=0x2000,
 # should be regarded as a whole flag to add or remove
 function(_mcux_pre_process_configuration CONFIG_VAR CONFIGS)
+  if("${CONFIGS}" STREQUAL "")
+    set(${CONFIG_VAR}
+        ""
+        PARENT_SCOPE)
+    return()
+  endif()
+
   set(flag_prefix_list "-Xlinker" "--config_def" "--predefine")
-  string(REPLACE " " ";" CONFIGS ${CONFIGS})
+  string(REPLACE " " ";" CONFIGS "${CONFIGS}")
   set(tmp_list)
   list(LENGTH CONFIGS list_size)
   math(EXPR list_size "${list_size} - 1")
@@ -1626,6 +1639,28 @@ function(mcux_remove_configuration)
 endfunction()
 
 function(_mcux_remove_configuration TYPE CONFIGS)
+  if(MCUX_USE_TARGET_SCOPED_FLAGS)
+    _mcux_pre_process_configuration(CONFIGS "${CONFIGS}")
+    foreach(item ${CONFIGS})
+      _mcux_target_flags_get_active(${TYPE} _active_flags)
+      list(FIND _active_flags "${item}" _active_index)
+      _mcux_target_flags_remove_exact(${TYPE} "${item}")
+
+      if(_active_index GREATER -1)
+        string(REGEX MATCH "^-D([A-Za-z0-9_\\(\\)]+)=?(.*)?" _match "${item}")
+        if(NOT "${_match}" STREQUAL "")
+          mcux_clear_property(MCUX_${TYPE}_MACRO_${CMAKE_MATCH_1})
+        endif()
+
+        string(REGEX MATCH "^--config_def[ =]([A-Za-z0-9_]+)=(.*)$" _config_def_match "${item}")
+        if(NOT "${_config_def_match}" STREQUAL "")
+          mcux_clear_property(MCUX_${TYPE}_CONFIG_DEF_${CMAKE_MATCH_1})
+        endif()
+      endif()
+    endforeach()
+    return()
+  endif()
+
   if(TYPE STREQUAL "AS")
     set(_FLAGS ${CMAKE_ASM_FLAGS})
     set(CMAKE_ASM_FLAGS
@@ -1649,8 +1684,8 @@ function(_mcux_remove_configuration TYPE CONFIGS)
   endif()
 
   # convert _FLAGS to list
-  _mcux_pre_process_configuration(_FLAGS ${_FLAGS})
-  _mcux_pre_process_configuration(CONFIGS ${CONFIGS})
+  _mcux_pre_process_configuration(_FLAGS "${_FLAGS}")
+  _mcux_pre_process_configuration(CONFIGS "${CONFIGS}")
 
   if(_FLAGS)
     foreach(item ${_FLAGS})
@@ -1745,23 +1780,35 @@ function(_mcux_remove_linker_script)
     set(ld_cmd "--scatter ${linker_path}")
   elseif(${CONFIG_TOOLCHAIN} STREQUAL "codewarrior")
     set(ld_cmd "${linker_path}")
+  elseif(${CONFIG_TOOLCHAIN} STREQUAL "riscvllvm")
+    set(ld_cmd "-T ${linker_path} -static")
   endif()
 
-  mcux_set_property(INTERFACE_LD_TO_BE_REMOVED_FLAGS ${ld_cmd} APPEND)
-  log_debug("Add linker flag ${ld_cmd} into TO_BE_REMOVED_FLAGS list"
-            ${CMAKE_CURRENT_LIST_LINE})
+  if(MCUX_USE_TARGET_SCOPED_FLAGS)
+    _mcux_target_flags_remove_exact(LD "${ld_cmd}")
+    log_debug("Remove linker flag ${ld_cmd}" ${CMAKE_CURRENT_LIST_LINE})
+  else()
+    mcux_set_property(INTERFACE_LD_TO_BE_REMOVED_FLAGS ${ld_cmd} APPEND)
+    log_debug("Add linker flag ${ld_cmd} into TO_BE_REMOVED_FLAGS list"
+              ${CMAKE_CURRENT_LIST_LINE})
 
-  set(_LD_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
+    set(_LD_FLAGS ${CMAKE_EXE_LINKER_FLAGS})
 
-  if(_LD_FLAGS)
-    string(FIND "${_LD_FLAGS}" "${ld_cmd}" index)
-    if(${index} GREATER -1)
-      string(REPLACE ${ld_cmd} "" _LD_FLAGS ${_LD_FLAGS})
-      set(CMAKE_EXE_LINKER_FLAGS
-          ${_LD_FLAGS}
-          CACHE STRING "The Linker flags" FORCE)
-      log_debug("Remove linker flag ${ld_cmd}" ${CMAKE_CURRENT_LIST_LINE})
+    if(_LD_FLAGS)
+      string(FIND "${_LD_FLAGS}" "${ld_cmd}" index)
+      if(${index} GREATER -1)
+        string(REPLACE ${ld_cmd} "" _LD_FLAGS ${_LD_FLAGS})
+        set(CMAKE_EXE_LINKER_FLAGS
+            ${_LD_FLAGS}
+            CACHE STRING "The Linker flags" FORCE)
+        log_debug("Remove linker flag ${ld_cmd}" ${CMAKE_CURRENT_LIST_LINE})
+      endif()
     endif()
+  endif()
+
+  mcux_get_property(_active_linker_path ${MCUX_SDK_PROJECT_NAME}_LINKER_PATH)
+  if("${_active_linker_path}" STREQUAL "${linker_path}")
+    mcux_clear_property(${MCUX_SDK_PROJECT_NAME}_LINKER_PATH)
   endif()
 endfunction()
 
@@ -2098,6 +2145,8 @@ function(mcux_load_sysbuild_config)
 endfunction()
 
 function(mcux_append_single_compiler_flags_variable type flag)
+  _mcux_register_current_sdk_compile_target()
+
   if(${flag} IN_LIST ${CONFIG_TOOLCHAIN}_${type}_IGNORE_LIST)
     return()
   endif()
@@ -2129,13 +2178,18 @@ function(mcux_append_single_compiler_flags_variable type flag)
      # use later one to overwrite the first one if found duplicated macro with different value
      if(NOT saved_macro_value STREQUAL MACRO_VALUE)
        if ("${saved_macro_value}" STREQUAL "UNDEFINED_MACRO_VALUE")
-         string(REPLACE "-D${CMAKE_MATCH_1}" "${flag}" CMAKE_${lang_type}_FLAGS "${CMAKE_${lang_type}_FLAGS}")
+         set(_saved_macro_flag "-D${CMAKE_MATCH_1}")
          set(log_value "")
        else()
-         string(REPLACE "-D${CMAKE_MATCH_1}=${saved_macro_value}" "${flag}" CMAKE_${lang_type}_FLAGS "${CMAKE_${lang_type}_FLAGS}")
+         set(_saved_macro_flag "-D${CMAKE_MATCH_1}=${saved_macro_value}")
          set(log_value "=${saved_macro_value}")
        endif()
-       set(CMAKE_${lang_type}_FLAGS  "${CMAKE_${lang_type}_FLAGS}" CACHE STRING "" FORCE)
+       if(MCUX_USE_TARGET_SCOPED_FLAGS)
+         _mcux_target_flags_replace(${type} "${_saved_macro_flag}" "${flag}")
+       else()
+         string(REPLACE "${_saved_macro_flag}" "${flag}" CMAKE_${lang_type}_FLAGS "${CMAKE_${lang_type}_FLAGS}")
+         set(CMAKE_${lang_type}_FLAGS  "${CMAKE_${lang_type}_FLAGS}" CACHE STRING "" FORCE)
+       endif()
        log_notice("Found duplication ${type} macro definition, use ${flag} to override previous -D${CMAKE_MATCH_1}${log_value}"
                ${CMAKE_CURRENT_LIST_FILE})
        # update property with the new value
@@ -2163,8 +2217,12 @@ function(mcux_append_single_compiler_flags_variable type flag)
               ${CMAKE_CURRENT_LIST_FILE})
       # use later one to overwrite the first one if found duplicated define with different value
       if(NOT "${_saved_config_def_flag}" STREQUAL "${flag}")
-        string(REPLACE "${_saved_config_def_flag}" "${flag}" CMAKE_${lang_type}_FLAGS "${CMAKE_${lang_type}_FLAGS}")
-        set(CMAKE_${lang_type}_FLAGS  "${CMAKE_${lang_type}_FLAGS}" CACHE STRING "" FORCE)
+        if(MCUX_USE_TARGET_SCOPED_FLAGS)
+          _mcux_target_flags_replace(${type} "${_saved_config_def_flag}" "${flag}")
+        else()
+          string(REPLACE "${_saved_config_def_flag}" "${flag}" CMAKE_${lang_type}_FLAGS "${CMAKE_${lang_type}_FLAGS}")
+          set(CMAKE_${lang_type}_FLAGS  "${CMAKE_${lang_type}_FLAGS}" CACHE STRING "" FORCE)
+        endif()
         log_notice("Found duplication ${type} config define, use ${flag} to override previous ${_saved_config_def_flag}"
                 ${CMAKE_CURRENT_LIST_FILE})
         mcux_set_property(MCUX_${type}_CONFIG_DEF_${_config_def_name} "${flag}")
@@ -2175,7 +2233,11 @@ function(mcux_append_single_compiler_flags_variable type flag)
       mcux_set_property(MCUX_${type}_CONFIG_DEF_${_config_def_name} "${flag}")
     endif()
   endif()
-  set(CMAKE_${lang_type}_FLAGS  "${CMAKE_${lang_type}_FLAGS} ${flag}" CACHE STRING "" FORCE)
+  if(MCUX_USE_TARGET_SCOPED_FLAGS)
+    _mcux_target_flags_append(${type} "${flag}")
+  else()
+    set(CMAKE_${lang_type}_FLAGS  "${CMAKE_${lang_type}_FLAGS} ${flag}" CACHE STRING "" FORCE)
+  endif()
 endfunction()
 
 #########################
@@ -2709,16 +2771,34 @@ function(remove_defined_linker)
     set(ld_pattern "--scatter .+\\.ld")
   endif()
 
-  set(linker_flag_str ${CMAKE_EXE_LINKER_FLAGS})
+  if(MCUX_USE_TARGET_SCOPED_FLAGS)
+    _mcux_target_flags_get_active(LD _ld_flags)
+    set(match)
+    foreach(_flag IN LISTS _ld_flags)
+      if("${_flag}" MATCHES "${ld_pattern}")
+        set(match "${_flag}")
+        break()
+      endif()
+    endforeach()
+    if(match)
+      _mcux_target_flags_remove_exact(LD "${match}")
+      mcux_clear_property(${MCUX_SDK_PROJECT_NAME}_LINKER_PATH)
+      log_debug("Remove linker flag ${match}" ${CMAKE_CURRENT_LIST_FILE} ${CMAKE_CURRENT_LIST_LINE})
+    else()
+      log_warn("Linker flag is not found" ${CMAKE_CURRENT_LIST_FILE} ${CMAKE_CURRENT_LIST_LINE})
+    endif()
+  else()
+    set(linker_flag_str ${CMAKE_EXE_LINKER_FLAGS})
 
-  string(REGEX MATCH "${ld_pattern}" match "${linker_flag_str}")
-  if (match)
-    string(REGEX REPLACE ${match} "" linker_flag_str ${linker_flag_str})
-    set(CMAKE_EXE_LINKER_FLAGS  "${linker_flag_str}" CACHE STRING "" FORCE)
-    log_debug("Remove linker flag ${match}" ${CMAKE_CURRENT_LIST_FILE} ${CMAKE_CURRENT_LIST_LINE})
-  else ()
-    log_warn("Linker flag is not found" ${CMAKE_CURRENT_LIST_FILE} ${CMAKE_CURRENT_LIST_LINE})
-  endif ()
+    string(REGEX MATCH "${ld_pattern}" match "${linker_flag_str}")
+    if (match)
+      string(REGEX REPLACE ${match} "" linker_flag_str ${linker_flag_str})
+      set(CMAKE_EXE_LINKER_FLAGS  "${linker_flag_str}" CACHE STRING "" FORCE)
+      log_debug("Remove linker flag ${match}" ${CMAKE_CURRENT_LIST_FILE} ${CMAKE_CURRENT_LIST_LINE})
+    else ()
+      log_warn("Linker flag is not found" ${CMAKE_CURRENT_LIST_FILE} ${CMAKE_CURRENT_LIST_LINE})
+    endif ()
+  endif()
 endfunction()
 
 # Usage:
