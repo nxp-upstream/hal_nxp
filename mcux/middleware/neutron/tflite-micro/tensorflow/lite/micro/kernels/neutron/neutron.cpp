@@ -85,12 +85,12 @@ TfLiteStatus Prepare(TfLiteContext* context, TfLiteNode* node) {
                            .weights = weights->data.data,
                            .kernels = kernels->data.data};
 
-  NeutronModelHandle hdl_mem = static_cast<NeutronModelHandle>(
-      context->AllocatePersistentBuffer(context, neutronGetModelContextSize()));
-  if (hdl_mem == nullptr) {
-    return kTfLiteError;
-  }
-  neutron->model_handle = hdl_mem;
+  /* Let the driver allocate the model handle from the heap.  NeutronDriver.h
+   * allows passing memory from the tensor arena instead, but this driver's
+   * neutronModelUnprepare() always free()s the handle, so an arena handle is
+   * handed to free() when the interpreter is deleted (heap corruption in
+   * MODEL_DeInit when an application switches models). */
+  neutron->model_handle = nullptr;
   error = neutronModelPrepare(&neutron->model_config, &neutron->model_handle);
 
   if (error != ENONE) {
