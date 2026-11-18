@@ -20,6 +20,15 @@
 #define FSL_MIPI_DSI_IDLE_TIMEOUT 0x1000U
 #endif
 
+/* fsl_reset.h defines MIPI_DSI_RSTS on devices that have a DSI reset line,
+ * so it has to be included before the check below. */
+#include "fsl_reset.h"
+
+#if defined(MIPI_DSI_RSTS)
+/* Reset line of each DSI instance, pulsed in DSI_Init(). */
+static const reset_ip_name_t s_dsiResets[] = MIPI_DSI_RSTS;
+#endif
+
 /* PLL CN should be in the range of 1 to 32. */
 #define DSI_DPHY_PLL_CN_MIN 1U
 #define DSI_DPHY_PLL_CN_MAX 32U
@@ -386,6 +395,11 @@ void DSI_Init(const MIPI_DSI_Type *base, const dsi_config_t *config)
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && (0 != FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL))
     (void)CLOCK_EnableClock(s_dsiClocks[DSI_GetInstance(base)]);
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
+
+#if defined(MIPI_DSI_RSTS)
+    /* Reset the DSI block before configuring it. */
+    RESET_PeripheralReset(s_dsiResets[DSI_GetInstance(base)]);
+#endif
 
     DSI2_HOST_Type *host = base->host;
 
@@ -1066,14 +1080,17 @@ status_t DSI_TransferBlocking(const MIPI_DSI_Type *base, dsi_transfer_t *xfer)
     {
     }
 
+    /* Drop stale host status from earlier transfers. */
+    DSI_ClearHostInterruptStatus(base, 0xFFFFFFFFU);
+
     status = DSI_PrepareApbTransfer(base, xfer);
 
     if (kStatus_Success == status)
     {
         DSI_SendApbPacket(base);
 
-        /* Wait until the live CFG_PKT_STATUS reaches TxDone(bit1)=1 AND idle (bit0)=0. */
-        while ((apb->CFG_PKT_STATUS & (uint32_t)(kDSI_ApbNotIdle | kDSI_ApbTxDone)) != (uint32_t)kDSI_ApbTxDone)
+        /* Wait for the packet state machine to return to idle. */
+        while (0U != (apb->CFG_PKT_STATUS & (uint32_t)kDSI_ApbNotIdle))
         {
         }
 

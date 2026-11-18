@@ -31,16 +31,25 @@ typedef struct {
   int outputs_index;
 } NeutronTfLiteConfig;
 
-static int driver_ref_count = 0;
+/* The driver is initialised once and never deinitialised.  neutronInit()
+ * loads the firmware into the NPU TCM, but neutronDeinit() does not stop the
+ * NPU (privateNeutronDeinit() is empty in this driver), so a second
+ * neutronInit() after the last interpreter was deleted writes to the TCM of a
+ * running NPU and takes a bus fault in load_firmware() - which is what an
+ * application switching models (delete one interpreter, create the next)
+ * does. */
+static bool driver_initialized = false;
 
 void* Init(TfLiteContext* context, const char* buffer, size_t length) {
   TFLITE_DCHECK(context->AllocatePersistentBuffer != nullptr);
 
-  if (driver_ref_count++ == 0) {
+  if (!driver_initialized) {
     NeutronError error = ENONE;
     error = neutronInit();
     if (error != ENONE) {
       MicroPrintf("Internal Neutron NPU driver error %x in init!", error);
+    } else {
+      driver_initialized = true;
     }
   }
 
@@ -76,12 +85,12 @@ TfLiteStatus Prepare(TfLiteContext* context, TfLiteNode* node) {
                            .weights = weights->data.data,
                            .kernels = kernels->data.data};
 
-  NeutronModelHandle hdl_mem = static_cast<NeutronModelHandle>(
-      context->AllocatePersistentBuffer(context, neutronGetModelContextSize()));
-  if (hdl_mem == nullptr) {
-    return kTfLiteError;
-  }
-  neutron->model_handle = hdl_mem;
+  /* Let the driver allocate the model handle from the heap.  NeutronDriver.h
+   * allows passing memory from the tensor arena instead, but this driver's
+   * neutronModelUnprepare() always free()s the handle, so an arena handle is
+   * handed to free() when the interpreter is deleted (heap corruption in
+   * MODEL_DeInit when an application switches models). */
+  neutron->model_handle = nullptr;
   error = neutronModelPrepare(&neutron->model_config, &neutron->model_handle);
 
   if (error != ENONE) {
@@ -170,13 +179,7 @@ void Free(TfLiteContext* context, void* buffer) {
     MicroPrintf("Internal Neutron NPU driver error %x in model unprepare!",
                 error);
   }
-
-  if (--driver_ref_count == 0) {
-    error = neutronDeinit();
-    if (error != ENONE) {
-      MicroPrintf("Internal Neutron NPU driver error %x in deinit!", error);
-    }
-  }
+  /* No neutronDeinit() here, see driver_initialized. */
 }
 
 }  // namespace
