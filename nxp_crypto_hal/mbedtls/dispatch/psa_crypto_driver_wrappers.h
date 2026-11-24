@@ -4621,6 +4621,24 @@ static inline psa_status_t psa_driver_wrapper_key_agreement(
                     return( status );
             }
 #endif /* MBEDTLS_PSA_P256M_DRIVER_ENABLED */
+#if defined(PSA_CRYPTO_DRIVER_CASPER) && defined(MBEDTLS_ECP_C)
+            if( PSA_KEY_TYPE_IS_ECC_KEY_PAIR( psa_get_key_type(attributes) ) &&
+                PSA_ALG_IS_ECDH(alg) &&
+                PSA_KEY_TYPE_ECC_GET_FAMILY(psa_get_key_type(attributes)) == PSA_ECC_FAMILY_SECP_R1 )
+            {
+                status = casper_psa_key_agreement_ecdh( attributes,
+                                                        key_buffer,
+                                                        key_buffer_size,
+                                                        alg,
+                                                        peer_key,
+                                                        peer_key_length,
+                                                        shared_secret,
+                                                        shared_secret_size,
+                                                        shared_secret_length );
+                if( status != PSA_ERROR_NOT_SUPPORTED )
+                    return( status );
+            }
+#endif /* PSA_CRYPTO_DRIVER_CASPER && MBEDTLS_ECP_C */
 #if defined(PSA_CRYPTO_DRIVER_ELS_PKC)
             status = els_pkc_transparent_key_agreement( attributes,
                                         key_buffer,
