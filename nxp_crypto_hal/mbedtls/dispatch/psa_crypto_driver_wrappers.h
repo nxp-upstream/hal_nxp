@@ -1332,7 +1332,7 @@ static inline psa_status_t psa_driver_wrapper_generate_key(
                 }
 
 #endif /* MBEDTLS_PSA_P256M_DRIVER_ENABLED */
-#if defined(PSA_CRYPTO_DRIVER_CASPER)
+#if defined(PSA_CRYPTO_DRIVER_CASPER) && defined(MBEDTLS_ECP_C)
                 if( PSA_KEY_TYPE_IS_ECC( psa_get_key_type(attributes) ) &&
                     PSA_KEY_TYPE_ECC_GET_FAMILY(psa_get_key_type(attributes)) == PSA_ECC_FAMILY_SECP_R1 &&
                     (
