@@ -17,7 +17,7 @@
 
 void mbedtls_alt_mutex_init(mbedtls_threading_mutex_t *mutex)
 {
-    //k_mutex_init(&mutex->mutex);
+    k_mutex_init(&mutex->mutex);
     mutex->is_valid = 1;
 }
 
@@ -35,7 +35,7 @@ int mbedtls_alt_mutex_lock(mbedtls_threading_mutex_t *mutex)
 
     if (mutex->is_valid == 1)
     {
-        //k_mutex_lock(&mutex->mutex, K_FOREVER);
+        k_mutex_lock(&mutex->mutex, K_FOREVER);
         ret = 0;
     }
     return ret;
@@ -47,7 +47,7 @@ int mbedtls_alt_mutex_unlock(mbedtls_threading_mutex_t *mutex)
 
     if (mutex->is_valid == 1)
     {
-        //k_mutex_unlock(&mutex->mutex);
+        k_mutex_unlock(&mutex->mutex);
         ret = 0;
     }
     return ret;

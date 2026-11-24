@@ -15,7 +15,7 @@
  */
 int mcux_mutex_init(mcux_mutex_t *mutex)
 {
-    //k_mutex_init(mutex);
+    k_mutex_init(mutex);
     return 0;
 }
 
@@ -35,7 +35,7 @@ int mcux_mutex_free(mcux_mutex_t *mutex)
  */
 int mcux_mutex_lock(mcux_mutex_t *mutex)
 {
-    //k_mutex_lock(mutex, K_FOREVER);
+    k_mutex_lock(mutex, K_FOREVER);
     return 0;
 }
 
@@ -46,7 +46,7 @@ int mcux_mutex_lock(mcux_mutex_t *mutex)
  */
 int mcux_mutex_unlock(mcux_mutex_t *mutex)
 {
-    //k_mutex_unlock(mutex);
+    k_mutex_unlock(mutex);
     return 0;
 }
 #endif /* PSA_CRYPTO_DRIVER_THREAD_EN */
