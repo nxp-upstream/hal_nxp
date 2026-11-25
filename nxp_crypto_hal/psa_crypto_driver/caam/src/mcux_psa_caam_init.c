@@ -7,6 +7,10 @@
 
 #include "mcux_psa_caam_init.h" /* CAAM Crypto port layer */
 
+#if defined(__ZEPHYR__)
+#include <zephyr/linker/sections.h>
+#endif
+
 #ifdef PSA_CAAM_SECURE_STORAGE
 #include "secure_storage.h"
 #endif
@@ -28,7 +32,11 @@ mcux_mutex_t caam_hwcrypto_mutex;
 /* it is recommended to move JR interfaces to non-cahed memory, rather than invalidate */
 /* them before retrieving output ring data  */
 /*! @brief CAAM job ring interface 0 in system memory. */
+#if defined(__ZEPHYR__)
+static caam_job_ring_interface_t s_jrif0 __nocache;
+#else
 AT_NONCACHEABLE_SECTION(static caam_job_ring_interface_t s_jrif0);
+#endif
 // /*! @brief CAAM job ring interface 1 in system memory. */
 // AT_NONCACHEABLE_SECTION(static caam_job_ring_interface_t s_jrif1);
 // /*! @brief CAAM job ring interface 2 in system memory. */
